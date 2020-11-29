@@ -1,3 +1,3 @@
 This project was created to illustrate an approximation algorithm for the Traveling-Salesman-Problem.
 
-![Architecture](https://ibb.co/bNRG0WW)
+![Architecture](https://i.ibb.co/dkJHTWW/IMG-1190.jpg)
