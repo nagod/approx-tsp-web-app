@@ -10,4 +10,16 @@ class Edge {
         return Math.sqrt(u+v)
     }
 
+    getU(){
+        return self.u
+    }
+
+    getV(){
+        return self.v
+    }
+
+    getLength(){
+        return self.length
+    }
+
 }
