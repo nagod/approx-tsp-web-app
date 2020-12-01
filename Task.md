@@ -7,14 +7,14 @@
 
 - [ ] RightClick
 - [ ] onClickNode
-- [ ]onClickNode
-- [ ]onRightClickNode
-- [ ]onDoubleClickNode
-- [ ]onClickGraph
-- [ ]onClickLink
-- [ ]onRightClickLink
-- [ ]onMouseOverNode
-- [ ]onMouseOutNode
-- [ ]onMouseOverLink
-- [ ]onMouseOutLink
-- [ ]onNodePositionChange
+- [ ] onClickNode
+- [ ] onRightClickNode
+- [ ] onDoubleClickNode
+- [ ] onClickGraph
+- [ ] onClickLink
+- [ ] onRightClickLink
+- [ ] onMouseOverNode
+- [ ] onMouseOutNode
+- [ ] onMouseOverLink
+- [ ] onMouseOutLink
+- [ ] onNodePositionChange
