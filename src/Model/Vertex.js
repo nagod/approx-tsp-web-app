@@ -23,7 +23,7 @@ class Vertex {
   }
 
   hasIncidentEdges() {
-    return this.incidentEdges.length == 0 ? false : true;
+    return this.incidentEdges.length === 0 ? false : true;
   }
 
   // Check if throwing a string is the right thing to do here
