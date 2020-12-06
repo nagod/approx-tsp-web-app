@@ -2,11 +2,8 @@
 // ViewController of main module. Inhibits all views and notifies the presenter of any event.
 //
 
-
-
-
-
 import React from "react"
+import Canvas from "../View/Canvas"
 import Button from "../View/Button"
 import MainPresenter from "../Presenter/MainPresenter"
 
@@ -47,9 +44,10 @@ export default class MainViewController extends React.Component {
 
         return(
             <div>
-                <Button label="Turn Red" handleButtonClicked={this.handleTurnRedButtonClicked}/>
+                <Button label="Turn Red" handleButtonClicked={this.handleTurnRedButtonClicked} />
                 <Button label="Turn Blue" handleButtonClicked={this.handleTurnBlueButtonClicked} />
-                <h1 id="blackText">black text</h1>
+                <Canvas />
+                <h1 id="blackText">after canvas</h1>
             </div>
         )
     }

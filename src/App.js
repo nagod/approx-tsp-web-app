@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+
 import './App.css';
 import MainViewContoller from './ViewController/MainViewContoller';
 
