@@ -4,21 +4,36 @@
 // Services i.e. reading files, fetching data and so on.
 //
 
-export default class MainPresenter{
+import Graph from "../Model/Graph";
+import FileService from "../Services/FileService";
 
-    constructor(viewController){
-        this.viewController = viewController
-        this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(this)
-        this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(this)
-    }
+export default class MainPresenter {
+  constructor(viewController) {
+    this.graph = null;
+    this.viewController = viewController;
+    this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(
+      this
+    );
+    this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(
+      this
+    );
+    this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(
+      this
+    );
+  }
 
-    handleTurnRedButtonClicked(){
-        this.viewController.turnViewRed()
-    }
+  handleTurnRedButtonClicked() {
+    this.viewController.turnViewRed();
+  }
 
-    handleTurnBlueButtonClicked(){
-        this.viewController.turnViewBlue()
-    }
+  handleTurnBlueButtonClicked() {
+    this.viewController.turnViewBlue();
+  }
 
-
+  //Read Data
+  handleReadDataButtonClicked() {
+    const file = "../Ressources/Examples/Beispiel1(7).txt";
+    const data = FileService.readFileAsText(file);
+    console.log(typeof data);
+  }
 }

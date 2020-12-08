@@ -1,80 +1,89 @@
-import React from "react"
-import Config from "../App/Config"
-import './Stylesheets/Canvas.css'
+import React from "react";
+import Config from "../App/Config";
+import "./Stylesheets/Canvas.css";
 
-export default class Canvas extends React.Component{
+export default class Canvas extends React.Component {
+  // use lifecycle method to assign property canvas, cant add Event Listener if DOM is not loaded yet
+  constructor() {
+    super();
+    this.setupEventListeners = this.setupEventListeners.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.drawCircleAt = this.drawCircleAt.bind(this);
+    this.VertexList = [{}];
+  }
 
+  // Lifecycle functions
+  componentDidMount() {
+    this.setupCanvas();
+    this.setupEventListeners();
+  }
 
-    // use lifecycle method to assign property canvas, cant add Event Listener if DOM is not loaded yet
-    constructor(){
-        super()
-        //this.setupEventListeners = this.setupEventListeners.bind(this)
-        this.handleMouseDown = this.handleMouseDown.bind(this)
-        this.handleMouseUp = this.handleMouseUp.bind(this)
-        this.handleMouseMove = this.handleMouseMove.bind(this)
-        this.drawCircleAt = this.drawCircleAt.bind(this)
-    }
+  // Setting up
+  setupCanvas() {
+    this.canvas = document.getElementById("mainCanvas");
+    this.ctx = this.canvas.getContext("2d");
 
-    // Lifecycle functions
+    this.ctx.fillStyle = "green";
+    this.ctx.fillRect(250, 250, 30, 30);
+  }
 
-    componentDidMount(){
-        console.log("CanvasComponentDidMount")
-        this.setupCanvas()
-        this.setupEventListeners()
-    }
-    
-    // Setting up
+  setupEventListeners() {
+    this.canvas.addEventListener("mousedown", this.handleMouseDown);
+    this.canvas.addEventListener("mousemove", this.handleMouseMove);
+    this.canvas.addEventListener("mouseup", this.handleMouseUp);
+  }
 
-    setupCanvas(){
-        this.canvas = document.getElementById("mainCanvas")
-        this.ctx = this.canvas.getContext("2d")
-    }
+  // Events
+  handleMouseDown(event) {
+    var mousePos = this.getMousePosition(event, this.canvas);
+    this.drawCircleAt(mousePos.x, mousePos.y, Config.circleRadius);
 
-    setupEventListeners(){
-        console.log(this.canvas)
-        this.canvas.addEventListener("mousedown", this.handleMouseDown)
-        this.canvas.addEventListener("mousemove", this.handleMouseMove)
-        this.canvas.addEventListener("mouseup", this.handleMouseUp)
-    }
+    this.VertexList.forEach((element) => console.log(element));
+  }
 
-    // Functions
+  handleMouseUp(event) {
+    //var mousePos = this.getMousePosition(event, this.canvas);
+    //console.log("recognized mouse up event at", mousePos);
+  }
 
-    getMousePosition(event, canvas) {
-        var rect = canvas.getBoundingClientRect()
-        return {
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top
-        }
-    }
+  handleMouseMove(event) {
+    //var mousePos = this.getMousePosition(event, this.canvas);
+    //console.log("regognized mouse move event to", mousePos);
+  }
 
-    drawCircleAt(xPos, yPos, radius){
-        this.ctx.beginPath()
-        this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI)
-        this.ctx.stroke()
-    }
+  // Functions
+  getMousePosition(event, canvas) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
 
-    // Events
+  drawCircleAt(xPos, yPos, radius) {
+    this.ctx.beginPath();
+    this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
+    this.ctx.stroke();
+    this.ctx.closePath();
 
-    handleMouseDown(event){
-        var mousePos = this.getMousePosition(event, this.canvas)
-        this.drawCircleAt(mousePos.x, mousePos.y, Config.circleRadius)
-    }
+    this.VertexList.push({
+      xPos: xPos,
+      yPos: yPos,
+    });
+  }
 
-    handleMouseUp(event){
-        var mousePos = this.getMousePosition(event, this.canvas)
-        console.log("recognized mouse up event at", mousePos)
-    }
+  // Rendering
 
-    handleMouseMove(event){
-        var mousePos = this.getMousePosition(event, this.canvas)
-        //console.log("regognized mouse move event to", mousePos)
-    }
-
-    // Rendering
-
-    render(){
-        return (
-            <canvas id="mainCanvas" className="mainCanvas" width="500" height="500"></canvas>
-        )
-    }
+  render() {
+    return (
+      <canvas
+        id="mainCanvas"
+        className="mainCanvas"
+        width="500"
+        height="500"
+      ></canvas>
+    );
+  }
 }

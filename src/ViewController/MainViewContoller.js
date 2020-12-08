@@ -1,55 +1,72 @@
 //
-// ViewController of main module. Inhibits all views and notifies the presenter of any event.
+// ViewController of main module.
+// Inhibits all views and notifies the presenter of any event.
 //
 
-import React from "react"
-import Canvas from "../View/Canvas"
-import Button from "../View/Button"
-import MainPresenter from "../Presenter/MainPresenter"
+import React from "react";
+import Canvas from "../View/Canvas";
+import Button from "../View/Button";
+import MainPresenter from "../Presenter/MainPresenter";
 
 export default class MainViewController extends React.Component {
+  constructor() {
+    super();
+    this.presenter = new MainPresenter(this); // Presenter takes care of app logic
 
-    constructor(){
+    // Bind this to function so that "this" refers to this object
+    this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(
+      this
+    );
+    this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(
+      this
+    );
+    this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(
+      this
+    );
+  }
 
-        super()
-        this.presenter = new MainPresenter(this) // Presenter takes care of app logic
+  // Handling events
 
-        // Bind this to function so that "this" refers to this object
-        this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(this)
-        this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(this)
-    }
+  handleTurnRedButtonClicked() {
+    this.presenter.handleTurnRedButtonClicked();
+  }
 
-    // Handling events
+  handleTurnBlueButtonClicked() {
+    this.presenter.handleTurnBlueButtonClicked();
+  }
 
-    handleTurnRedButtonClicked(){
-        this.presenter.handleTurnRedButtonClicked()
-    }
+  handleReadDataButtonClicked() {
+    this.presenter.handleReadDataButtonClicked();
+  }
 
-    handleTurnBlueButtonClicked(){
-        this.presenter.handleTurnBlueButtonClicked()
-    }
+  // Changing the View Functions
 
+  turnViewRed() {
+    document.getElementById("blackText").style.color = "red";
+  }
 
-    // Changing the View Functions
+  turnViewBlue() {
+    document.getElementById("blackText").style.color = "blue";
+  }
 
-    turnViewRed(){
-        document.getElementById("blackText").style.color = "red"
-    }
-
-    turnViewBlue(){
-        document.getElementById("blackText").style.color = "blue"
-    }
-
-    render() {
-
-        return(
-            <div>
-                <Button label="Turn Red" handleButtonClicked={this.handleTurnRedButtonClicked} />
-                <Button label="Turn Blue" handleButtonClicked={this.handleTurnBlueButtonClicked} />
-                <Canvas />
-                <h1 id="blackText">after canvas</h1>
-            </div>
-        )
-    }
-
+  render() {
+    return (
+      <div>
+        <Button
+          label="Turn Red"
+          handleButtonClicked={this.handleTurnRedButtonClicked}
+        />
+        <Button
+          label="Turn Blue"
+          handleButtonClicked={this.handleTurnBlueButtonClicked}
+        />
+        <Button
+          label="Read Data"
+          handleButtonClicked={this.handleReadDataButtonClicked}
+        />
+        <Canvas />
+        <h1 id="blackText">after canvas</h1>
+      </div>
+    );
+  }
 }
