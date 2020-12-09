@@ -1,4 +1,4 @@
-class Graph {
+export default class Graph {
   constructor() {
     this.vertices = [];
     this.edges = [];

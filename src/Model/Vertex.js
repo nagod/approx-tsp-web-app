@@ -1,5 +1,6 @@
-class Vertex {
-  constructor(xPos, yPos) {
+export default class Vertex {
+  constructor(id, xPos, yPos) {
+    this.id = id;
     this.xPos = xPos;
     this.yPos = yPos;
     this.incidentEdges = [];
