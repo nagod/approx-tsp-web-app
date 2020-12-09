@@ -31,9 +31,5 @@ export default class MainPresenter {
   }
 
   //Read Data
-  handleReadDataButtonClicked() {
-    const file = "../Ressources/Examples/Beispiel1(7).txt";
-    const data = FileService.readFileAsText(file);
-    console.log(typeof data);
-  }
+  handleReadDataButtonClicked() {}
 }
