@@ -1,6 +1,4 @@
-
-import './App.css';
-import MainViewController from './ViewController/MainViewController';
+import MainViewController from '../ViewController/MainViewController';
 
 function App() {
     return (

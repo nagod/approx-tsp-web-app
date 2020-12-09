@@ -128,17 +128,18 @@ export default class Graph {
     // Returns a subset of the graphs vertices that build the convex hull.
     // The algoithms name is "Graham Scan"
     calculateConvexHull() {
-        let points = this.sortVerticesByYPos();
+        this.sortVerticesByYPos();
+        let points = [...this.vertices]
         // Catch special case where two points share the same y-coordinate.
         // We want to set the leftmost as P0
         let p0 = points.shift();
         let sortedPoints = this.sortVerticesByPolarAnglesWithVertex(
             p0,
-            sortedPoints
+            points
         );
         sortedPoints.unshift(p0);
         let stack = [];
-        for (let point in sortedPoints) {
+        for (let point of sortedPoints) {
             while (
                 stack.length > 1 &&
                 this.counterclockwise(

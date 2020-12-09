@@ -2,8 +2,8 @@
 // Config class
 //
 
-var Config = {
-    circleRadius: 20
+const Config = {
+    circleRadius: 10
 }
 
 export default Config
