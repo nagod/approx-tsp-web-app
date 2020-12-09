@@ -1,4 +1,7 @@
 const fs = require('fs');
+//import Math, { euclideanDistance2D } from "../Extensions/MathExtension"
+import * as hi from "../Extensions/MathExtension"
+//import Math from "../Extensions/MathExtension"
 // const { normalize } = require('path');
 // Proper way to copy an array in Javascript
 /*var array  = [1, 2, 3]
@@ -6,6 +9,7 @@ var result = [...array]
 result.pop()
 console.log(array)
 console.log(result)*/
+
 
 function calculatePolarAngle(p0, vertex) {
     console.log("calulatepolaarangle")
@@ -32,12 +36,12 @@ function calculatePolarAngle(p0, vertex) {
 function dotProduct2D(x, y) {
     return x.xPos * y.xPos + x.yPos * y.yPos
 }
-function euclideanDistance2D(x, y = { xPos: 0, yPos: 0 }) {
+/*function euclideanDistance2D(x, y = { xPos: 0, yPos: 0 }) {
     return Math.sqrt(Math.pow(x.xPos - y.yPos, 2) + Math.pow(x.yPos - y.yPos, 2))
-}
+}*/
 
 function normalize(x) {
-    var length = euclideanDistance2D(x)
+    var length = hi.euclideanDistance2D(x)
     if (length === 0) {
         return x
     } else {
