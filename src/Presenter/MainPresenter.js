@@ -5,7 +5,8 @@
 //
 
 import Graph from "../Model/Graph";
-import Vertex from "../Model/Vertex";
+import FileService from "../Services/FileService";
+//const ex = require("../Resources/Examples/Examples");
 export default class MainPresenter {
   constructor(viewController) {
     this.graph = null;
@@ -31,15 +32,7 @@ export default class MainPresenter {
 
   //Read Data
   handleReadDataButtonClicked() {
-    const input = require("../Resources/Examples/data.json");
-    let graph = new Graph();
-    input.forEach((data) => {
-      let id = data[0];
-      let xPos = data[1];
-      let yPos = data[2];
-      let vertex = new Vertex(id, xPos, yPos);
-      console.log(vertex[0]);
-      //graph.makeGraphFromVertices(vertex);
-    });
+    const data = FileService.getExampleByKey("example01");
+    this.graph = Graph.makeGraphFromVertices(data);
   }
 }
