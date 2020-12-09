@@ -23,6 +23,8 @@ export default class MainViewController extends React.Component {
     this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(
       this
     );
+    this.drawGraph = this.drawGraph.bind(this);
+    this.printGraph = this.printGraph.bind(this)
   }
 
   // Handling events
@@ -49,6 +51,16 @@ export default class MainViewController extends React.Component {
     document.getElementById("blackText").style.color = "blue";
   }
 
+  drawGraph() {
+  }
+
+  printGraph() {
+    //this.presenter.printGraph()
+    console.log(this.presenter.getGraph());
+  }
+
+
+
   render() {
     return (
       <div>
@@ -64,7 +76,11 @@ export default class MainViewController extends React.Component {
           label="Read Data"
           handleButtonClicked={this.handleReadDataButtonClicked}
         />
-        <Canvas />
+        <Button
+          label="Print Data"
+          handleButtonClicked={this.printGraph}
+        />
+        <Canvas viewController={this} />
         <h1 id="blackText">after canvas</h1>
       </div>
     );

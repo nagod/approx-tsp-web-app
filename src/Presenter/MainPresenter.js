@@ -9,7 +9,7 @@ import FileService from "../Services/FileService";
 //const ex = require("../Resources/Examples/Examples");
 export default class MainPresenter {
     constructor(viewController) {
-        this.graph = null;
+        this.graph = new Graph();
         this.viewController = viewController;
         this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(
             this
@@ -20,6 +20,9 @@ export default class MainPresenter {
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(
             this
         );
+        this.getGraph = this.getGraph.bind(this);
+        this.drawGraph = this.drawGraph.bind(this);
+        this.printGraph = this.printGraph.bind(this)
     }
 
     handleTurnRedButtonClicked() {
@@ -30,10 +33,23 @@ export default class MainPresenter {
         this.viewController.turnViewBlue();
     }
 
+    getGraph() {
+        return this.graph;
+    }
+
+    printGraph() {
+        console.log(this.graph)
+    }
+
+
     // TODO: Make dropdown, rename function and accept string to select example value
     //Read Data
     handleReadDataButtonClicked() {
-        const data = FileService.getExampleByKey("example01");
-        this.graph = Graph.makeGraphFromVertices(data);
+        const data = FileService.getExampleByKey("example03");
+        this.graph.makeGraphFromData(data);
+    }
+
+    drawGraph() {
+        this.viewController.drawGraph();
     }
 }

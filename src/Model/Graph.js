@@ -11,6 +11,9 @@ export default class Graph {
         this.sortVerticesByXPos = this.sortVerticesByXPos.bind(this);
         this.sortVerticesByYPos = this.sortVerticesByYPos.bind(this);
         this.calculateConvexHull = this.calculateConvexHull.bind(this);
+        this.addVertex = this.addVertex.bind(this);
+        this.addVertexFromData = this.addVertexFromData.bind(this)
+        this.makeGraphFromData = this.makeGraphFromData.bind(this);
     }
     // Probably need to write some setter
     // vertices is an array. Need to write it for a single vertex?
@@ -19,19 +22,26 @@ export default class Graph {
      * @param {Array} vertices
      * @return {Graph}
      */
-    addVertex(vertex, graph) {
-        const { id, xPos, yPos } = vertex;
-        graph.vertices.push(new Vertex(id, xPos, yPos));
+
+    addVertex(vertex) {
+        this.vertices.push(vertex)
     }
 
-    static makeGraphFromVertices(vertices) {
-        let graph = new Graph();
+    addVertexFromData(id, xPos, yPos) {
+        /*console.log(vertex)
+        const { id, xPos, yPos } = vertex;*/
+        console.log(id, xPos, yPos, "will be added to Graph")
+        this.vertices.push(new Vertex(id, xPos, yPos));
+    }
+
+    makeGraphFromData(vertices) {
         vertices.forEach((vertex) => {
-            graph.addVertex(vertex, graph);
+            this.addVertex(vertex);
         });
 
-        return graph;
+        return this;
     }
+
     hasVertices() {
         return this.vertices.length > 0 ? true : false;
     }

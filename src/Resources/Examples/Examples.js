@@ -5,6 +5,9 @@ const Examples = {
     example02: {
         data: require("./example02.json"),
     },
+    example03: {
+        data: require("./mediumExample.json")
+    }
 };
 
 export default Examples
