@@ -1,3 +1,4 @@
+import Vertex from "./Vertex";
 export default class Graph {
   constructor() {
     this.vertices = [];
@@ -18,11 +19,15 @@ export default class Graph {
    * @param {Array} vertices
    * @return {Graph}
    */
+  addVertex(vertex, graph) {
+    const { id, xPos, yPos } = vertex;
+    graph.vertices.push(new Vertex(id, xPos, yPos));
+  }
+
   static makeGraphFromVertices(vertices) {
     let graph = new Graph();
-
     vertices.forEach((vertex) => {
-      graph.vertices.push(vertex);
+      graph.addVertex(vertex, graph);
     });
 
     return graph;
