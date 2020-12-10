@@ -1,23 +1,34 @@
 export default class Edge {
-  constructor(u, v) {
-    this.u = u;
-    this.v = v;
-    this.lenth = this.calculateLength(this.u, this.v);
-  }
-  // edit
-  calculateLength(u, v) {
-    return Math.sqrt(u + v);
-  }
-
-  getU() {
-    return this.u;
+  /**
+   * 
+   * @param {Vertex} vertex1 
+   * @param {Vertex} vertex2 
+   */
+  constructor(vertex1, vertex2) {
+    this.vertexOne = vertex1;
+    this.vertexTwo = vertex2;
+    this.length = this.calculateLength(this.u, this.v);
   }
 
-  getV() {
-    return this.v;
+  calculateLength(vertexOne, vertexTwo) {
+    return Math.euclideanDistance2D(vertexOne, vertexTwo)
+  }
+
+  getVertexOne() {
+    return this.vertexOne;
+  }
+
+  getVertexTwo() {
+    return this.vertexTwo;
   }
 
   getLength() {
     return this.length;
+  }
+  setVertexOne(vertex) {
+    this.vertexOne = vertex
+  }
+  setVertexTwo(vertex) {
+    this.vertexTwo = vertex
   }
 }
