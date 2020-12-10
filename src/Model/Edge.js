@@ -7,7 +7,7 @@ export default class Edge {
   constructor(vertex1, vertex2) {
     this.vertexOne = vertex1;
     this.vertexTwo = vertex2;
-    this.length = this.calculateLength(this.u, this.v);
+    //this.length = this.calculateLength(this.vertexOne, this.vertexTwo);
   }
 
   calculateLength(vertexOne, vertexTwo) {
