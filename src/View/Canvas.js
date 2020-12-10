@@ -15,7 +15,6 @@ export default class Canvas extends React.Component {
         this.printGraph = this.printGraph.bind(this);
         this.highlightConvexHull = this.highlightConvexHull.bind(this)
     }
-
     // Lifecycle functions
     componentDidMount() {
         this.setupCanvas();

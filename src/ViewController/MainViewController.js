@@ -23,7 +23,6 @@ export default class MainViewController extends React.Component {
     this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(
       this
     );
-    this.drawGraph = this.drawGraph.bind(this);
     this.printGraph = this.printGraph.bind(this)
   }
 
@@ -50,16 +49,10 @@ export default class MainViewController extends React.Component {
   turnViewBlue() {
     document.getElementById("blackText").style.color = "blue";
   }
-
-  drawGraph() {
-  }
-
   printGraph() {
     //this.presenter.printGraph()
     console.log(this.presenter.getGraph());
   }
-
-
 
   render() {
     return (
