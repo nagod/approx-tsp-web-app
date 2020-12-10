@@ -1,4 +1,5 @@
 import Vertex from "./Vertex";
+import Edge from "./Edge";
 export default class Graph {
     constructor() {
         this.vertices = [];
@@ -12,8 +13,9 @@ export default class Graph {
         this.sortVerticesByYPos = this.sortVerticesByYPos.bind(this);
         this.calculateConvexHull = this.calculateConvexHull.bind(this);
         this.addVertex = this.addVertex.bind(this);
-        this.addVertexFromData = this.addVertexFromData.bind(this)
+        this.addVertexFromData = this.addVertexFromData.bind(this);
         this.makeGraphFromData = this.makeGraphFromData.bind(this);
+        this.connectConvexHull = this.connectConvexHull.bind(this);
     }
     // Probably need to write some setter
     // vertices is an array. Need to write it for a single vertex?
@@ -28,9 +30,6 @@ export default class Graph {
     }
 
     addVertexFromData(id, xPos, yPos) {
-        /*console.log(vertex)
-        const { id, xPos, yPos } = vertex;*/
-        console.log(id, xPos, yPos, "will be added to Graph")
         this.vertices.push(new Vertex(id, xPos, yPos));
     }
 
@@ -164,5 +163,20 @@ export default class Graph {
         }
         // Stack contains the convex hull points starting with p0 in counter clockwise orientation
         return stack;
+    }
+    // For testing, if draw edges Works
+    connectConvexHull() {
+        let convexHull = this.calculateConvexHull();
+        for (let i = 0; i < convexHull.length; i++) {
+            if (i === convexHull.length - 1) {
+                let currentVertex1 = convexHull[i];
+                let nextVertex1 = convexHull[0];
+                this.edges.push(new Edge(currentVertex1, nextVertex1));
+                break;
+            }
+            let currentVertex = convexHull[i];
+            let nextVertex = convexHull[i + 1];
+            this.edges.push(new Edge(currentVertex, nextVertex));
+        }
     }
 }
