@@ -1,7 +1,10 @@
 import Vertex from "./Vertex";
 import Edge from "./Edge";
-export default class Graph {
+import Observable from "../Architecture/Observable";
+
+export default class Graph extends Observable {
     constructor() {
+        super()
         this.vertices = [];
         this.edges = [];
         this.hasVertices = this.hasVertices.bind(this);
@@ -21,16 +24,29 @@ export default class Graph {
     // vertices is an array. Need to write it for a single vertex?
 
     /**
+     *  Extends the Observable class.
+     *  Existing notification identifiers:
+     * - "vertexAddedNotification"
+     * - "vertexDeletedNotification"
+     * - "edgeAddedNotification"
+     * - "edgeDeletedNotification"
+    */
+
+
+    /**
      * @param {Array} vertices
      * @return {Graph}
      */
 
     addVertex(vertex) {
         this.vertices.push(vertex)
+        this.notify("vertexAddedNotification", vertex)
     }
 
     addVertexFromData(id, xPos, yPos) {
-        this.vertices.push(new Vertex(id, xPos, yPos));
+        const vertex = new Vertex(id, xPos, yPos)
+        this.vertices.push(vertex);
+        this.notify("vertexAddedNotification", vertex)
     }
 
     makeGraphFromData(vertices) {
@@ -164,6 +180,7 @@ export default class Graph {
         // Stack contains the convex hull points starting with p0 in counter clockwise orientation
         return stack;
     }
+
     // For testing, if draw edges Works
     connectConvexHull() {
         let convexHull = this.calculateConvexHull();

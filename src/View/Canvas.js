@@ -2,6 +2,8 @@ import React from "react";
 import Config from "../App/Config";
 import "./Stylesheets/Canvas.css";
 
+// Should implement notify function to be observer
+
 export default class Canvas extends React.Component {
     // use lifecycle method to assign property canvas, cant add Event Listener if DOM is not loaded yet
     constructor(props) {
@@ -19,6 +21,11 @@ export default class Canvas extends React.Component {
     componentDidMount() {
         this.setupCanvas();
         this.setupEventListeners();
+        this.subscribe()
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe()
     }
 
     // Setting up
@@ -34,13 +41,21 @@ export default class Canvas extends React.Component {
         this.canvas.addEventListener("contextmenu", this.handleLeftMouseDown);
     }
 
+    subscribe() {
+        this.viewController.presenter.graph.subscribe(this)
+    }
+
+    unsubscribe() {
+        this.viewController.presenter.graph.unsubscribe(this)
+    }
+
     // Events
 
     handleMouseDown(event) {
         var mousePos = this.getMousePosition(event, this.canvas);
         this.viewController.presenter.graph.addVertexFromData(this.viewController.presenter.graph.vertices.length + 1, mousePos.x, mousePos.y)
         // delete draw
-        this.drawCircleAt(mousePos.x, mousePos.y, Config.circleRadius);
+        // this.drawCircleAt(mousePos.x, mousePos.y, Config.circleRadius);
     }
 
     handleMouseUp(event) {
@@ -57,6 +72,50 @@ export default class Canvas extends React.Component {
         alert("Left click is working")
     }
 
+    // Notifications
+
+    notify(identifier, data) {
+        console.log("received notification with data: ", data)
+        switch (identifier) {
+            case "vertexAddedNotification":
+                this.handleVertexAddedNotification(data)
+                break
+            case "vertexDeletedNotification":
+                this.handleVertexDeletedNotification(data)
+                break
+            case "edgeAddedNotification":
+                this.handleEdgeAddedNotification(data)
+                break
+            case "edgeDeletedNotification":
+                this.handleEdgeDeletedNotification(data)
+                break
+            default:
+                console.log("Could not identify notification identifier with data", data)
+                break
+        }
+    }
+
+    handleVertexAddedNotification(data) {
+        // do something
+        console.log("received new vertex added notification")
+        this.drawCircleAt(data.xPos, data.yPos)
+    }
+
+    handleVertexDeletedNotification(data) {
+        // do something
+        console.log("received new vertex deleted notification")
+    }
+
+    handleEdgeAddedNotification(data) {
+        // do something
+        console.log("received new edge added notification")
+    }
+
+    handleEdgeDeletedNotification(data) {
+        // do something
+        console.log("received new edge deleted notification")
+    }
+
     // Functions
     getMousePosition(event, canvas) {
         var rect = canvas.getBoundingClientRect();
@@ -66,7 +125,7 @@ export default class Canvas extends React.Component {
         };
     }
 
-    drawCircleAt(xPos, yPos, radius, color) {
+    drawCircleAt(xPos, yPos, radius = Config.circleRadius, color = Config.defaultVertexColor) {
         this.ctx.beginPath();
         this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = color
@@ -75,7 +134,7 @@ export default class Canvas extends React.Component {
         this.ctx.closePath();
     }
 
-    drawEdgeBetweenPoints(x1Pos, y1Pos, x2Pos, y2Pos, color = Config.edegeDefaultColor) {
+    drawEdgeBetweenPoints(x1Pos, y1Pos, x2Pos, y2Pos, color = Config.defaultEdgeColor) {
         this.ctx.beginPath();
         this.ctx.strokeStyle = color;
         this.ctx.lineTo(x1Pos, y1Pos);
@@ -91,20 +150,24 @@ export default class Canvas extends React.Component {
     printGraph() {
         try {
             this.viewController.presenter.graph.vertices.forEach(vertex => {
-                this.drawCircleAt(vertex.xPos, vertex.yPos, Config.circleRadius, Config.standardColor)
+                this.drawCircleAt(vertex.xPos, vertex.yPos)
             })
         } catch (error) {
             console.log(error.message)
         }
     }
 
+
+    // Function maybe too specific?
     highlightConvexHull() {
         try {
+            this.viewController.presenter.graph.notify("hello")
             const set = this.viewController.presenter.graph.calculateConvexHull()
             set.forEach(vertex => {
                 this.drawCircleAt(vertex.xPos, vertex.yPos, Config.circleRadius, "red")
             })
             //TESTING Code for Edges
+            // Comment: Please try to push only clean code
             this.viewController.presenter.graph.connectConvexHull();
             this.viewController.presenter.graph.edges.forEach(element => {
                 this.drawEdgeBetweenVertices(element)
