@@ -76,6 +76,14 @@ export default class Graph extends Observable {
         return this.vertices[index];
     }
 
+    getVertexWithID(id) {
+        return this.vertices.find(x => x.id === id)
+    }
+
+    getVertexIndexWithId(id) {
+        return this.vertices.findIndex(x => x.id === id)
+    }
+
     sortVerticesByXPos() {
         //TODO: Implement error handling if
         return this.vertices.sort((x, y) => x.xPos - y.xPos);

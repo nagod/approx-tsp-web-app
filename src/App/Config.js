@@ -4,8 +4,9 @@
 
 const Config = {
     circleRadius: 10,
-    defaultVertexColor: "blue",
-    defaultEdgeColor: "black"
+    defaultVertexColor: "SteelBlue",
+    defaultVertexBorderColor: "DarkSlateGray",
+    defaultEdgeColor: "LightSlateGray"
 }
 
 export default Config
