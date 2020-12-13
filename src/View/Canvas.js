@@ -38,7 +38,7 @@ export default class Canvas extends React.Component {
         this.canvas.addEventListener("mousedown", this.handleMouseDown);
         this.canvas.addEventListener("mousemove", this.handleMouseMove);
         this.canvas.addEventListener("mouseup", this.handleMouseUp);
-        this.canvas.addEventListener("contextmenu", this.handleLeftMouseDown);
+        this.canvas.addEventListener("contextmenu", this.handleRightMouseDown);
     }
 
     subscribe() {
@@ -68,8 +68,8 @@ export default class Canvas extends React.Component {
         // console.log("regognized mouse move event to", mousePos);
     }
 
-    handleLeftMouseDown(event) {
-        alert("Left click is working")
+    handleRightMouseDown(event) {
+        alert("Right click is working")
     }
 
     // Notifications
@@ -143,8 +143,8 @@ export default class Canvas extends React.Component {
         this.ctx.closePath();
 
     }
-    drawEdgeBetweenVertices(edge, color = Config.edegeDefaultColor) {
-        this.drawEdgeBetweenPoints(edge.vertexOne.xPos, edge.vertexOne.yPos, edge.vertexTwo.xPos, edge.vertexTwo.yPos)
+    drawEdgeBetweenVertices(edge, color = Config.defaultEdgeColor) {
+        this.drawEdgeBetweenPoints(edge.vertexOne.xPos, edge.vertexOne.yPos, edge.vertexTwo.xPos, edge.vertexTwo.yPos, color)
     }
 
     printGraph() {
