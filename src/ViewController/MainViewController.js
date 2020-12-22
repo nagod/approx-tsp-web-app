@@ -14,15 +14,10 @@ export default class MainViewController extends React.Component {
         this.presenter = new MainPresenter(this); // Presenter takes care of app logic
 
         // Bind this to function so that "this" refers to this object
-        this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(
-            this
-        );
-        this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(
-            this
-        );
-        this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(
-            this
-        );
+        this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(this);
+        this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(this);
+        this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
+        this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
         this.printGraph = this.printGraph.bind(this)
     }
 
@@ -38,6 +33,10 @@ export default class MainViewController extends React.Component {
 
     handleReadDataButtonClicked() {
         this.presenter.handleReadDataButtonClicked();
+    }
+
+    handleTriangulateButtonClicked() {
+        this.presenter.handleTriangulateButtonClicked()
     }
 
     // Changing the View Functions
@@ -68,6 +67,10 @@ export default class MainViewController extends React.Component {
                 <Button
                     label="Read Data"
                     handleButtonClicked={this.handleReadDataButtonClicked}
+                />
+                <Button
+                    label="Triangulate"
+                    handleButtonClicked={this.handleTriangulateButtonClicked}
                 />
                 <Button
                     label="Print Data"

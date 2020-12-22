@@ -19,6 +19,7 @@ export default class Graph extends Observable {
         this.addVertexFromData = this.addVertexFromData.bind(this);
         this.makeGraphFromData = this.makeGraphFromData.bind(this);
         this.connectConvexHull = this.connectConvexHull.bind(this);
+        this.cost = this.cost.bind(this)
     }
     // Probably need to write some setter
     // vertices is an array. Need to write it for a single vertex?
@@ -115,6 +116,14 @@ export default class Graph extends Observable {
         return result;
     }
 
+    // Keeps the first element but returns all other elements sorted by clockwise polar angle
+    sortVerticesByPolarAnglesWithVertexClockwise(p0, vertices) {
+        let result = this.sortVerticesByPolarAnglesWithVertex(p0, vertices)
+        let firstElement = result.shift()
+        result.reverse()
+        return [firstElement, ...result]
+    }
+
     calculatePolarAngle(p0, vertex) {
         let point = {
             xPos: vertex.xPos - p0.xPos,
@@ -134,6 +143,7 @@ export default class Graph extends Observable {
 
     // Length of vector, if no y is specified, it will return length of vector from origin
     euclideanDistance2D(x, y = { xPos: 0, yPos: 0 }) {
+        console.log("used euclidenDistance2D with: ", x, y)
         return Math.sqrt(
             Math.pow(x.xPos - y.yPos, 2) + Math.pow(x.yPos - y.yPos, 2)
         );
@@ -171,7 +181,7 @@ export default class Graph extends Observable {
             points
         );
         sortedPoints.unshift(p0);
-        let stack = [];
+        let stack = this.edges//[];
         for (let point of sortedPoints) {
             while (
                 stack.length > 1 &&
@@ -188,6 +198,55 @@ export default class Graph extends Observable {
         // Stack contains the convex hull points starting with p0 in counter clockwise orientation
         return stack;
     }
+
+    // Following the paper: https://dccg.upc.edu/people/rodrigo/pubs/PolygonHODT_LATIN.pdf
+    // The input of the algorithm is a polygon P , defined by its vertices in clockwise order: p0, p1, . . . , pn−1
+    // The output is a k-OD triangulation of optimum cost, if it exists. 
+    // => Use cc algorithm and reverse it
+
+    kOrderDelaunay(array) {
+        const n = array.length
+        let result = []
+        for (let m = 1; m <= n; m++) {
+            result.push(new Array(n))
+        }
+        for (let i = 0; i < n; i++) {
+            for (let j = 1; i + j < n; j++) {
+                result[i][j] = this.optimalKODCosts([...result], i, j)
+            }
+        }
+        return result
+    }
+
+
+    // "+" represents a way to combine the values of the subproblems, since we add edge lengths in cost function, we will use "add"
+    optimalKODCosts(array, i, j) {
+
+        // we need a global scope array of the clockwise sorted vertices
+        // these are clockwise starting with upper left
+        // use function this.sortVerticesByPolarAnglesWithVertexClockwise to get them in clockwise polar angle order
+
+        if (j === 1) {
+            return 0
+        } else {
+            let solutions = []
+            for (let q = 1; q <= j - 1; q++) {
+                // TODO: Check how the array should be handled through the function ( add to graph as property?)
+                solutions.push(this.cost(array[i], array[i + q], array[i + j]) + this.optimalKODCosts(array, i, i + q) + this.optimalKODCosts(array, i + q, i + j))
+            }
+            return Math.min(...solutions)
+        }
+    }
+
+    // The expression Cost(pi,pi+q,pi+j) denotes the cost of triangle △pi, pi+q, pi+j
+    // For now, I set "cost" to the combined edge length
+    cost(p1, p2, p3) {
+        const cost = this.euclideanDistance2D(p1, p2) + this.euclideanDistance2D(p1, p3) + this.euclideanDistance2D(p2, p3)
+        return cost
+    }
+
+
+    // DRAWING
 
     // For testing, if draw edges Works
     connectConvexHull() {
