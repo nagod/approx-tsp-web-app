@@ -11,36 +11,18 @@ export default class MainPresenter {
     constructor(viewController) {
         this.graph = new Graph();
         this.viewController = viewController;
-        this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(
-            this
-        );
-        this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(
-            this
-        );
-        this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(
-            this
-        );
+        this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.getGraph = this.getGraph.bind(this);
         this.drawGraph = this.drawGraph.bind(this);
-        this.printGraph = this.printGraph.bind(this)
     }
 
-    handleTurnRedButtonClicked() {
-        this.viewController.turnViewRed();
-    }
-
-    handleTurnBlueButtonClicked() {
-        this.viewController.turnViewBlue();
+    handleTriangulateButtonClicked() {
+        this.graph.sHullTriangulation(this.graph.vertices)
     }
 
     getGraph() {
         return this.graph;
     }
-
-    printGraph() {
-        console.log(this.graph)
-    }
-
 
     // TODO: Make dropdown, rename function and accept string to select example value
     //Read Data

@@ -25,9 +25,11 @@ export default class Edge {
   getLength() {
     return this.length;
   }
+
   setVertexOne(vertex) {
     this.vertexOne = vertex
   }
+
   setVertexTwo(vertex) {
     this.vertexTwo = vertex
   }

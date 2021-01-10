@@ -14,22 +14,12 @@ export default class MainViewController extends React.Component {
         this.presenter = new MainPresenter(this); // Presenter takes care of app logic
 
         // Bind this to function so that "this" refers to this object
-        this.handleTurnRedButtonClicked = this.handleTurnRedButtonClicked.bind(this);
-        this.handleTurnBlueButtonClicked = this.handleTurnBlueButtonClicked.bind(this);
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
         this.printGraph = this.printGraph.bind(this)
     }
 
     // Handling events
-
-    handleTurnRedButtonClicked() {
-        this.presenter.handleTurnRedButtonClicked();
-    }
-
-    handleTurnBlueButtonClicked() {
-        this.presenter.handleTurnBlueButtonClicked();
-    }
 
     handleReadDataButtonClicked() {
         this.presenter.handleReadDataButtonClicked();
@@ -56,14 +46,6 @@ export default class MainViewController extends React.Component {
     render() {
         return (
             <div>
-                <Button
-                    label="Turn Red"
-                    handleButtonClicked={this.handleTurnRedButtonClicked}
-                />
-                <Button
-                    label="Turn Blue"
-                    handleButtonClicked={this.handleTurnBlueButtonClicked}
-                />
                 <Button
                     label="Read Data"
                     handleButtonClicked={this.handleReadDataButtonClicked}

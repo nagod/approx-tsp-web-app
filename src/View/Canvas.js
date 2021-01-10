@@ -109,7 +109,7 @@ export default class Canvas extends React.Component {
     // Notifications
 
     notify(identifier, data) {
-        console.log("received notification with data: ", data)
+        //console.log("received notification with data: ", data)
         switch (identifier) {
             case "vertexAddedNotification":
                 this.handleVertexAddedNotification(data)
@@ -131,23 +131,23 @@ export default class Canvas extends React.Component {
 
     handleVertexAddedNotification(data) {
         // do something
-        console.log("received new vertex added notification")
+        //console.log("received new vertex added notification")
         //this.drawCircleAt(data.xPos, data.yPos)
     }
 
     handleVertexDeletedNotification(data) {
         // do something
-        console.log("received new vertex deleted notification")
+        //console.log("received new vertex deleted notification")
     }
 
     handleEdgeAddedNotification(data) {
         // do something
-        console.log("received new edge added notification")
+        //console.log("received new edge added notification")
     }
 
     handleEdgeDeletedNotification(data) {
         // do something
-        console.log("received new edge deleted notification")
+        //console.log("received new edge deleted notification")
     }
 
     // Functions
@@ -219,7 +219,8 @@ export default class Canvas extends React.Component {
     }
 
 
-    // Function maybe too specific?
+    // obsolete function? 
+
     highlightConvexHull() {
         try {
             this.viewController.presenter.graph.notify("hello")

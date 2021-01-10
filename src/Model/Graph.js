@@ -19,7 +19,11 @@ export default class Graph extends Observable {
         this.addVertexFromData = this.addVertexFromData.bind(this);
         this.makeGraphFromData = this.makeGraphFromData.bind(this);
         this.connectConvexHull = this.connectConvexHull.bind(this);
-        this.cost = this.cost.bind(this)
+        this.sHullTriangulation = this.sHullTriangulation.bind(this)
+        this.sortByDistanceFromPoint = this.sortByDistanceFromPoint.bind(this);
+        this.circumCircleRadius = this.circumCircleRadius.bind(this)
+        this.smallestCircumCircle = this.smallestCircumCircle.bind(this)
+        this.addToSHull = this.addToSHull.bind(this)
     }
     // Probably need to write some setter
     // vertices is an array. Need to write it for a single vertex?
@@ -123,17 +127,20 @@ export default class Graph extends Observable {
         result.reverse()
         return [firstElement, ...result]
     }
-
-    calculatePolarAngle(p0, vertex) {
+    // 
+    calculatePolarAngle(p0, vertex, vector = { xPos: 1, yPos: 0 }) {
         let point = {
             xPos: vertex.xPos - p0.xPos,
             yPos: vertex.yPos - p0.yPos,
         };
         // p0 will from now on be represented by the x axis vector (1, 0)
         // normalized the point because acos only accepts [-1, 1] as domain
+        let normalizedVector = this.normalize(vector)
         let normalizedPoint = this.normalize(point);
-        let dotProduct = this.dotProduct2D({ xPos: 1, yPos: 0 }, normalizedPoint);
+        let dotProduct = this.dotProduct2D(normalizedVector, normalizedPoint);
         let result = Math.acos(dotProduct);
+        //onsole.log("p0: ", p0, "veretx: ", vertex, "Vector: ", vector, "result: ", result)
+
         return result;
     }
 
@@ -141,11 +148,36 @@ export default class Graph extends Observable {
         return x.xPos * y.xPos + x.yPos * y.yPos;
     }
 
+    // Returns true if point is on the left side of the vector xy
+    isLeft(point, x, y) {
+        /*x = { xPos: 0, yPos: 0 }
+        y = { xPos: 1, yPos: 0 }
+        point = { xPos: 4, yPos: -2 }*/
+        let a = { xPos: y.xPos - x.xPos, yPos: y.yPos - x.yPos } // y - x
+        let b = { xPos: point.xPos - x.xPos, yPos: point.yPos - x.yPos } // point - x
+        if ((a.xPos * b.yPos - a.yPos * b.xPos) > 0) {
+            return true
+        }
+        return false
+    }
+
+    vectorFromXToY(x, y) {
+        //console.log("Calculating from 2 vectors", x, y)
+        return { xPos: y.xPos - x.xPos, yPos: y.yPos - x.yPos }
+    }
+
+    // Returns the right turned vector
+    orthogonalVector(vector) {
+
+        console.log({ xPos: vector.yPos, yPos: -vector.xPos })
+        return { xPos: vector.yPos, yPos: -vector.xPos }
+
+    }
+
     // Length of vector, if no y is specified, it will return length of vector from origin
     euclideanDistance2D(x, y = { xPos: 0, yPos: 0 }) {
-        console.log("used euclidenDistance2D with: ", x, y)
         return Math.sqrt(
-            Math.pow(x.xPos - y.yPos, 2) + Math.pow(x.yPos - y.yPos, 2)
+            Math.pow(x.xPos - y.xPos, 2) + Math.pow(x.yPos - y.yPos, 2)
         );
     }
 
@@ -168,7 +200,7 @@ export default class Graph extends Observable {
         );
     }
 
-    // Returns a subset of the graphs vertices that build the convex hull.
+    // Returns a subset of the gr waphs vertices that build the convex hull.
     // The algoithms name is "Graham Scan"
     calculateConvexHull() {
         this.sortVerticesByYPos();
@@ -181,7 +213,7 @@ export default class Graph extends Observable {
             points
         );
         sortedPoints.unshift(p0);
-        let stack = this.edges//[];
+        let stack = [];
         for (let point of sortedPoints) {
             while (
                 stack.length > 1 &&
@@ -199,51 +231,158 @@ export default class Graph extends Observable {
         return stack;
     }
 
-    // Following the paper: https://dccg.upc.edu/people/rodrigo/pubs/PolygonHODT_LATIN.pdf
-    // The input of the algorithm is a polygon P , defined by its vertices in clockwise order: p0, p1, . . . , pn−1
-    // The output is a k-OD triangulation of optimum cost, if it exists. 
-    // => Use cc algorithm and reverse it
+    // Triangulation 
 
-    kOrderDelaunay(array) {
-        const n = array.length
-        let result = []
-        for (let m = 1; m <= n; m++) {
-            result.push(new Array(n))
+
+    sHullTriangulation(set) {
+        //let array = [new Vertex(1, 1, 1), new Vertex(2, 3, 5), new Vertex(3, 3, 3),
+        //new Vertex(4, 5, 2), new Vertex(5, 6, 8), new Vertex(6, 7, 5)]
+        let array = [...set]
+
+        array.sort((a, b) => a.xPos - b.xPos)
+        // Get any reference Point, it is not stated to be important which point declares the seed
+        let referencePoint = array.shift()
+        // Sort the array by the distance from the reference point
+        array = this.sortByDistanceFromPoint(referencePoint, array)
+
+        // Pop the nearest point
+        let nearestToReference = array.shift()
+        // Find point that creates the smallest circumcircle with referencepoint and the nearest point to it
+
+        let smallestCircumCirclePoint = this.smallestCircumCircle(referencePoint, nearestToReference, array)
+        let smallestCircleCenter = this.circumCircleCenter(referencePoint, nearestToReference, smallestCircumCirclePoint)
+        this.edges.push(new Edge({ xPos: 0, yPos: 0 }, smallestCircleCenter))
+        array.shift() //  refractor this line, put it into outout of circumcirlclecenter
+        // Keeping track of the temporary convex hull
+        let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
+
+        //resort the remaining points according to |xi−C|^2to give points si
+        array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
+        console.log(array.length)
+        console.log("\n\nArray resorted by distance from ReferencePoint to smallestCircleCenter is: ", array)
+        this.edges.push(new Edge(referencePoint, nearestToReference))
+        this.edges.push(new Edge(referencePoint, smallestCircumCirclePoint))
+        this.edges.push(new Edge(nearestToReference, smallestCircumCirclePoint))
+
+        // Array is already sorted by distance
+        while (array.length > 0) {
+            // Add each point to the temporary sHull and update it
+            let point = array.shift()
+            tmpSHull = this.addToSHull(point, tmpSHull, smallestCircleCenter)
         }
-        for (let i = 0; i < n; i++) {
-            for (let j = 1; i + j < n; j++) {
-                result[i][j] = this.optimalKODCosts([...result], i, j)
+
+        // Add edges between initial triangle
+
+    }
+
+    // Hull is the current temporary convex hull of the set
+    // We add a point to it and remove any inner point of the convex polygon
+
+    // 1) Points are sorted by the distance from the center of the initial circle
+    // 2) We determine the polar coordinates of all points in the current convex hull from the point that is to be added
+    // 2.5) Sort them in ascending order
+    // 3) Record min and max polar angle of these points
+    // 4) Draw an Edge from the new point to every point on the convex hull in counterclockwise order, starting from the max polar angle point
+    // 5) Stop at the min polar angle point, every other point lays beyond and is not visible to the added point
+    // 6) Remove all points in between min and max and the new added point ( those that you drew edges to )
+    // 7) return the new hull
+
+    addToSHull(point, hull, circleCenter) {
+
+        // Workin with the closest point
+        let vectorToCenter = this.vectorFromXToY(point, circleCenter)
+        console.log("Vector To Center: ", vectorToCenter)
+        // Always returns a positive vector
+        let orthogonal = this.orthogonalVector(vectorToCenter)
+        console.log("Orthogonal: ", orthogonal)
+        // We determine the polar coordinates of all points in the current convex hull from the point that is to be added
+        hull = hull.map(item => [item, this.calculatePolarAngle(point, item, orthogonal)])
+        // Sort them in ascending order
+        hull.sort((a, b) => a[1] - b[1])
+        console.log("Hull with sorted PolarAngles: ", hull)
+        hull = hull.flatMap(item => item[0])
+        // Record min and max polar angle of these points
+        //console.log("Hull:", hull)
+        let min = hull[0]
+        let max = hull[hull.length - 1]
+
+        for (let item of hull) {
+            //implement if else statemnt
+            if (!this.isLeft(item, max, min)) {
+                //console.log("was right")
+                this.edges.push(new Edge(point, item))
+                if ((item !== min) && (item !== max)) {
+                    let index = hull.indexOf(item);
+                    //console.log("removing item: ", item)
+                    //console.log("should be: ", hull[index])
+                    if (index > -1) {
+                        hull.splice(index, 1);
+                    }
+                }
             }
+            // Something you want delayed.
+
         }
+
+
+        hull.push(point)
+        // Do math
+        return hull
+    }
+
+    sortByDistanceFromPoint(x0, array2) {
+        let result = array2.map(point => [point, Math.pow(this.euclideanDistance2D(x0, point), 2)])
+        result.sort((a, b) => a[1] - b[1])
+        result = result.flatMap(point => point[0])
         return result
     }
 
 
-    // "+" represents a way to combine the values of the subproblems, since we add edge lengths in cost function, we will use "add"
-    optimalKODCosts(array, i, j) {
-
-        // we need a global scope array of the clockwise sorted vertices
-        // these are clockwise starting with upper left
-        // use function this.sortVerticesByPolarAnglesWithVertexClockwise to get them in clockwise polar angle order
-
-        if (j === 1) {
-            return 0
-        } else {
-            let solutions = []
-            for (let q = 1; q <= j - 1; q++) {
-                // TODO: Check how the array should be handled through the function ( add to graph as property?)
-                solutions.push(this.cost(array[i], array[i + q], array[i + j]) + this.optimalKODCosts(array, i, i + q) + this.optimalKODCosts(array, i + q, i + j))
-            }
-            return Math.min(...solutions)
-        }
+    //https://calculator.swiftutors.com/circumcircle-of-a-triangle-calculator.html
+    circumCircleRadius(x1, x2, x3) {
+        let a = this.euclideanDistance2D(x1, x2)
+        let b = this.euclideanDistance2D(x1, x3)
+        let c = this.euclideanDistance2D(x2, x3)
+        let s = (a + b + c) / 2
+        let result = (a * b * c) / (4 * Math.sqrt(s * (s - a) * (s - b) * (s - c)))
+        return result
     }
 
-    // The expression Cost(pi,pi+q,pi+j) denotes the cost of triangle △pi, pi+q, pi+j
-    // For now, I set "cost" to the combined edge length
-    cost(p1, p2, p3) {
-        const cost = this.euclideanDistance2D(p1, p2) + this.euclideanDistance2D(p1, p3) + this.euclideanDistance2D(p2, p3)
-        return cost
+    smallestCircumCircle(x0, x1, array) {
+        let result = array.map(point => [point, this.circumCircleRadius(x0, x1, point)])
+        result.sort((a, b) => a[1] - b[1])
+        return result.shift()[0]
     }
+
+    // Approach from "https://www.geeksforgeeks.org/equation-of-circle-when-three-points-on-the-circle-are-given/"
+    circumCircleCenter(x1, x2, x3) {
+
+        let x12 = x1.xPos - x2.xPos;
+        let x13 = x1.xPos - x3.xPos;
+        let y12 = x1.yPos - x2.yPos;
+        let y13 = x1.yPos - x3.yPos;
+        let y31 = x3.yPos - x1.yPos;
+        let y21 = x2.yPos - x1.yPos;
+        let x31 = x3.xPos - x1.xPos;
+        let x21 = x2.xPos - x1.xPos;
+
+        let sx13 = (Math.pow(x1.xPos, 2) - Math.pow(x3.xPos, 2));
+        let sy13 = (Math.pow(x1.yPos, 2) - Math.pow(x3.yPos, 2));
+        let sx21 = (Math.pow(x2.xPos, 2) - Math.pow(x1.xPos, 2));
+        let sy21 = (Math.pow(x2.yPos, 2) - Math.pow(x1.yPos, 2));
+
+        let f = ((sx13) * (x12) + (sy13) * (x12) + (sx21) * (x13) + (sy21) * (x13)) / (2 * ((y31) * (x12) - (y21) * (x13)));
+        let g = ((sx13) * (y12) + (sy13) * (y12) + (sx21) * (y13) + (sy21) * (y13)) / (2 * ((x31) * (y12) - (x21) * (y13)));
+
+        let c = -Math.pow(x1.xPos, 2) - Math.pow(x1.yPos, 2) - 2 * g * x1.xPos - 2 * f * x1.yPos;
+
+        let centerXPos = -g;
+        let centerYPos = -f;
+        let sqrOfR = centerXPos * centerXPos + centerYPos * centerYPos - c;
+        return new Vertex(Math.sqrt(sqrOfR), centerXPos, centerYPos)
+
+    }
+
 
 
     // DRAWING
