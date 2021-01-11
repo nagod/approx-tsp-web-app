@@ -1,5 +1,6 @@
 import React from "react";
 import Config from "../App/Config";
+import Edge from "../Model/Edge";
 import "./Stylesheets/Canvas.css";
 
 // Should implement notify function to be observer
@@ -171,6 +172,8 @@ export default class Canvas extends React.Component {
     drawGraph(graph) {
         graph.vertices.forEach(vertex => this.drawVertex(vertex))
         graph.edges.forEach(edge => this.drawEdge(edge))
+        //graph.orthogonale.forEach(orthogonale => this.drawEdge(new Edge(orthogonale[0], { xPos: orthogonale[0].xPos + orthogonale[1].xPos, yPos: orthogonale[0].yPos + orthogonale[1].yPos })))
+        //this.drawCircleAt(graph.circle[0].xPos, graph.circle[0].yPos, graph.circle[1])
     }
 
     drawVertex(vertex, color = Config.defaultVertexColor) {
@@ -187,7 +190,7 @@ export default class Canvas extends React.Component {
         this.ctx.beginPath();
         this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = color
-        this.ctx.fill()
+        //this.ctx.fill()
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
         this.ctx.closePath();
@@ -247,8 +250,8 @@ export default class Canvas extends React.Component {
                 <canvas
                     id="mainCanvas"
                     className="mainCanvas"
-                    width="600"
-                    height="600"
+                    width="1200"
+                    height="750"
                 ></canvas>
                 <button onClick={() => this.printGraph()}>Draw Graph</button>
                 <button onClick={() => this.highlightConvexHull()}>Compute Convexhull</button>

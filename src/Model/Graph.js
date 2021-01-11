@@ -7,6 +7,8 @@ export default class Graph extends Observable {
         super()
         this.vertices = [];
         this.edges = [];
+        this.circle = [{ xPos: 0, yPos: 0 }, 0]
+        this.orthogonale = []
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
@@ -169,7 +171,7 @@ export default class Graph extends Observable {
     // Returns the right turned vector
     orthogonalVector(vector) {
 
-        console.log({ xPos: vector.yPos, yPos: -vector.xPos })
+        //console.log({ xPos: vector.yPos, yPos: -vector.xPos })
         return { xPos: vector.yPos, yPos: -vector.xPos }
 
     }
@@ -234,45 +236,63 @@ export default class Graph extends Observable {
     // Triangulation 
 
 
-    sHullTriangulation(set) {
+    async sHullTriangulation(set) {
+        this.edges = []
         //let array = [new Vertex(1, 1, 1), new Vertex(2, 3, 5), new Vertex(3, 3, 3),
         //new Vertex(4, 5, 2), new Vertex(5, 6, 8), new Vertex(6, 7, 5)]
         let array = [...set]
 
-        array.sort((a, b) => a.xPos - b.xPos)
+        //array.sort((a, b) => a.xPos - b.xPos)
         // Get any reference Point, it is not stated to be important which point declares the seed
-        let referencePoint = array.shift()
+
+        // Maybe choose mid most point for better runtime
+        let referencePoint = array.splice(Math.floor(Math.random() * Math.floor(array.length)), 1)[0]
         // Sort the array by the distance from the reference point
         array = this.sortByDistanceFromPoint(referencePoint, array)
+        console.log("ARRAY IS LONG: ", array.length, "SET IS EQUAL? : ", set.length - 1)
 
         // Pop the nearest point
         let nearestToReference = array.shift()
         // Find point that creates the smallest circumcircle with referencepoint and the nearest point to it
 
         let smallestCircumCirclePoint = this.smallestCircumCircle(referencePoint, nearestToReference, array)
+
+        array = array.filter(item => item !== smallestCircumCirclePoint);
         let smallestCircleCenter = this.circumCircleCenter(referencePoint, nearestToReference, smallestCircumCirclePoint)
-        this.edges.push(new Edge({ xPos: 0, yPos: 0 }, smallestCircleCenter))
-        array.shift() //  refractor this line, put it into outout of circumcirlclecenter
+        //this.edges.push(new Edge({ xPos: 0, yPos: 0 }, smallestCircleCenter))
+        //array.shift() //  refractor this line, put it into outout of circumcirlclecenter
         // Keeping track of the temporary convex hull
         let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
 
         //resort the remaining points according to |xi−C|^2to give points si
         array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
-        console.log(array.length)
+        //console.log(array.length)
         console.log("\n\nArray resorted by distance from ReferencePoint to smallestCircleCenter is: ", array)
         this.edges.push(new Edge(referencePoint, nearestToReference))
         this.edges.push(new Edge(referencePoint, smallestCircumCirclePoint))
         this.edges.push(new Edge(nearestToReference, smallestCircumCirclePoint))
 
         // Array is already sorted by distance
-        while (array.length > 0) {
+
+        let i = 0
+        let size = array.length
+        console.log("Size of array: ", size)
+        // DO THIS WITH TIMEOUT LOOP or
+        while (i < size) {
             // Add each point to the temporary sHull and update it
+
             let point = array.shift()
-            tmpSHull = this.addToSHull(point, tmpSHull, smallestCircleCenter)
+            console.log("Current Point: ", point)
+            // eslint-disable-next-line no-loop-func
+            await this.addToSHull(point, tmpSHull, smallestCircleCenter).then((data) => {
+                console.log("Data an der stelle: ", data[data.length - 1])
+                tmpSHull = data
+                i++
+                // console.log("i: ", i, "array.length: ", array.length)
+            })
         }
-
         // Add edges between initial triangle
-
+        console.log("ENDE")
     }
 
     // Hull is the current temporary convex hull of the set
@@ -288,50 +308,72 @@ export default class Graph extends Observable {
     // 7) return the new hull
 
     addToSHull(point, hull, circleCenter) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                //console.log("In Promise: ", point, hull, circleCenter)
+                // Workin with the closest point
 
-        // Workin with the closest point
-        let vectorToCenter = this.vectorFromXToY(point, circleCenter)
-        console.log("Vector To Center: ", vectorToCenter)
-        // Always returns a positive vector
-        let orthogonal = this.orthogonalVector(vectorToCenter)
-        console.log("Orthogonal: ", orthogonal)
-        // We determine the polar coordinates of all points in the current convex hull from the point that is to be added
-        hull = hull.map(item => [item, this.calculatePolarAngle(point, item, orthogonal)])
-        // Sort them in ascending order
-        hull.sort((a, b) => a[1] - b[1])
-        console.log("Hull with sorted PolarAngles: ", hull)
-        hull = hull.flatMap(item => item[0])
-        // Record min and max polar angle of these points
-        //console.log("Hull:", hull)
-        let min = hull[0]
-        let max = hull[hull.length - 1]
+                let edgeCounter = 0
+                let isRightCounter = 0
+                let vectorToCenter = this.vectorFromXToY(point, circleCenter)
+                // Always returns a positive vector
+                let orthogonal = this.orthogonalVector(vectorToCenter)
+                this.orthogonale.push([point, orthogonal])
+                // We determine the polar coordinates of all points in the current convex hull from the point that is to be added
+                hull = hull.map(item => [item, this.calculatePolarAngle(point, item, orthogonal)])
+                // Sort them in ascending order
+                hull.sort((a, b) => a[1] - b[1])
+                hull = hull.flatMap(item => item[0])
+                // Record min and max polar angle of these points
+                //console.log("Hull:", hull)
+                let min = hull[0]
+                let max = hull[hull.length - 1]
 
-        for (let item of hull) {
-            //implement if else statemnt
-            if (!this.isLeft(item, max, min)) {
-                //console.log("was right")
-                this.edges.push(new Edge(point, item))
-                if ((item !== min) && (item !== max)) {
-                    let index = hull.indexOf(item);
-                    //console.log("removing item: ", item)
-                    //console.log("should be: ", hull[index])
-                    if (index > -1) {
-                        hull.splice(index, 1);
+                let removingVertices = []
+
+                for (let item of hull) {
+                    //implement if else statemnt
+                    if ((item !== min) && (item !== max)) {
+                        // If item is right ( it is visible to the point )
+                        if (!this.isLeft(item, max, min)) {
+                            //console.log("WAS RIGHT")
+                            // Add an edge
+                            this.edges.push(new Edge(point, item))
+                            isRightCounter++
+                            edgeCounter++
+                            //console.log("Pushed edge from: ", point, "to ", item)
+                            // Now remove it from the hull, at this point it must be inside the convex hull
+                            removingVertices.push(item)
+                            //hull.splice(index, 1);
+
+                        }
+                    } else {
+                        if ((item === min) || (item === max)) {
+                            this.edges.push(new Edge(point, item))
+                            edgeCounter++
+                            console.log("Pushed edge from: ", point, "to ", item)
+                        }
+                        else {
+                            console.error("This Point was jumpned: ", point)
+                        }
                     }
                 }
-            }
-            // Something you want delayed.
-
-        }
-
-
-        hull.push(point)
-        // Do math
-        return hull
+                console.log("Should have drawn: ", isRightCounter + 2, "drew: ", edgeCounter)
+                //console.log("NICHT GEWRATET
+                for (let remove of removingVertices) {
+                    hull = hull.filter(element => element !== remove);
+                }
+                hull.push(point)
+                // Do math
+                //return hull
+                resolve(hull)
+            }, 1000)
+        })
     }
 
-    sortByDistanceFromPoint(x0, array2) {
-        let result = array2.map(point => [point, Math.pow(this.euclideanDistance2D(x0, point), 2)])
+
+    sortByDistanceFromPoint(x0, array) {
+        let result = array.map(point => [point, Math.pow(this.euclideanDistance2D(x0, point), 2)])
         result.sort((a, b) => a[1] - b[1])
         result = result.flatMap(point => point[0])
         return result
@@ -349,9 +391,11 @@ export default class Graph extends Observable {
     }
 
     smallestCircumCircle(x0, x1, array) {
-        let result = array.map(point => [point, this.circumCircleRadius(x0, x1, point)])
+        let result = [...array]
+        result = result.map(point => [point, this.circumCircleRadius(x0, x1, point)])
         result.sort((a, b) => a[1] - b[1])
-        return result.shift()[0]
+        //maybe flatmap for style points
+        return result[0][0]
     }
 
     // Approach from "https://www.geeksforgeeks.org/equation-of-circle-when-three-points-on-the-circle-are-given/"
@@ -379,6 +423,8 @@ export default class Graph extends Observable {
         let centerXPos = -g;
         let centerYPos = -f;
         let sqrOfR = centerXPos * centerXPos + centerYPos * centerYPos - c;
+        this.circle = [{ xPos: centerXPos, yPos: centerYPos }, Math.sqrt(sqrOfR)]
+
         return new Vertex(Math.sqrt(sqrOfR), centerXPos, centerYPos)
 
     }
