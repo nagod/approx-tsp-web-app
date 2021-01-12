@@ -1,36 +1,32 @@
 export default class Edge {
-  /**
-   * 
-   * @param {Vertex} vertex1 
-   * @param {Vertex} vertex2 
-   */
-  constructor(vertex1, vertex2) {
-    this.vertexOne = vertex1;
-    this.vertexTwo = vertex2;
-    //this.length = this.calculateLength(this.vertexOne, this.vertexTwo);
-  }
 
-  calculateLength(vertexOne, vertexTwo) {
-    return Math.euclideanDistance2D(vertexOne, vertexTwo)
-  }
+    constructor(vertex1, vertex2) {
+        this.vertexOne = vertex1;
+        this.vertexTwo = vertex2;
+        //this.length = this.calculateLength(this.vertexOne, this.vertexTwo);
+    }
 
-  getVertexOne() {
-    return this.vertexOne;
-  }
+    calculateLength(vertexOne, vertexTwo) {
+        return Math.euclideanDistance2D(vertexOne, vertexTwo)
+    }
 
-  getVertexTwo() {
-    return this.vertexTwo;
-  }
+    getVertexOne() {
+        return this.vertexOne;
+    }
 
-  getLength() {
-    return this.length;
-  }
+    getVertexTwo() {
+        return this.vertexTwo;
+    }
 
-  setVertexOne(vertex) {
-    this.vertexOne = vertex
-  }
+    getLength() {
+        return this.length;
+    }
 
-  setVertexTwo(vertex) {
-    this.vertexTwo = vertex
-  }
+    setVertexOne(vertex) {
+        this.vertexOne = vertex
+    }
+
+    setVertexTwo(vertex) {
+        this.vertexTwo = vertex
+    }
 }

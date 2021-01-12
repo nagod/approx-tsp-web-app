@@ -1,14 +1,15 @@
 import Vertex from "./Vertex";
 import Edge from "./Edge";
+import Triangle from "./Triangle";
 import Observable from "../Architecture/Observable";
+import MathExtension from "../Extensions/MathExtension"
 
 export default class Graph extends Observable {
     constructor() {
         super()
         this.vertices = [];
         this.edges = [];
-        this.circle = [{ xPos: 0, yPos: 0 }, 0]
-        this.orthogonale = []
+        this.triangles = []
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
@@ -23,10 +24,11 @@ export default class Graph extends Observable {
         this.connectConvexHull = this.connectConvexHull.bind(this);
         this.sHullTriangulation = this.sHullTriangulation.bind(this)
         this.sortByDistanceFromPoint = this.sortByDistanceFromPoint.bind(this);
-        this.circumCircleRadius = this.circumCircleRadius.bind(this)
         this.smallestCircumCircle = this.smallestCircumCircle.bind(this)
         this.addToSHull = this.addToSHull.bind(this)
         this.addEdgeAsync = this.addEdgeAsync.bind(this)
+        this.flipEdge = this.flipEdge.bind(this)
+        this.flipEdges = this.flipEdges.bind(this)
     }
 
     addVertex(vertex) {
@@ -114,7 +116,7 @@ export default class Graph extends Observable {
     sortVerticesByPolarAnglesWithVertex(p0, vertices) {
         // TODO: Graham scan should only return the furthest point if two share the same polar angle
         let result = [...vertices];
-        result = result.map((x) => [x, this.calculatePolarAngle(p0, x)]);
+        result = result.map((x) => [x, MathExtension.calculatePolarAngle(p0, x)]);
         result = result.sort((x, y) => x[1] - y[1]);
         result = result.flatMap((x) => x[0]);
         return result;
@@ -128,39 +130,20 @@ export default class Graph extends Observable {
         return [firstElement, ...result]
     }
 
-    // Returns the polar angle of any vertex with p0 set as origin and vextor representing the x axis direction
-    calculatePolarAngle(p0, vertex, vector = { xPos: 1, yPos: 0 }) {
-        let point = {
-            xPos: vertex.xPos - p0.xPos,
-            yPos: vertex.yPos - p0.yPos,
-        };
-        // p0 will from now on be represented by the x axis vector (1, 0)
-        // normalized the point because acos only accepts [-1, 1] as domain
-        let normalizedVector = this.normalize(vector)
-        let normalizedPoint = this.normalize(point);
-        let dotProduct = this.dotProduct2D(normalizedVector, normalizedPoint);
-        let result = Math.acos(dotProduct);
 
-        return result;
+    sortTrianglesByCircumCircleRadius(triangles) {
+        let result = [...triangles]
+        result.sort((a, b) => b.circumCircleRadius - a.circumCircleRadius)
+        console.log(result)
+        return result
     }
 
-    dotProduct2D(x, y) {
-        return x.xPos * y.xPos + x.yPos * y.yPos;
+    sortTrianglesByMinAngle(triangles) {
+        let result = [...triangles]
+        result.sort((a, b) => a.minimumAngle - b.minimumAngle)
+        return result
     }
 
-    // Returns true if point is on the left side of the vector xy
-    isLeft(point, x, y) {
-        let a = { xPos: y.xPos - x.xPos, yPos: y.yPos - x.yPos }
-        let b = { xPos: point.xPos - x.xPos, yPos: point.yPos - x.yPos }
-        if ((a.xPos * b.yPos - a.yPos * b.xPos) > 0) {
-            return true
-        }
-        return false
-    }
-
-    isRight(point, x, y) {
-        return !this.isLeft(point, x, y)
-    }
 
     // Returns a vector from vertex x to vertex y
     vectorFromXToY(x, y) {
@@ -170,26 +153,6 @@ export default class Graph extends Observable {
     // Returns the right turned vector
     orthogonalVector(vector) {
         return { xPos: vector.yPos, yPos: -vector.xPos }
-    }
-
-    // Length of vector, if no y is specified, it will return length of vector from origin
-    euclideanDistance2D(x, y = { xPos: 0, yPos: 0 }) {
-        return Math.sqrt(
-            Math.pow(x.xPos - y.xPos, 2) + Math.pow(x.yPos - y.yPos, 2)
-        );
-    }
-
-    // Normalizes a vector x
-    normalize(x) {
-        let length = this.euclideanDistance2D(x);
-        if (length === 0) {
-            return x;
-        } else {
-            return {
-                xPos: x.xPos / length,
-                yPos: x.yPos / length,
-            };
-        }
     }
 
     // Determines if three connected points x, y and z turn counterclockwise
@@ -265,8 +228,9 @@ export default class Graph extends Observable {
 
         // Initialize the convex hull
         let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
+        this.triangles.push(new Triangle(referencePoint, nearestToReference, smallestCircumCirclePoint))
 
-        //resort the remaining points according to |xi−C|^2to give points si
+        // Resort the remaining points according to |xi−C|^2to give points si
         array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
 
         // Connect initial triangle
@@ -283,6 +247,11 @@ export default class Graph extends Observable {
             await this.addToSHull(point, tmpSHull, smallestCircleCenter).then((data) => {
                 tmpSHull = data
                 i++
+                if (i == size) {
+                    console.log("triangle amout is : ", this.triangles.length)
+                    // Now flip all edges
+                    this.flipEdges()
+                }
             })
         }
     }
@@ -298,7 +267,7 @@ export default class Graph extends Observable {
                 // hull points by their respective polar angle
                 let vectorToCenter = this.vectorFromXToY(point, circleCenter)
                 let orthogonal = this.orthogonalVector(vectorToCenter)
-                hull = hull.map(item => [item, this.calculatePolarAngle(point, item, orthogonal)])
+                hull = hull.map(item => [item, MathExtension.calculatePolarAngle(point, item, orthogonal)])
                 hull.sort((a, b) => a[1] - b[1])
                 hull = hull.flatMap(item => item[0])
 
@@ -308,14 +277,14 @@ export default class Graph extends Observable {
                 let maxPolarAngle = hull[hull.length - 1]
 
                 // List of vertices that will be contained in the convex hull after point was added
-                let removingVertices = []
+                let connectedVertices = []
 
                 for (let item of hull) {
                     if ((item !== minPolarAngle) && (item !== maxPolarAngle)) {
                         // If item is right ( it is visible to the point )
-                        if (!this.isLeft(item, maxPolarAngle, minPolarAngle)) {
+                        if (!MathExtension.isLeft(item, maxPolarAngle, minPolarAngle)) {
                             this.edges.push(new Edge(point, item))
-                            removingVertices.push(item)
+                            connectedVertices.push(item)
                         }
                     } else if ((item === minPolarAngle) || (item === maxPolarAngle)) {
                         // Add an edge but dont delete the vertices, they are still on the convex hull
@@ -330,37 +299,111 @@ export default class Graph extends Observable {
                 }
 
                 // Remove all points from the hull at once for better runtime
-                for (let remove of removingVertices) {
+                for (let remove of connectedVertices) {
                     hull = hull.filter(element => element !== remove);
                 }
                 hull.push(point)
+
+                // List of all points that form a new triangle with the point that was just added
+                connectedVertices.unshift(minPolarAngle)
+                connectedVertices.push(maxPolarAngle)
+
+
+                console.log("Connected vertices: ", connectedVertices)
+                for (let i = 0; i < connectedVertices.length - 1; i++) {
+                    console.log(i, "is i")
+                    this.triangles.push(new Triangle(point, connectedVertices[i], connectedVertices[i + 1]))
+                    // Do something with the trianlge
+                    // Remove all triangles for edge flipping that share exactly One edge with the final convex hull
+                }
+
                 resolve(hull)
             }, 1000) // Make speed dynamic with config
         })
     }
 
+    // determine all triangle pairs that are candidates for edge flipping
+
+    // make async
+    flipEdges() {
+
+        let sortedTriangles = this.sortTrianglesByMinAngle(this.triangles)
+
+        console.log(sortedTriangles)
+
+
+        // Remove all triangles for edge flipping that share exactly One edge with the final convex hull
+        // Those are final and cannot be flipped
+
+        // An edge flip should persist if the min angle of the new 2 triangles is bigger than the old minimal angle
+
+
+    }
+
+
+    // return a promise for animation OR FIND BETTER WAY TO DELAY
+    flipEdge(triangleA, triangleB) {
+        console.log(triangleA, triangleB, "are the triangles")
+        let minAngleSoFar = Math.min(triangleA.minimumAngle, triangleB.minimumAngle)
+        let a = [triangleA.vertexOne, triangleA.vertexTwo, triangleA.vertexThree]
+        let b = [triangleB.vertexOne, triangleB.vertexTwo, triangleB.vertexThree]
+
+        console.log("a containing a point: ", a)
+        console.log("b containing a point: ", b)
+        // C contains vertices that a and b share
+        let c = []
+        for (let vertex of a) {
+            c.push(b.filter(element => element === vertex))
+        }
+        console.log("c containing two points: ", c)
+
+        // a without b, b without a ( difference )
+        // elements that dont share the triangle
+        for (let vertex of c) {
+            a = a.filter(element => element !== vertex)
+            b = b.filter(element => element !== vertex)
+        }
+
+        // Do something with these
+        let tmpA = new Triangle(a[0], b[0], c[0])
+        let tmpB = new Triangle(a[0], b[0], c[1])
+
+        console.log("tmpA: ", tmpA, "tmpB: ", tmpB)
+
+        let newMinAngle = Math.min(tmpA.minimumAngle, tmpB.minimumAngle)
+
+        if (newMinAngle > minAngleSoFar) { // New triangles are better
+            // Remove old triangles
+            console.log("before error")
+            this.graph.triangles.filter(triangle => triangle !== triangleA)
+            this.graph.triangles.filter(triangle => triangle !== triangleB)
+            console.log("after error")
+            // Push new ones
+            this.graph.triangles.push(tmpA, tmpB)
+
+            // Remove old edge
+            // => Remove edge, that is adjacent to c[0] and b[1]
+            let tmpEdge = this.edges.find(element => (element.vertexOne === c[0] && element.vertexOne === c[1]) || (element.vertexOne === c[1] && element.vertexOne === c[0]))
+            this.graph.edges.filter(edge => edge !== tmpEdge)
+
+            // Push new one
+            this.addEdge(a[0], b[0])
+            console.log("FLIPPED EDGE")
+        } else { console.log("flipped no edge") }
+        return
+    }
 
     sortByDistanceFromPoint(x0, array) {
-        let result = array.map(point => [point, Math.pow(this.euclideanDistance2D(x0, point), 2)])
+        let result = array.map(point => [point, Math.pow(MathExtension.euclideanDistance2D(x0, point), 2)])
         result.sort((a, b) => a[1] - b[1])
         result = result.flatMap(point => point[0])
         return result
     }
 
 
-    // https://calculator.swiftutors.com/circumcircle-of-a-triangle-calculator.html
-    circumCircleRadius(x1, x2, x3) {
-        let a = this.euclideanDistance2D(x1, x2)
-        let b = this.euclideanDistance2D(x1, x3)
-        let c = this.euclideanDistance2D(x2, x3)
-        let s = (a + b + c) / 2
-        let result = (a * b * c) / (4 * Math.sqrt(s * (s - a) * (s - b) * (s - c)))
-        return result
-    }
-
     smallestCircumCircle(x0, x1, array) {
         let result = [...array]
-        result = result.map(point => [point, this.circumCircleRadius(x0, x1, point)])
+        result = result.map(point => [point, MathExtension.circumCircleRadius(x0, x1, point)])
         result.sort((a, b) => a[1] - b[1])
         //maybe flatmap for style points
         return result[0][0]

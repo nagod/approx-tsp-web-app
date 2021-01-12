@@ -3,11 +3,11 @@ export default class Vertex {
         this.id = id;
         this.xPos = xPos;
         this.yPos = yPos;
-        this.incidentEdges = [];
+        this.adjacentEdges = [];
         this.getXPos = this.getXPos.bind(this);
         this.getYPos = this.getYPos.bind(this);
-        this.getIncidentEdges = this.getIncidentEdges.bind(this);
-        this.hasIncidentEdges = this.hasIncidentEdges.bind(this);
+        this.getAdjacentEdges = this.getAdjacentEdges.bind(this);
+        this.hasAdjacentEdges = this.hasAdjacentEdges.bind(this);
         this.removeAllEdges = this.removeAllEdges.bind(this);
     }
 
@@ -19,27 +19,27 @@ export default class Vertex {
         return this.yPos;
     }
 
-    getIncidentEdges() {
-        return this.incidentEdges;
+    getAdjacentEdges() {
+        return this.adjacentEdges;
     }
 
-    hasIncidentEdges() {
-        return this.incidentEdges.length === 0 ? false : true;
+    hasAdjacentEdges() {
+        return this.adjacentEdges.length === 0 ? false : true;
     }
 
     // Check if throwing a string is the right thing to do here
-    randomIncidentEdge() {
-        if (!this.hasIncidentEdges()) {
+    randomAdjacentEdge() {
+        if (!this.hasAdjacentEdges()) {
             throw new Error({
-                message: "Vertex has no incident edges",
+                message: "Vertex has no adjacent edges",
             });
         }
-        return this.incidentEdges[
-            Math.floor(Math.random() * this.incidentEdges.length)
+        return this.adjacentEdges[
+            Math.floor(Math.random() * this.adjacentEdges.length)
         ];
     }
 
     removeAllEdges() {
-        this.incidentEdges = [];
+        this.adjacentEdges = [];
     }
 }
