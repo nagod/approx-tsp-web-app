@@ -12,16 +12,10 @@ export default class MainPresenter {
         this.graph = new Graph();
         this.viewController = viewController;
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
-        this.getGraph = this.getGraph.bind(this);
-        this.drawGraph = this.drawGraph.bind(this);
     }
 
     handleTriangulateButtonClicked() {
         this.graph.sHullTriangulation(this.graph.vertices)
-    }
-
-    getGraph() {
-        return this.graph;
     }
 
     // TODO: Make dropdown, rename function and accept string to select example value
@@ -31,7 +25,4 @@ export default class MainPresenter {
         this.graph.makeGraphFromData(data);
     }
 
-    drawGraph() {
-        this.viewController.drawGraph();
-    }
 }

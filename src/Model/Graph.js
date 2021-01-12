@@ -26,24 +26,8 @@ export default class Graph extends Observable {
         this.circumCircleRadius = this.circumCircleRadius.bind(this)
         this.smallestCircumCircle = this.smallestCircumCircle.bind(this)
         this.addToSHull = this.addToSHull.bind(this)
+        this.addEdgeAsync = this.addEdgeAsync.bind(this)
     }
-    // Probably need to write some setter
-    // vertices is an array. Need to write it for a single vertex?
-
-    /**
-     *  Extends the Observable class.
-     *  Existing notification identifiers:
-     * - "vertexAddedNotification"
-     * - "vertexDeletedNotification"
-     * - "edgeAddedNotification"
-     * - "edgeDeletedNotification"
-    */
-
-
-    /**
-     * @param {Array} vertices
-     * @return {Graph}
-     */
 
     addVertex(vertex) {
         this.vertices.push(vertex)
@@ -68,10 +52,6 @@ export default class Graph extends Observable {
         return this.vertices.length > 0 ? true : false;
     }
 
-    // Also for getEdges, is this the right way to handle an undefined error?
-    // Do we even need to write a getter since you could just access the Instances proterty
-    // Yes we  should, is commen practice in e.g Java
-
     getVertices() {
         if (!this.hasVertices()) {
             throw Error("Graph has no edges");
@@ -92,16 +72,34 @@ export default class Graph extends Observable {
     }
 
     sortVerticesByXPos() {
-        //TODO: Implement error handling if
+        if (!this.hasVertices()) {
+            throw Error("Graph has no vertices");
+        }
         return this.vertices.sort((x, y) => x.xPos - y.xPos);
     }
 
     sortVerticesByYPos() {
+        if (!this.hasVertices()) {
+            throw Error("Graph has no vertices");
+        }
         return this.vertices.sort((x, y) => x.yPos - y.yPos);
     }
 
     hasEdges() {
         return this.edges.length > 0 ? true : false;
+    }
+
+    addEdge(x, y) {
+        this.edges.push(new Edge(x, y))
+    }
+
+    addEdgeAsync(x, y) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                this.addEdge(x, y)
+                resolve(true)
+            }, 1000)
+        })
     }
 
     getEdges() {
@@ -129,7 +127,8 @@ export default class Graph extends Observable {
         result.reverse()
         return [firstElement, ...result]
     }
-    // 
+
+    // Returns the polar angle of any vertex with p0 set as origin and vextor representing the x axis direction
     calculatePolarAngle(p0, vertex, vector = { xPos: 1, yPos: 0 }) {
         let point = {
             xPos: vertex.xPos - p0.xPos,
@@ -141,7 +140,6 @@ export default class Graph extends Observable {
         let normalizedPoint = this.normalize(point);
         let dotProduct = this.dotProduct2D(normalizedVector, normalizedPoint);
         let result = Math.acos(dotProduct);
-        //onsole.log("p0: ", p0, "veretx: ", vertex, "Vector: ", vector, "result: ", result)
 
         return result;
     }
@@ -152,28 +150,26 @@ export default class Graph extends Observable {
 
     // Returns true if point is on the left side of the vector xy
     isLeft(point, x, y) {
-        /*x = { xPos: 0, yPos: 0 }
-        y = { xPos: 1, yPos: 0 }
-        point = { xPos: 4, yPos: -2 }*/
-        let a = { xPos: y.xPos - x.xPos, yPos: y.yPos - x.yPos } // y - x
-        let b = { xPos: point.xPos - x.xPos, yPos: point.yPos - x.yPos } // point - x
+        let a = { xPos: y.xPos - x.xPos, yPos: y.yPos - x.yPos }
+        let b = { xPos: point.xPos - x.xPos, yPos: point.yPos - x.yPos }
         if ((a.xPos * b.yPos - a.yPos * b.xPos) > 0) {
             return true
         }
         return false
     }
 
+    isRight(point, x, y) {
+        return !this.isLeft(point, x, y)
+    }
+
+    // Returns a vector from vertex x to vertex y
     vectorFromXToY(x, y) {
-        //console.log("Calculating from 2 vectors", x, y)
         return { xPos: y.xPos - x.xPos, yPos: y.yPos - x.yPos }
     }
 
     // Returns the right turned vector
     orthogonalVector(vector) {
-
-        //console.log({ xPos: vector.yPos, yPos: -vector.xPos })
         return { xPos: vector.yPos, yPos: -vector.xPos }
-
     }
 
     // Length of vector, if no y is specified, it will return length of vector from origin
@@ -183,6 +179,7 @@ export default class Graph extends Observable {
         );
     }
 
+    // Normalizes a vector x
     normalize(x) {
         let length = this.euclideanDistance2D(x);
         if (length === 0) {
@@ -195,6 +192,7 @@ export default class Graph extends Observable {
         }
     }
 
+    // Determines if three connected points x, y and z turn counterclockwise
     counterclockwise(x, y, z) {
         return (
             (y.xPos - x.xPos) * (z.yPos - x.yPos) -
@@ -234,140 +232,110 @@ export default class Graph extends Observable {
     }
 
     // Triangulation 
+    // 1) Points are sorted by the distance from the center of the initial circle
+    // 2) We determine the polar coordinates of all points in the current convex hull from the point that is to be added
+    // 3) Sort them in ascending order
+    // 4) Record min and max polar angle of these points
+    // 5) Draw an Edge from the new point to every point on the convex hull in counterclockwise order, starting from the max polar angle point
+    // 6) Stop at the min polar angle point, every other point lays beyond and is not visible to the added point
+    // 7) Remove all points in between min and max and the new added point ( those that you drew edges to )
+    // 8) return the new hull
 
 
     async sHullTriangulation(set) {
+
+        // Reset edges
         this.edges = []
-        //let array = [new Vertex(1, 1, 1), new Vertex(2, 3, 5), new Vertex(3, 3, 3),
-        //new Vertex(4, 5, 2), new Vertex(5, 6, 8), new Vertex(6, 7, 5)]
         let array = [...set]
 
-        //array.sort((a, b) => a.xPos - b.xPos)
         // Get any reference Point, it is not stated to be important which point declares the seed
-
         // Maybe choose mid most point for better runtime
         let referencePoint = array.splice(Math.floor(Math.random() * Math.floor(array.length)), 1)[0]
+
         // Sort the array by the distance from the reference point
         array = this.sortByDistanceFromPoint(referencePoint, array)
-        console.log("ARRAY IS LONG: ", array.length, "SET IS EQUAL? : ", set.length - 1)
 
         // Pop the nearest point
         let nearestToReference = array.shift()
+
         // Find point that creates the smallest circumcircle with referencepoint and the nearest point to it
-
         let smallestCircumCirclePoint = this.smallestCircumCircle(referencePoint, nearestToReference, array)
-
         array = array.filter(item => item !== smallestCircumCirclePoint);
         let smallestCircleCenter = this.circumCircleCenter(referencePoint, nearestToReference, smallestCircumCirclePoint)
-        //this.edges.push(new Edge({ xPos: 0, yPos: 0 }, smallestCircleCenter))
-        //array.shift() //  refractor this line, put it into outout of circumcirlclecenter
-        // Keeping track of the temporary convex hull
+
+        // Initialize the convex hull
         let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
 
         //resort the remaining points according to |xi−C|^2to give points si
         array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
-        //console.log(array.length)
-        console.log("\n\nArray resorted by distance from ReferencePoint to smallestCircleCenter is: ", array)
+
+        // Connect initial triangle
         this.edges.push(new Edge(referencePoint, nearestToReference))
         this.edges.push(new Edge(referencePoint, smallestCircumCirclePoint))
         this.edges.push(new Edge(nearestToReference, smallestCircumCirclePoint))
 
-        // Array is already sorted by distance
-
+        // We must use a counter variable i and increment it only after the promise, which is adding the point to the current hull, is fulfilled
         let i = 0
         let size = array.length
-        console.log("Size of array: ", size)
-        // DO THIS WITH TIMEOUT LOOP or
         while (i < size) {
-            // Add each point to the temporary sHull and update it
-
             let point = array.shift()
-            console.log("Current Point: ", point)
             // eslint-disable-next-line no-loop-func
             await this.addToSHull(point, tmpSHull, smallestCircleCenter).then((data) => {
-                console.log("Data an der stelle: ", data[data.length - 1])
                 tmpSHull = data
                 i++
-                // console.log("i: ", i, "array.length: ", array.length)
             })
         }
-        // Add edges between initial triangle
-        console.log("ENDE")
     }
-
-    // Hull is the current temporary convex hull of the set
-    // We add a point to it and remove any inner point of the convex polygon
-
-    // 1) Points are sorted by the distance from the center of the initial circle
-    // 2) We determine the polar coordinates of all points in the current convex hull from the point that is to be added
-    // 2.5) Sort them in ascending order
-    // 3) Record min and max polar angle of these points
-    // 4) Draw an Edge from the new point to every point on the convex hull in counterclockwise order, starting from the max polar angle point
-    // 5) Stop at the min polar angle point, every other point lays beyond and is not visible to the added point
-    // 6) Remove all points in between min and max and the new added point ( those that you drew edges to )
-    // 7) return the new hull
 
     addToSHull(point, hull, circleCenter) {
         return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                //console.log("In Promise: ", point, hull, circleCenter)
-                // Workin with the closest point
 
-                let edgeCounter = 0
-                let isRightCounter = 0
+            // We set a timeout to delay the animation
+            setTimeout(() => {
+
+                // We calculate a vector to the center of the initial triangle circumcirlce center,
+                // from which we calculate the right turned normal vector to determine and sort the
+                // hull points by their respective polar angle
                 let vectorToCenter = this.vectorFromXToY(point, circleCenter)
-                // Always returns a positive vector
                 let orthogonal = this.orthogonalVector(vectorToCenter)
-                this.orthogonale.push([point, orthogonal])
-                // We determine the polar coordinates of all points in the current convex hull from the point that is to be added
                 hull = hull.map(item => [item, this.calculatePolarAngle(point, item, orthogonal)])
-                // Sort them in ascending order
                 hull.sort((a, b) => a[1] - b[1])
                 hull = hull.flatMap(item => item[0])
-                // Record min and max polar angle of these points
-                //console.log("Hull:", hull)
-                let min = hull[0]
-                let max = hull[hull.length - 1]
 
+                // Keep track of min and max polar angle - points to the left of the line between min and max vertex 
+                // are not visible to the point that is to be added
+                let minPolarAngle = hull[0]
+                let maxPolarAngle = hull[hull.length - 1]
+
+                // List of vertices that will be contained in the convex hull after point was added
                 let removingVertices = []
 
                 for (let item of hull) {
-                    //implement if else statemnt
-                    if ((item !== min) && (item !== max)) {
+                    if ((item !== minPolarAngle) && (item !== maxPolarAngle)) {
                         // If item is right ( it is visible to the point )
-                        if (!this.isLeft(item, max, min)) {
-                            //console.log("WAS RIGHT")
-                            // Add an edge
+                        if (!this.isLeft(item, maxPolarAngle, minPolarAngle)) {
                             this.edges.push(new Edge(point, item))
-                            isRightCounter++
-                            edgeCounter++
-                            //console.log("Pushed edge from: ", point, "to ", item)
-                            // Now remove it from the hull, at this point it must be inside the convex hull
                             removingVertices.push(item)
-                            //hull.splice(index, 1);
-
                         }
-                    } else {
-                        if ((item === min) || (item === max)) {
-                            this.edges.push(new Edge(point, item))
-                            edgeCounter++
-                            console.log("Pushed edge from: ", point, "to ", item)
-                        }
-                        else {
-                            console.error("This Point was jumpned: ", point)
-                        }
+                    } else if ((item === minPolarAngle) || (item === maxPolarAngle)) {
+                        // Add an edge but dont delete the vertices, they are still on the convex hull
+                        /*let added = false
+                        while (added !== true) {
+                            await this.addEdgeAsync(point, item).then((data) => {
+                                added = data
+                            })
+                        }*/
+                        this.edges.push(new Edge(point, item))
                     }
                 }
-                console.log("Should have drawn: ", isRightCounter + 2, "drew: ", edgeCounter)
-                //console.log("NICHT GEWRATET
+
+                // Remove all points from the hull at once for better runtime
                 for (let remove of removingVertices) {
                     hull = hull.filter(element => element !== remove);
                 }
                 hull.push(point)
-                // Do math
-                //return hull
                 resolve(hull)
-            }, 1000)
+            }, 1000) // Make speed dynamic with config
         })
     }
 
@@ -380,7 +348,7 @@ export default class Graph extends Observable {
     }
 
 
-    //https://calculator.swiftutors.com/circumcircle-of-a-triangle-calculator.html
+    // https://calculator.swiftutors.com/circumcircle-of-a-triangle-calculator.html
     circumCircleRadius(x1, x2, x3) {
         let a = this.euclideanDistance2D(x1, x2)
         let b = this.euclideanDistance2D(x1, x3)

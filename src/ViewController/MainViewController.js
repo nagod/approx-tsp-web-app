@@ -16,7 +16,6 @@ export default class MainViewController extends React.Component {
         // Bind this to function so that "this" refers to this object
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
-        this.printGraph = this.printGraph.bind(this)
     }
 
     // Handling events
@@ -31,21 +30,11 @@ export default class MainViewController extends React.Component {
 
     // Changing the View Functions
 
-    turnViewRed() {
-        document.getElementById("blackText").style.color = "red";
-    }
-
-    turnViewBlue() {
-        document.getElementById("blackText").style.color = "blue";
-    }
-    printGraph() {
-        //this.presenter.printGraph()
-        console.log(this.presenter.getGraph());
-    }
 
     render() {
         return (
             <div>
+                <Canvas viewController={this} />
                 <Button
                     label="Read Data"
                     handleButtonClicked={this.handleReadDataButtonClicked}
@@ -54,12 +43,6 @@ export default class MainViewController extends React.Component {
                     label="Triangulate"
                     handleButtonClicked={this.handleTriangulateButtonClicked}
                 />
-                <Button
-                    label="Print Data"
-                    handleButtonClicked={this.printGraph}
-                />
-                <Canvas viewController={this} />
-                <h1 id="blackText">after canvas</h1>
             </div>
         );
     }

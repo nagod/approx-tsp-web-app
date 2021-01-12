@@ -15,7 +15,6 @@ export default class Canvas extends React.Component {
         this.handleMouseUp = this.handleMouseUp.bind(this);
         this.handleMouseMove = this.handleMouseMove.bind(this);
         this.drawCircleAt = this.drawCircleAt.bind(this);
-        this.printGraph = this.printGraph.bind(this);
         this.highlightConvexHull = this.highlightConvexHull.bind(this);
         this.renderingLoop = this.renderingLoop.bind(this)
     }
@@ -23,12 +22,10 @@ export default class Canvas extends React.Component {
     componentDidMount() {
         this.setupCanvas();
         this.setupEventListeners();
-        this.subscribe()
         window.requestAnimationFrame(this.renderingLoop)
     }
 
     componentWillUnmount() {
-        this.unsubscribe()
     }
 
     // Setting up
@@ -44,21 +41,11 @@ export default class Canvas extends React.Component {
         this.canvas.addEventListener("contextmenu", this.handleRightMouseDown);
     }
 
-    subscribe() {
-        this.viewController.presenter.graph.subscribe(this)
-    }
-
-    unsubscribe() {
-        this.viewController.presenter.graph.unsubscribe(this)
-    }
-
     // Rendering the animation frames
 
     renderingLoop(timeStamp) {
         // Update game objects in the loop
-        //update();
         this.draw();
-
         window.requestAnimationFrame(this.renderingLoop);
     }
 
@@ -91,64 +78,16 @@ export default class Canvas extends React.Component {
     handleMouseUp(event) {
         this.canvas.removeEventListener("mousemove", this.handleMouseMove)
         this.canvas.removeEventListener("mouseup", this.handleMouseUp)
-        //var mousePos = this.getMousePosition(event, this.canvas);
-        //console.log("recognized mouse up event at", mousePos);
     }
 
     handleMouseMove(event) {
         let mousePos = this.getMousePosition(event)
         this.currentVertex.xPos = mousePos.x
         this.currentVertex.yPos = mousePos.y
-        // var mousePos = this.getMousePosition(event, this.canvas);
-        // console.log("regognized mouse move event to", mousePos);
     }
 
     handleRightMouseDown(event) {
-        alert("Right click is working")
-    }
-
-    // Notifications
-
-    notify(identifier, data) {
-        //console.log("received notification with data: ", data)
-        switch (identifier) {
-            case "vertexAddedNotification":
-                this.handleVertexAddedNotification(data)
-                break
-            case "vertexDeletedNotification":
-                this.handleVertexDeletedNotification(data)
-                break
-            case "edgeAddedNotification":
-                this.handleEdgeAddedNotification(data)
-                break
-            case "edgeDeletedNotification":
-                this.handleEdgeDeletedNotification(data)
-                break
-            default:
-                console.log("Could not identify notification identifier with data", data)
-                break
-        }
-    }
-
-    handleVertexAddedNotification(data) {
-        // do something
-        //console.log("received new vertex added notification")
-        //this.drawCircleAt(data.xPos, data.yPos)
-    }
-
-    handleVertexDeletedNotification(data) {
-        // do something
-        //console.log("received new vertex deleted notification")
-    }
-
-    handleEdgeAddedNotification(data) {
-        // do something
-        //console.log("received new edge added notification")
-    }
-
-    handleEdgeDeletedNotification(data) {
-        // do something
-        //console.log("received new edge deleted notification")
+        //alert("Right click is working")
     }
 
     // Functions
@@ -161,7 +100,6 @@ export default class Canvas extends React.Component {
     }
 
     // Collision detection
-
     isIntersect(point, vertex) {
         return Math.sqrt((point.x - vertex.xPos) ** 2 + (point.y - vertex.yPos) ** 2) < Config.circleRadius;
     }
@@ -190,7 +128,7 @@ export default class Canvas extends React.Component {
         this.ctx.beginPath();
         this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = color
-        //this.ctx.fill()
+        this.ctx.fill()
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
         this.ctx.closePath();
@@ -211,18 +149,8 @@ export default class Canvas extends React.Component {
 
     }
 
-    printGraph() {
-        try {
-            this.viewController.presenter.graph.vertices.forEach(vertex => {
-                this.drawCircleAt(vertex.xPos, vertex.yPos)
-            })
-        } catch (error) {
-            console.log(error.message)
-        }
-    }
 
-
-    // obsolete function? 
+    // Obsolete function? 
 
     highlightConvexHull() {
         try {
@@ -231,7 +159,7 @@ export default class Canvas extends React.Component {
             set.forEach(vertex => {
                 this.drawCircleAt(vertex.xPos, vertex.yPos, Config.circleRadius, "red")
             })
-            //TESTING Code for Edges
+            // TESTING Code for Edges
             // Comment: Please try to push only clean code
             this.viewController.presenter.graph.connectConvexHull();
             this.viewController.presenter.graph.edges.forEach(element => {
@@ -253,8 +181,7 @@ export default class Canvas extends React.Component {
                     width="1200"
                     height="750"
                 ></canvas>
-                <button onClick={() => this.printGraph()}>Draw Graph</button>
-                <button onClick={() => this.highlightConvexHull()}>Compute Convexhull</button>
+                <button onClick={() => this.highlightConvexHull()}>Highlight Convexhull</button>
             </div>
         );
     }
