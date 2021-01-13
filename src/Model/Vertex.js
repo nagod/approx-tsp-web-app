@@ -1,14 +1,18 @@
+import Config from '../App/Config'
+
 export default class Vertex {
     constructor(id, xPos, yPos) {
         this.id = id;
         this.xPos = xPos;
         this.yPos = yPos;
-        this.adjacentEdges = [];
+        this.color = Config.defaultVertexColor
+        this.triangles = [];
         this.getXPos = this.getXPos.bind(this);
         this.getYPos = this.getYPos.bind(this);
-        this.getAdjacentEdges = this.getAdjacentEdges.bind(this);
-        this.hasAdjacentEdges = this.hasAdjacentEdges.bind(this);
-        this.removeAllEdges = this.removeAllEdges.bind(this);
+        this.getTriangles = this.getTriangles.bind(this);
+        this.hasTriangles = this.hasTriangles.bind(this);
+        this.removeTriangle = this.removeTriangle.bind(this)
+        this.removeAllTriangles = this.removeAllTriangles.bind(this);
     }
 
     getXPos() {
@@ -19,27 +23,31 @@ export default class Vertex {
         return this.yPos;
     }
 
-    getAdjacentEdges() {
-        return this.adjacentEdges;
+    getTriangles() {
+        return this.triangles;
     }
 
-    hasAdjacentEdges() {
-        return this.adjacentEdges.length === 0 ? false : true;
+    hasTriangles() {
+        return this.triangles.length === 0 ? false : true;
+    }
+
+    removeTriangle(triangle) {
+        this.triangles = this.triangles.filter(element => element !== triangle)
     }
 
     // Check if throwing a string is the right thing to do here
-    randomAdjacentEdge() {
-        if (!this.hasAdjacentEdges()) {
+    randomTriangle() {
+        if (!this.hasTriangles()) {
             throw new Error({
-                message: "Vertex has no adjacent edges",
+                message: "Vertex has no adjacent triangles",
             });
         }
-        return this.adjacentEdges[
-            Math.floor(Math.random() * this.adjacentEdges.length)
+        return this.triangles[
+            Math.floor(Math.random() * this.triangles.length)
         ];
     }
 
-    removeAllEdges() {
-        this.adjacentEdges = [];
+    removeAllTriangles() {
+        this.triangles = [];
     }
 }

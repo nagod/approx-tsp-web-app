@@ -1,13 +1,17 @@
+import Config from '../App/Config'
+import MathExtension from '../Extensions/MathExtension'
+
 export default class Edge {
 
     constructor(vertex1, vertex2) {
         this.vertexOne = vertex1;
         this.vertexTwo = vertex2;
-        //this.length = this.calculateLength(this.vertexOne, this.vertexTwo);
+        this.color = Config.defaultEdgeColor
+        this.length = this.calculateLength(this.vertexOne, this.vertexTwo);
     }
 
     calculateLength(vertexOne, vertexTwo) {
-        return Math.euclideanDistance2D(vertexOne, vertexTwo)
+        return MathExtension.euclideanDistance2D(vertexOne, vertexTwo)
     }
 
     getVertexOne() {

@@ -1,5 +1,6 @@
 import React from "react";
 import Config from "../App/Config";
+import MathExtension from "../Extensions/MathExtension";
 import Edge from "../Model/Edge";
 import "./Stylesheets/Canvas.css";
 
@@ -15,6 +16,7 @@ export default class Canvas extends React.Component {
         this.handleMouseUp = this.handleMouseUp.bind(this);
         this.handleMouseMove = this.handleMouseMove.bind(this);
         this.drawCircleAt = this.drawCircleAt.bind(this);
+        this.drawTriangleCircumCircle = this.drawTriangleCircumCircle.bind(this)
         this.highlightConvexHull = this.highlightConvexHull.bind(this);
         this.renderingLoop = this.renderingLoop.bind(this)
     }
@@ -110,14 +112,15 @@ export default class Canvas extends React.Component {
     drawGraph(graph) {
         graph.vertices.forEach(vertex => this.drawVertex(vertex))
         graph.edges.forEach(edge => this.drawEdge(edge))
+        //graph.triangles.forEach(triangle => this.drawTriangleCircumCircle(triangle))
         //graph.orthogonale.forEach(orthogonale => this.drawEdge(new Edge(orthogonale[0], { xPos: orthogonale[0].xPos + orthogonale[1].xPos, yPos: orthogonale[0].yPos + orthogonale[1].yPos })))
         //this.drawCircleAt(graph.circle[0].xPos, graph.circle[0].yPos, graph.circle[1])
     }
 
-    drawVertex(vertex, color = Config.defaultVertexColor) {
+    drawVertex(vertex) {
         this.ctx.beginPath();
         this.ctx.arc(vertex.xPos, vertex.yPos, Config.circleRadius, 0, 2 * Math.PI);
-        this.ctx.fillStyle = color
+        this.ctx.fillStyle = vertex.color
         this.ctx.fill()
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
@@ -128,14 +131,14 @@ export default class Canvas extends React.Component {
         this.ctx.beginPath();
         this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = color
-        this.ctx.fill()
+        //this.ctx.fill()
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
         this.ctx.closePath();
     }
 
-    drawEdge(edge, color = Config.defaultEdgeColor) {
-        this.drawEdgeBetweenPoints(edge.vertexOne.xPos, edge.vertexOne.yPos, edge.vertexTwo.xPos, edge.vertexTwo.yPos, color)
+    drawEdge(edge) {
+        this.drawEdgeBetweenPoints(edge.vertexOne.xPos, edge.vertexOne.yPos, edge.vertexTwo.xPos, edge.vertexTwo.yPos, edge.color)
     }
 
     drawEdgeBetweenPoints(x1Pos, y1Pos, x2Pos, y2Pos, color = Config.defaultEdgeColor) {
@@ -146,7 +149,11 @@ export default class Canvas extends React.Component {
         this.ctx.lineWidth = 3
         this.ctx.stroke();
         this.ctx.closePath();
+    }
 
+    drawTriangleCircumCircle(triangle) {
+        let circumCircleCenter = MathExtension.circumCircleCenter(triangle.vertexOne, triangle.vertexTwo, triangle.vertexThree)
+        this.drawCircleAt(circumCircleCenter.xPos, circumCircleCenter.yPos, circumCircleCenter.radius)
     }
 
 

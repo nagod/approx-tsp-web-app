@@ -35,6 +35,14 @@ export default class Triangle {
         return Math.min(alpha, beta, gamma)
     }
 
+    // Super bad refractor with edge property
+    getEdges(edges) {
+        let edge1 = edges.find(edge => ((edge.vertexOne === this.vertexOne || edge.vertexOne === this.vertexTwo) && (edge.vertexTwo === this.vertexOne || edge.vertexTwo === this.vertexTwo)))  // 1 & 2
+        let edge2 = edges.find(edge => ((edge.vertexOne === this.vertexOne || edge.vertexOne === this.vertexThree) && (edge.vertexTwo === this.vertexOne || edge.vertexTwo === this.vertexThree))) // 1 & 3
+        let edge3 = edges.find(edge => ((edge.vertexOne === this.vertexTwo || edge.vertexOne === this.vertexThree) && (edge.vertexTwo === this.vertexTwo || edge.vertexTwo === this.vertexThree))) // 2 & 3
+        return [edge1, edge2, edge3]
+    }
+
     getVertexOne() {
         return this.vertexOne;
     }

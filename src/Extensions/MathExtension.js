@@ -48,6 +48,37 @@ export default class MathExtension {
         return result
     }
 
+
+    static circumCircleCenter(x1, x2, x3) {
+
+        let x12 = x1.xPos - x2.xPos;
+        let x13 = x1.xPos - x3.xPos;
+        let y12 = x1.yPos - x2.yPos;
+        let y13 = x1.yPos - x3.yPos;
+        let y31 = x3.yPos - x1.yPos;
+        let y21 = x2.yPos - x1.yPos;
+        let x31 = x3.xPos - x1.xPos;
+        let x21 = x2.xPos - x1.xPos;
+
+        let sx13 = (Math.pow(x1.xPos, 2) - Math.pow(x3.xPos, 2));
+        let sy13 = (Math.pow(x1.yPos, 2) - Math.pow(x3.yPos, 2));
+        let sx21 = (Math.pow(x2.xPos, 2) - Math.pow(x1.xPos, 2));
+        let sy21 = (Math.pow(x2.yPos, 2) - Math.pow(x1.yPos, 2));
+
+        let f = ((sx13) * (x12) + (sy13) * (x12) + (sx21) * (x13) + (sy21) * (x13)) / (2 * ((y31) * (x12) - (y21) * (x13)));
+        let g = ((sx13) * (y12) + (sy13) * (y12) + (sx21) * (y13) + (sy21) * (y13)) / (2 * ((x31) * (y12) - (x21) * (y13)));
+
+        let c = -Math.pow(x1.xPos, 2) - Math.pow(x1.yPos, 2) - 2 * g * x1.xPos - 2 * f * x1.yPos;
+
+        let centerXPos = -g;
+        let centerYPos = -f;
+        let sqrOfR = centerXPos * centerXPos + centerYPos * centerYPos - c;
+        this.circle = [{ xPos: centerXPos, yPos: centerYPos }, Math.sqrt(sqrOfR)]
+        let radius = Math.sqrt(sqrOfR)
+
+        return { xPos: centerXPos, yPos: centerYPos, radius: radius }
+    }
+
     // Returns the polar angle of any vertex with p0 set as origin and vextor representing the x axis direction
     static calculatePolarAngle(p0, vertex, vector = { xPos: 1, yPos: 0 }) {
         let point = {
@@ -63,6 +94,9 @@ export default class MathExtension {
 
         return result;
     }
+
+
+
 
 
 }
