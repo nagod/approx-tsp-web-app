@@ -36,7 +36,6 @@ export default class Triangle {
         let gamma = MathExtension.angle(ca, cb)
         return Math.min(alpha, beta, gamma)
     }
-
     // Super bad refractor with edge property
     getEdges(edges) {
         let edge1 = edges.find(edge => ((edge.vertexOne === this.vertexOne || edge.vertexOne === this.vertexTwo) && (edge.vertexTwo === this.vertexOne || edge.vertexTwo === this.vertexTwo)))  // 1 & 2

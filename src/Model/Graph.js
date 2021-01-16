@@ -411,7 +411,9 @@ export default class Graph extends Observable {
     }
     å
     async flipEdges(edges) {
-        let allEdges = []
+        let allEdges = [...edges]
+        // not sure if necessary . talk with timo about it 
+        /*
         //calculate convexhull 
         let convexhullEdges = this.convexhullEdges(this.calculateConvexHull(this.vertices))
 
@@ -421,6 +423,7 @@ export default class Graph extends Observable {
                 allEdges.push(element)
             }
         })
+        */
         // delete from allEdges the edges which are included in the convex hull
         let flag = true
         while (flag) {
@@ -433,7 +436,7 @@ export default class Graph extends Observable {
                 // find both triangles that share the same edge
                 let triangles = this.sharedTriangles(edge.vertexOne, edge.vertexTwo)
 
-                if (triangles.length > 0) {
+                if (triangles.length > 1) {
                     let flippedEdge = 0
                     await this.flipEdge(triangles[0], triangles[1]).then(data => {
                         flippedEdge = data
@@ -479,6 +482,8 @@ export default class Graph extends Observable {
                 }
                 // determine old edge
                 let oldEdge = this.sharedEdge(triangleA, triangleB)
+
+                //check if
 
                 // Triangles arent adjacent
                 // Error handling
@@ -531,6 +536,7 @@ export default class Graph extends Observable {
 
                     // Push new one
                     let newEdge = this.addEdge(a[0], b[0])
+                    /*
                     if (oldEdge.color === Config.defaultEdgeColor) {
                         newEdge.color = "orange"
                     } else if (oldEdge.color === "orange") {
@@ -538,7 +544,7 @@ export default class Graph extends Observable {
                     } else if (oldEdge.color === "yellow") {
                         newEdge.color = "red"
                     }
-
+                    */
 
                     resolve(newEdge)
                     return
