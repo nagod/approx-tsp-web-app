@@ -21,7 +21,6 @@ export default class Graph extends Observable {
         this.sortVerticesByYPos = this.sortVerticesByYPos.bind(this);
         this.calculateConvexHull = this.calculateConvexHull.bind(this);
         this.addVertex = this.addVertex.bind(this);
-        this.addVertexFromData = this.addVertexFromData.bind(this);
         this.makeGraphFromData = this.makeGraphFromData.bind(this);
         this.connectConvexHull = this.connectConvexHull.bind(this);
         this.sHullTriangulation = this.sHullTriangulation.bind(this)
@@ -37,18 +36,15 @@ export default class Graph extends Observable {
         this.hullContainsEdge = this.hullContainsEdge.bind(this)
     }
 
-    addVertex(vertex) {
-        this.vertices.push(vertex)
-    }
-
-    addVertexFromData(id, xPos, yPos) {
+    addVertex(id, xPos, yPos) {
         const vertex = new Vertex(id, xPos, yPos)
         this.vertices.push(vertex);
     }
 
     makeGraphFromData(vertices) {
         vertices.forEach((vertex) => {
-            this.addVertex(vertex);
+            const {id, xPos, yPos} = vertex
+            this.addVertex(id, xPos, yPos);
         });
 
         return this;

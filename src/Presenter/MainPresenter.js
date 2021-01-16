@@ -23,6 +23,7 @@ export default class MainPresenter {
     handleReadDataButtonClicked() {
         const data = FileService.getExampleByKey("example03");
         this.graph.makeGraphFromData(data);
+        console.log(this.graph.vertices)
     }
 
 }
