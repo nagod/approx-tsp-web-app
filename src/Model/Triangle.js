@@ -1,4 +1,5 @@
 import MathExtension from "../Extensions/MathExtension"
+import Edge from "./Edge";
 
 export default class Triangle {
 
@@ -7,6 +8,7 @@ export default class Triangle {
         this.vertexOne = vertex1;
         this.vertexTwo = vertex2;
         this.vertexThree = vertex3;
+        this.edges = [new Edge(vertex1, vertex2), new Edge(vertex1, vertex3), new Edge(vertex2, vertex3)]
         this.getCircumCircleRadius = this.circumCircleRadius.bind(this)
         this.circumCircleRadius = this.circumCircleRadius(this.vertexOne, this.vertexTwo);
         this.minimumAngleVertex = this.minimumAngleVertex.bind(this)
