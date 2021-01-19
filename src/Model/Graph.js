@@ -27,13 +27,10 @@ export default class Graph extends Observable {
         this.sortByDistanceFromPoint = this.sortByDistanceFromPoint.bind(this);
         this.smallestCircumCircle = this.smallestCircumCircle.bind(this)
         this.addToSHull = this.addToSHull.bind(this)
-        this.addEdgeAsync = this.addEdgeAsync.bind(this)
         this.flipEdge = this.flipEdge.bind(this)
         this.flipEdges = this.flipEdges.bind(this)
         this.sharedTriangles = this.sharedTriangles.bind(this)
         this.sharedEdge = this.sharedEdge.bind(this)
-        this.convexhullEdges = this.convexhullEdges.bind(this)
-        this.hullContainsEdge = this.hullContainsEdge.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
@@ -43,7 +40,7 @@ export default class Graph extends Observable {
 
     makeGraphFromData(vertices) {
         vertices.forEach((vertex) => {
-            const {id, xPos, yPos} = vertex
+            const { id, xPos, yPos } = vertex
             this.addVertex(id, xPos, yPos);
         });
 
@@ -98,15 +95,6 @@ export default class Graph extends Observable {
 
     }
 
-    addEdgeAsync(x, y) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                this.addEdge(x, y)
-                resolve(true)
-            }, 1000)
-        })
-    }
-
     getEdges() {
         if (!this.hasEdges()) {
             throw Error("Graph has no edges");
@@ -145,6 +133,7 @@ export default class Graph extends Observable {
         result.sort((a, b) => a.minimumAngle - b.minimumAngle)
         return result
     }
+
     sortByDistanceFromPoint(x0, array) {
         let result = array.map(point => [point, Math.pow(MathExtension.euclideanDistance2D(x0, point), 2)])
         result.sort((a, b) => a[1] - b[1])
@@ -172,14 +161,26 @@ export default class Graph extends Observable {
         return { xPos: vector.yPos, yPos: -vector.xPos }
     }
 
+    edgeWithEndpoints(a, b) {
+        let edge = this.edges.find(edge => (edge.vertexOne === a && edge.vertexTwo === b) || (edge.vertexOne === b && edge.vertexTwo === a))
+        if (edge !== undefined) {
+            return edge
+        } else {
+            throw Error("No edge between Endpoints", a, ", ", b)
+        }
+    }
+
     // Returns an array containing the shared triangles of two vertices
     // If the length of the result equals 2 the triangles share an edge that may be flipped
     sharedTriangles(vertexA, vertexB) {
+        //console.log("Getting shared triangle of ", vertexA, vertexB)
+
         let result = []
         //Java style
         for (let triangleA of vertexA.triangles) {
             for (let triangleB of vertexB.triangles) {
                 if (triangleA === triangleB) {
+                    //console.log("Pushing Triangle taht is not null!", triangleA)
                     result.push(triangleA)
                 }
             }
@@ -203,7 +204,7 @@ export default class Graph extends Observable {
         if (tmpEdge.length !== 2) {
             return false
         }
-        return this.edges.find(edge => ((edge.vertexOne === tmpEdge[0] || edge.vertexOne === tmpEdge[1]) && (edge.vertexTwo === tmpEdge[0] || edge.vertexTwo === tmpEdge[1])))
+        return this.edges.find(edge => ((edge.vertexOne === tmpEdge[0] && edge.vertexTwo === tmpEdge[1]) || (edge.vertexOne === tmpEdge[1] && edge.vertexTwo === tmpEdge[0])))
     }
 
     // Determines if three connected points x, y and z turn counterclockwise
@@ -245,21 +246,7 @@ export default class Graph extends Observable {
         return stack;
     }
 
-    // returns all edges on convexull
-    convexhullEdges(hull) {
-        let result = []
-        for (let i = hull.length - 1; i >= 0; i--) {
-            if (i !== 0) {
-                let tmpEdge = new Edge(hull[i], hull[i - 1])
-                result.push(tmpEdge)
-            }
-            else {
-                let tmpEdge = new Edge(hull[i], hull[hull.length - 1])
-                result.push(tmpEdge)
-            }
-        }
-        return result
-    }
+
     // input = edges building hull and edge which needs to be checked 
     // returns true if egde is on Convexhull
     hullContainsEdge(egdesOnHull, edge) {
@@ -287,57 +274,70 @@ export default class Graph extends Observable {
 
 
     async sHullTriangulation(set) {
+        try {
+            // Reset edges
+            this.edges = []
+            this.triangles = []
 
-        // Reset edges
-        this.edges = []
-        this.triangle = []
-        let array = [...set]
+            for (let vertex of this.vertices) {
+                vertex.removeAllTriangles()
+            }
 
-        // Get any reference Point, it is not stated to be important which point declares the seed
-        // Maybe choose mid most point for better runtime
-        let referencePoint = array.splice(Math.floor(Math.random() * Math.floor(array.length)), 1)[0]
+            let array = [...set]
 
-        // Sort the array by the distance from the reference point
-        array = this.sortByDistanceFromPoint(referencePoint, array)
+            // Get any reference Point, it is not stated to be important which point declares the seed
+            // Maybe choose mid most point for better runtime
+            let referencePoint = array.splice(Math.floor(Math.random() * Math.floor(array.length)), 1)[0]
 
-        // Pop the nearest point
-        let nearestToReference = array.shift()
+            // Sort the array by the distance from the reference point
+            array = this.sortByDistanceFromPoint(referencePoint, array)
 
-        // Find point that creates the smallest circumcircle with referencepoint and the nearest point to it
-        let smallestCircumCirclePoint = this.smallestCircumCircle(referencePoint, nearestToReference, array)
-        array = array.filter(item => item !== smallestCircumCirclePoint);
-        let smallestCircleCenter = MathExtension.circumCircleCenter(referencePoint, nearestToReference, smallestCircumCirclePoint)
+            // Pop the nearest point
+            let nearestToReference = array.shift()
 
-        // Initialize the convex hull
-        let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
-        let tmpTriangle = new Triangle(referencePoint, nearestToReference, smallestCircumCirclePoint)
-        this.triangles.push(tmpTriangle)
-        referencePoint.triangles.push(tmpTriangle)
-        nearestToReference.triangles.push(tmpTriangle)
-        smallestCircumCirclePoint.triangles.push(tmpTriangle)
+            // Find point that creates the smallest circumcircle with referencepoint and the nearest point to it
+            let smallestCircumCirclePoint = this.smallestCircumCircle(referencePoint, nearestToReference, array)
+            array = array.filter(item => item !== smallestCircumCirclePoint);
+            let smallestCircleCenter = MathExtension.circumCircleCenter(referencePoint, nearestToReference, smallestCircumCirclePoint)
 
-        // Resort the remaining points according to |xi−C|^2to give points si
-        array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
+            // Initialize the convex hull
+            let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
+            let tmpTriangle = new Triangle(referencePoint, nearestToReference, smallestCircumCirclePoint)
+            this.triangles.push(tmpTriangle)
+            referencePoint.triangles.push(tmpTriangle)
+            nearestToReference.triangles.push(tmpTriangle)
+            smallestCircumCirclePoint.triangles.push(tmpTriangle)
 
-        // Connect initial triangle
-        this.edges.push(new Edge(referencePoint, nearestToReference))
-        this.edges.push(new Edge(referencePoint, smallestCircumCirclePoint))
-        this.edges.push(new Edge(nearestToReference, smallestCircumCirclePoint))
+            // Resort the remaining points according to |xi−C|^2to give points si
+            array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
 
-        // We must use a counter variable i and increment it only after the promise, which is adding the point to the current hull, is fulfilled
-        let i = 0
-        let size = array.length
-        while (i < size) {
-            let point = array.shift()
-            // eslint-disable-next-line no-loop-func
-            await this.addToSHull(point, tmpSHull, smallestCircleCenter).then((data) => {
-                tmpSHull = data
-                i++
-                if (i === size) {
-                    // Now flip all edges
-                    this.flipEdges(this.edges)
-                }
-            })
+            // Connect initial triangle
+            this.edges.push(new Edge(referencePoint, nearestToReference))
+            this.edges.push(new Edge(referencePoint, smallestCircumCirclePoint))
+            this.edges.push(new Edge(nearestToReference, smallestCircumCirclePoint))
+
+            // Add to inital triangle the initial edgess
+            tmpTriangle.edges.push(new Edge(referencePoint, nearestToReference))
+            tmpTriangle.edges.push(new Edge(referencePoint, smallestCircumCirclePoint))
+            tmpTriangle.edges.push(new Edge(nearestToReference, smallestCircumCirclePoint))
+            // We must use a counter variable i and increment it only after the promise, which is adding the point to the current hull, is fulfilled
+            let i = 0
+            let size = array.length
+            while (i < size) {
+                let point = array.shift()
+                // eslint-disable-next-line no-loop-func
+                await this.addToSHull(point, tmpSHull, smallestCircleCenter).then((data) => {
+                    tmpSHull = data
+                    i++
+                    if (i === size) {
+                        // Now flip all edges
+                        this.flipEdges(this.triangles)
+                    }
+                })
+            }
+        } catch (e) {
+            window.alert("Push at least 3 points")
+            console.error(e)
         }
     }
 
@@ -393,6 +393,10 @@ export default class Graph extends Observable {
                     point.triangles.push(tmpTriangle)
                     connectedVertices[i].triangles.push(tmpTriangle)
                     connectedVertices[i + 1].triangles.push(tmpTriangle)
+
+                    tmpTriangle.edges.push(this.edgeWithEndpoints(point, connectedVertices[i]))
+                    tmpTriangle.edges.push(this.edgeWithEndpoints(point, connectedVertices[i + 1]))
+                    tmpTriangle.edges.push(this.edgeWithEndpoints(connectedVertices[i], connectedVertices[i + 1]))
                     // Do something with the trianlge
 
                     //point.triangles.push(triangle)
@@ -402,62 +406,116 @@ export default class Graph extends Observable {
 
                 resolve(hull)
                 return
-            }, 200) // Make speed dynamic with config
+            }, 70) // Make speed dynamic with config
         })
     }
-    å
-    async flipEdges(edges) {
-        let allEdges = [...edges]
-        // not sure if necessary . talk with timo about it 
-        /*
-        //calculate convexhull 
-        let convexhullEdges = this.convexhullEdges(this.calculateConvexHull(this.vertices))
 
-        // sorts out all edges that lie on the convexhull
-        edges.forEach(element => {
-            if (!(this.hullContainsEdge(convexhullEdges, element))) {
-                allEdges.push(element)
-            }
-        })
-        */
-        // delete from allEdges the edges which are included in the convex hull
-        let flag = true
-        while (flag) {
-            let currentFlippedEdges = []
-            for (let edge of allEdges) {
 
-                //mark visted edge blue
-                edge.color = "blue"
+    async flipEdges(triangles) {
 
-                // find both triangles that share the same edge
-                let triangles = this.sharedTriangles(edge.vertexOne, edge.vertexTwo)
+        let allTriangles = [...triangles]
 
-                if (triangles.length > 1) {
-                    let flippedEdge = 0
-                    await this.flipEdge(triangles[0], triangles[1]).then(data => {
-                        flippedEdge = data
-                        //check if flipped Edge is already in flippedEdges 
-                        if (!(currentFlippedEdges.includes(flippedEdge))) {
-                            currentFlippedEdges.push(flippedEdge)
-                        }
-                        // add new Edge to all edges 
-                        currentFlippedEdges.forEach(element => {
-                            if (!(allEdges.includes(element))) {
-                                allEdges.push(element)
+        let notFinishedWithAllTriangles = true
+        while (notFinishedWithAllTriangles) { // Warte, bis alle triangles betrachtet wurden
+
+            let triangleIndex = 0
+
+            while (triangleIndex < allTriangles.length) { // Betrachte alle triangles
+
+                let i = 0
+                let visitedAllEdges = false
+
+                let currentTriangle = allTriangles[triangleIndex]
+
+                while (!visitedAllEdges) { // Warte, bis alle edges eines triangles betrachtet wurden
+                    while (i < currentTriangle.edges.length) { // Betrachte alle edges
+                        // Case that a triangle has no points in it ( Must never be flipped again )
+                        if (!(currentTriangle.verticesInCircumCircle(this.vertices).length > 0)) {
+                            // Das triangle muss nicht mehr betrachtet werden in Zukunft
+                            // Break out of current triangle
+                            i = Infinity
+                            // Fulfill the waiting promise 
+                            visitedAllEdges = true
+                            // Look at next triangle
+                            triangleIndex++
+                        } else {
+
+                            // Find adjacent triangle for current edge
+                            let sharedTriangles = this.sharedTriangles(currentTriangle.edges[i].vertexOne, currentTriangle.edges[i].vertexTwo)
+
+                            // Edge is in between of two triangles
+                            if (sharedTriangles.length === 2) {
+
+
+                                await this.flipEdge(sharedTriangles[0], sharedTriangles[1])
+                                    .then(data => {
+                                        // Add resulting triangles to the queue, if they aren't Delaunay triangles already ( finite )
+                                        for (let newTriangle of data) {
+                                            // Check if the triangle contains any points in its circumcircle
+
+                                            if (newTriangle.verticesInCircumCircle(this.vertices).length > 0) {
+                                                //look at triangle again at some later point - it isn't a delaunay triangle yet
+                                                allTriangles.push(newTriangle)
+                                            }
+                                        }
+
+                                        for (let index = allTriangles.length; index > 0; index--) {
+                                            if (allTriangles[index] === sharedTriangles[0]) {
+                                                allTriangles.splice(index, 1);
+                                                break
+                                            }
+                                        }
+
+                                        for (let index = allTriangles.length; index > 0; index--) {
+                                            if (allTriangles[index] === sharedTriangles[1]) {
+                                                allTriangles.splice(index, 1);
+                                                break
+                                            }
+                                        }
+
+                                        // Break out of loop, old triangle data is corrupted
+                                        i = Infinity
+                                        // Look at the same index again, filter shifts all remaining indices
+                                        visitedAllEdges = true
+
+
+                                    })
+                                    .catch(data => {
+                                        // Look at next edge
+                                        i++
+                                        if (i === 3) { // We looked at all edges
+                                            allTriangles.push(currentTriangle) // Push old triangle to look at it later ( But isn't a Delaunay Triangle yet)
+                                            i = Infinity
+                                            // Break out of waiting while
+                                            visitedAllEdges = true
+                                            //
+                                            triangleIndex++
+                                        }
+                                    })
+
+                                // Else: Current edge is on the convex hull
+                            } else {
+                                //console.log("If it said before it has an element in it thats bad")
+                                // Look at next edge
+                                i++
                             }
-                        });
-                    }).catch(data => {
-                        allEdges = allEdges.filter(element => element !== data)
-                    })
-                } else {
-                    // edge is not part of two triangles, filter that shit out
-                    allEdges = allEdges.filter(element => element !== edge)
+                        }
+                    }
                 }
-                flag = allEdges.length > 0
             }
+
+            notFinishedWithAllTriangles = false
 
         }
+
+        for (let peter of this.triangles) {
+            if (peter.verticesInCircumCircle(this.vertices).length > 0) {
+                window.alert("Gefickt")
+            }
+        }
+
     }
+
 
     // return a promise for animation OR FIND BETTER WAY TO DELAY
     flipEdge(triangleA, triangleB) {
@@ -478,13 +536,22 @@ export default class Graph extends Observable {
                 }
                 // determine old edge
                 let oldEdge = this.sharedEdge(triangleA, triangleB)
+                if (oldEdge.color === Config.defaultEdgeColor) {
+                    oldEdge.color = "red"
+                } else if (oldEdge.color === "red") {
+                    oldEdge.color = "orange"
+                } else if (oldEdge.color === "orange") {
+                    oldEdge.color = "green" // green is the flipped color also 
+                } else if (oldEdge.color === "green") {
+                    oldEdge.color = "blue" // flipped twice or looked at 4 times
+                }
 
                 //check if
 
                 // Triangles arent adjacent
                 // Error handling
                 if (c.length !== 2) {
-                    reject(oldEdge)
+                    reject([triangleA, triangleB])
                     return
                 }
 
@@ -496,22 +563,30 @@ export default class Graph extends Observable {
                 }
                 // Check if an edge flip would result in a valid triangulation ( both are left or both are right to the new edge)
                 if ((MathExtension.isLeft(c[0], a[0], b[0]) && MathExtension.isLeft(c[1], a[0], b[0])) || (!MathExtension.isLeft(c[0], a[0], b[0]) && !MathExtension.isLeft(c[1], a[0], b[0]))) {
-                    reject(oldEdge)
+                    reject([triangleA, triangleB])
+
+                    //console.log("rejected")
                     return
                 }
                 // Calculate resulting min angle
                 let tmpA = new Triangle(a[0], b[0], c[0])
                 let tmpB = new Triangle(a[0], b[0], c[1])
 
+
+
                 let newMinAngle = Math.min(tmpA.minimumAngle, tmpB.minimumAngle)
                 if (newMinAngle > minAngleSoFar) { // New triangles are better
+
+                    tmpA.edges.push(this.edgeWithEndpoints(a[0], c[0]))
+                    tmpA.edges.push(this.edgeWithEndpoints(b[0], c[0]))
+
+                    tmpB.edges.push(this.edgeWithEndpoints(a[0], c[1]))
+                    tmpB.edges.push(this.edgeWithEndpoints(b[0], c[1]))
+
 
                     // Remove old triangles
                     this.triangles = this.triangles.filter(triangle => triangle !== triangleA)
                     this.triangles = this.triangles.filter(triangle => triangle !== triangleB)
-
-                    // Remove old edge
-                    this.edges = this.edges.filter(edge => edge !== oldEdge)
 
                     // Remove triangles from all vertices, including a, b and c
                     triangleA.vertexOne.removeTriangle(triangleA)
@@ -520,6 +595,22 @@ export default class Graph extends Observable {
                     triangleB.vertexOne.removeTriangle(triangleB)
                     triangleB.vertexTwo.removeTriangle(triangleB)
                     triangleB.vertexThree.removeTriangle(triangleB)
+
+                    // Remove old edge
+                    this.edges = this.edges.filter(edge => edge !== oldEdge)
+                    triangleA.edges = triangleA.edges.filter(edge => edge !== oldEdge)
+                    triangleB.edges = triangleB.edges.filter(edge => edge !== oldEdge)
+
+                    oldEdge = null
+
+                    triangleA.vertexOne = null
+                    triangleA.vertexTwo = null
+                    triangleA.vertexThree = null
+                    triangleB.vertexOne = null
+                    triangleB.vertexTwo = null
+                    triangleB.vertexThree = null
+
+
 
 
                     // Push new triangles to old vertices
@@ -530,24 +621,22 @@ export default class Graph extends Observable {
                     c[1].triangles.push(tmpB)
 
 
-                    // Push new one
-                    let newEdge = this.addEdge(a[0], b[0])
-                    /*
-                    if (oldEdge.color === Config.defaultEdgeColor) {
-                        newEdge.color = "orange"
-                    } else if (oldEdge.color === "orange") {
-                        newEdge.color = "yellow"
-                    } else if (oldEdge.color === "yellow") {
-                        newEdge.color = "red"
-                    }
-                    */
 
-                    resolve(newEdge)
+
+                    // Push new edge
+                    let newEdge = this.addEdge(a[0], b[0])
+                    newEdge.color = "green"
+                    this.edges.push(newEdge)
+                    tmpA.edges.push(newEdge)
+                    tmpB.edges.push(newEdge)
+
+                    resolve([tmpA, tmpB])
                     return
                 }
-                reject(oldEdge)
+                reject([triangleA, triangleB])
+
                 return
-            }, 200)
+            }, 20)
         })
     }
 

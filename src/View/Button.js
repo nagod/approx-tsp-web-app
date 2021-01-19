@@ -1,12 +1,12 @@
 import React from "react"
 
-export default class Button extends React.Component{
+export default class Button extends React.Component {
 
     // Generic Button
 
-    render(){
+    render() {
         return (
-            <button onClick={() => this.props.handleButtonClicked()}>{this.props.label}</button>
+            <button className="defaultButton" onClick={() => this.props.handleButtonClicked()}>{this.props.label}</button>
         )
     }
 }

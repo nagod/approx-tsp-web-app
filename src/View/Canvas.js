@@ -19,6 +19,10 @@ export default class Canvas extends React.Component {
         this.drawTriangleCircumCircle = this.drawTriangleCircumCircle.bind(this)
         this.highlightConvexHull = this.highlightConvexHull.bind(this);
         this.renderingLoop = this.renderingLoop.bind(this)
+        this.handleCircleButtonClicked = this.handleCircleButtonClicked.bind(this)
+
+        this.showTriangles = false
+
     }
     // Lifecycle functions
     componentDidMount() {
@@ -113,7 +117,9 @@ export default class Canvas extends React.Component {
     drawGraph(graph) {
         graph.vertices.forEach(vertex => this.drawVertex(vertex))
         graph.edges.forEach(edge => this.drawEdge(edge))
-        graph.triangles.forEach(triangle => this.drawTriangleCircumCircle(triangle))
+        if (this.showTriangles) {
+            graph.triangles.forEach(triangle => this.drawTriangleCircumCircle(triangle))
+        }
         //graph.orthogonale.forEach(orthogonale => this.drawEdge(new Edge(orthogonale[0], { xPos: orthogonale[0].xPos + orthogonale[1].xPos, yPos: orthogonale[0].yPos + orthogonale[1].yPos })))
         //this.drawCircleAt(graph.circle[0].xPos, graph.circle[0].yPos, graph.circle[1])
     }
@@ -160,6 +166,14 @@ export default class Canvas extends React.Component {
 
     // Obsolete function? 
 
+
+    handleCircleButtonClicked() {
+        this.showTriangles = !this.showTriangles
+    }
+
+
+
+
     highlightConvexHull() {
         try {
             this.viewController.presenter.graph.notify("hello")
@@ -189,7 +203,6 @@ export default class Canvas extends React.Component {
                     width="1200"
                     height="750"
                 ></canvas>
-                <button onClick={() => this.highlightConvexHull()}>Highlight Convexhull</button>
             </div>
         );
     }

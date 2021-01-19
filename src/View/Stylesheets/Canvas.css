@@ -1,3 +1,5 @@
 .mainCanvas {
-    border: 1px solid olive;
+    background-color: white;
+    border: 3px solid #bfdbdf;
+    border-radius: 8px;
 }

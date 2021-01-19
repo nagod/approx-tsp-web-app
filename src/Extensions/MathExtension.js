@@ -1,3 +1,4 @@
+
 //TODO look up how to export this properly so that it extends the global object math
 export default class MathExtension {
 

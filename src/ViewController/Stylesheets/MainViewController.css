@@ -1,0 +1,27 @@
+.mainDiv{
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 750px;
+    padding: 20px;
+    margin: 0px;
+    background-color:#d8e1e2;
+
+}
+
+.canvasDiv{
+
+
+}
+
+.buttonDiv{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color:#d8e1e2;
+    min-width: 500px;
+    min-height: 100%;
+
+}

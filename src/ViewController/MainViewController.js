@@ -7,6 +7,7 @@ import React from "react";
 import Canvas from "../View/Canvas";
 import Button from "../View/Button";
 import MainPresenter from "../Presenter/MainPresenter";
+import "./Stylesheets/MainViewController.css"
 
 export default class MainViewController extends React.Component {
     constructor() {
@@ -33,16 +34,23 @@ export default class MainViewController extends React.Component {
 
     render() {
         return (
-            <div>
-                <Canvas viewController={this} />
-                <Button
-                    label="Read Data"
-                    handleButtonClicked={this.handleReadDataButtonClicked}
-                />
-                <Button
-                    label="Triangulate"
-                    handleButtonClicked={this.handleTriangulateButtonClicked}
-                />
+            <div className="mainDiv">
+                <div className="canvasDiv">
+
+                    <Canvas viewController={this} />
+
+                </div>
+                <div className="buttonDiv">
+
+                    <Button
+                        label="Read Data"
+                        handleButtonClicked={this.handleReadDataButtonClicked}
+                    />
+                    <Button
+                        label="Triangulate"
+                        handleButtonClicked={this.handleTriangulateButtonClicked}
+                    />
+                </div>
             </div>
         );
     }

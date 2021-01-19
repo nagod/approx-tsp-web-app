@@ -1,0 +1,16 @@
+.defaultButton {
+    height: 50px;
+    margin: 5px;
+    padding: 0px 30px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #dcdfe6;
+    border-radius: 5px;
+    border: 0px;
+    background: linear-gradient(180deg, rgba(0,1,77,1) 0%, rgba(2,2,121,1) 36%, rgba(2,35,126,1) 76%, rgba(2,65,130,1) 99%);
+}
+
+.defaultButton:hover {
+    cursor: pointer;
+    box-shadow: 0px 3px 3px #2f2f2f;
+}
