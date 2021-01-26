@@ -11,6 +11,7 @@ export default class Canvas extends React.Component {
     constructor(props) {
         super();
         this.viewController = props.viewController;
+        this.scalingFactor = 1
         this.setupEventListeners = this.setupEventListeners.bind(this);
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -20,10 +21,10 @@ export default class Canvas extends React.Component {
         this.highlightConvexHull = this.highlightConvexHull.bind(this);
         this.renderingLoop = this.renderingLoop.bind(this)
         this.handleCircleButtonClicked = this.handleCircleButtonClicked.bind(this)
-
         this.showTriangles = false
 
     }
+
     // Lifecycle functions
     componentDidMount() {
         this.setupCanvas();
@@ -38,6 +39,8 @@ export default class Canvas extends React.Component {
     setupCanvas() {
         this.canvas = document.getElementById("mainCanvas");
         this.ctx = this.canvas.getContext("2d");
+        //this.ctx.scale(19, 19)
+        //this.scalingFactor *= Math.ceil(11)
     }
 
     setupEventListeners() {
@@ -101,14 +104,14 @@ export default class Canvas extends React.Component {
     getMousePosition(event, canvas = this.canvas) {
         let rect = canvas.getBoundingClientRect();
         return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
+            x: (event.clientX - rect.left) / this.scalingFactor,
+            y: (event.clientY - rect.top) / this.scalingFactor
         };
     }
 
     // Collision detection
     isIntersect(point, vertex) {
-        return Math.sqrt((point.x - vertex.xPos) ** 2 + (point.y - vertex.yPos) ** 2) < Config.circleRadius;
+        return Math.sqrt((point.x - vertex.xPos) ** 2 + (point.y - vertex.yPos) ** 2) < Config.circleRadius / this.scalingFactor;
     }
 
 
@@ -125,10 +128,12 @@ export default class Canvas extends React.Component {
     }
 
     drawVertex(vertex) {
+        let radius = Config.circleRadius / this.scalingFactor
         this.ctx.beginPath();
-        this.ctx.arc(vertex.xPos, vertex.yPos, Config.circleRadius, 0, 2 * Math.PI);
+        this.ctx.arc(vertex.xPos, vertex.yPos, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = vertex.color
         this.ctx.fill()
+        this.ctx.lineWidth = 3 / this.scalingFactor
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
         this.ctx.closePath();
@@ -136,9 +141,11 @@ export default class Canvas extends React.Component {
 
     drawCircleAt(xPos, yPos, radius = Config.circleRadius, color = Config.defaultVertexColor) {
         this.ctx.beginPath();
+        radius /= this.scalingFactor
         this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = color
         //this.ctx.fill()
+        this.ctx.lineWidth = 3 / this.scalingFactor
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
         this.ctx.closePath();
@@ -153,7 +160,7 @@ export default class Canvas extends React.Component {
         this.ctx.strokeStyle = color;
         this.ctx.lineTo(x1Pos, y1Pos);
         this.ctx.lineTo(x2Pos, y2Pos);
-        this.ctx.lineWidth = 3
+        this.ctx.lineWidth = 3 / this.scalingFactor
         this.ctx.stroke();
         this.ctx.closePath();
     }

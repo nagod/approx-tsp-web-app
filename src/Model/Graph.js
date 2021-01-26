@@ -7,8 +7,9 @@ import MathExtension from "../Extensions/MathExtension"
 import Config from "../App/Config";
 
 export default class Graph extends Observable {
-    constructor() {
+    constructor(presenter) {
         super()
+        this.presenter = presenter
         this.vertices = [];
         this.edges = [];
         this.triangles = []
@@ -31,6 +32,7 @@ export default class Graph extends Observable {
         this.flipEdges = this.flipEdges.bind(this)
         this.sharedTriangles = this.sharedTriangles.bind(this)
         this.sharedEdge = this.sharedEdge.bind(this)
+
     }
 
     addVertex(id, xPos, yPos) {
@@ -43,6 +45,10 @@ export default class Graph extends Observable {
             const { id, xPos, yPos } = vertex
             this.addVertex(id, xPos, yPos);
         });
+        let maxX = this.maxXPos(this.vertices)
+        let maxY = this.maxYPos(this.vertices)
+        this.presenter.scaleCanvasWithVertex(maxX, maxY)
+
 
         return this;
     }
@@ -76,6 +82,18 @@ export default class Graph extends Observable {
         }
         return this.vertices.sort((x, y) => x.xPos - y.xPos);
     }
+
+    maxXPos(vertices) {
+        let tmpVertices = [...vertices]
+        let max = Math.max(...tmpVertices.map(element => element.xPos))
+        return max
+    }
+    maxYPos(vertices) {
+        let tmpVertices = [...vertices]
+        let max = Math.max(...tmpVertices.map(element => element.yPos))
+        return max
+    }
+
 
     sortVerticesByYPos() {
         if (!this.hasVertices()) {
@@ -406,7 +424,7 @@ export default class Graph extends Observable {
 
                 resolve(hull)
                 return
-            }, 70) // Make speed dynamic with config
+            }, Config.baseRateSpeed * 0.7) // Make speed dynamic with config
         })
     }
 
@@ -636,7 +654,7 @@ export default class Graph extends Observable {
                 reject([triangleA, triangleB])
 
                 return
-            }, 20)
+            }, Config.baseRateSpeed * 0.2)
         })
     }
 
