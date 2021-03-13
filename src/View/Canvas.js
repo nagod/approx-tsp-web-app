@@ -40,7 +40,7 @@ export default class Canvas extends React.Component {
         this.canvas = document.getElementById("mainCanvas");
         this.ctx = this.canvas.getContext("2d");
         //this.ctx.scale(19, 19)
-        //this.scalingFactor *= Math.ceil(11)
+        this.scalingFactor *= Math.ceil(11)
     }
 
     setupEventListeners() {
@@ -207,8 +207,8 @@ export default class Canvas extends React.Component {
                 <canvas
                     id="mainCanvas"
                     className="mainCanvas"
-                    width="1200"
-                    height="750"
+                    width={Config.defaultCanvasWidth}
+                    height={Config.defaultCanvasHeight}
                 ></canvas>
             </div>
         );

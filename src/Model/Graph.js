@@ -32,6 +32,7 @@ export default class Graph extends Observable {
         this.flipEdges = this.flipEdges.bind(this)
         this.sharedTriangles = this.sharedTriangles.bind(this)
         this.sharedEdge = this.sharedEdge.bind(this)
+        this.kruskal = this.kruskal.bind(this)
 
     }
 
@@ -353,6 +354,7 @@ export default class Graph extends Observable {
                     }
                 })
             }
+
         } catch (e) {
             window.alert("Push at least 3 points")
             console.error(e)
@@ -502,7 +504,8 @@ export default class Graph extends Observable {
                                         // Look at next edge
                                         i++
                                         if (i === 3) { // We looked at all edges
-                                            allTriangles.push(currentTriangle) // Push old triangle to look at it later ( But isn't a Delaunay Triangle yet)
+                                            //FEHLER ?? @TODO
+                                            //allTriangles.push(currentTriangle) // Push old triangle to look at it later ( But isn't a Delaunay Triangle yet)
                                             i = Infinity
                                             // Break out of waiting while
                                             visitedAllEdges = true
@@ -521,16 +524,17 @@ export default class Graph extends Observable {
                     }
                 }
             }
-
             notFinishedWithAllTriangles = false
 
         }
+        // this code part is not executed 
 
-        for (let peter of this.triangles) {
-            if (peter.verticesInCircumCircle(this.vertices).length > 0) {
-                window.alert("Gefickt")
-            }
-        }
+        /* for (let peter of this.triangles) {
+             if (peter.verticesInCircumCircle(this.vertices).length > 0) {
+                 window.alert("Gefickt")
+             }
+             console.log("peter")
+         }*/
 
     }
 
@@ -655,6 +659,72 @@ export default class Graph extends Observable {
 
                 return
             }, Config.baseRateSpeed * 0.2)
+        })
+    }
+
+    // 1) beide verticies in setObjs finden
+    // 2) checken ob in selben set
+    // 3) falls nicht in gleichen sets
+    // 4) beide sets kombinieren, kleineres "löschen"
+    // 5) edge in minimumSpannigTree aufnehmen für highligh
+    // 6) für alle edges wiederholen => MST
+
+    async kruskal() {
+
+        // reset egdge color
+        this.edges.forEach(n => n.color = Config.defaultEdgeColor)
+
+        // initial datastructures 
+        let listOfsets = []
+        let minimumSpannigTree = []  // hier wird mst reingespeichert 
+
+        // generate a UNION-FIND-Datastructure Obj for each Vertex 
+        this.vertices.forEach((vertex, index) => {
+            let setObject = {
+                id: index,
+                obj: [
+                    {
+                        xPos: vertex.xPos,
+                        yPos: vertex.yPos
+                    }
+                ]
+            }
+            listOfsets.push(setObject)
+        })
+
+        //sort edges by length
+        let edges = this.edges.sort((a, b) => a.length - b.length)
+        // check for all edges 
+        //for (let i = 0; i < edges.length; i++) {
+        let edgeIndex = 0;
+        while (edgeIndex < edges.length) {
+            let edgeVertex1 = edges[edgeIndex].vertexOne
+            let edgeVertex2 = edges[edgeIndex].vertexTwo
+            edges[edgeIndex].color = "green"
+            let setIndices = await MathExtension.find(edgeVertex1, edgeVertex2, listOfsets)
+            // 
+            if (setIndices[0] === Infinity || setIndices[1] === Infinity) {
+                edgeIndex++
+            } else {
+                // both vertices have been found in listOfsets with their setID
+                // if their setID´s are unequal => merge the sets together 
+                // current Edge is part of MST edges
+                if (setIndices[0] !== setIndices[1]) {
+                    MathExtension.union(listOfsets[setIndices[0]].obj, listOfsets[setIndices[1]].obj)
+                    minimumSpannigTree.push(edges[edgeIndex])
+                    edges[edgeIndex].color = "red"
+                    edgeIndex++
+                } else {
+                    edges[edgeIndex].color = Config.defaultEdgeColor
+                    edgeIndex++
+                }
+            }
+        }
+        // highlight MST
+        edges.forEach(n => {
+            if (n.color === "green") {
+                n.color = Config.defaultEdgeColor
+            }
         })
     }
 

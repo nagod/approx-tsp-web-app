@@ -17,6 +17,7 @@ export default class MainViewController extends React.Component {
         // Bind this to function so that "this" refers to this object
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
+        this.handleMSTButtonClicked = this.handleMSTButtonClicked.bind(this)
         this.setupViewController = this.setupViewController.bind(this)
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
     }
@@ -47,13 +48,17 @@ export default class MainViewController extends React.Component {
         this.presenter.handleTriangulateButtonClicked()
     }
 
+    handleMSTButtonClicked() {
+        this.presenter.handleMSTButtonClicked()
+    }
+
     // Changing the View Functions
     scaleCanvasWithVertex(maxX, maxY) {
         let canvas = document.getElementById("mainCanvas")
         let ctx = canvas.getContext("2d");
         let rect = canvas.getBoundingClientRect();
-        let width = rect.width
-        let height = rect.height
+        let width = rect.width - 70
+        let height = rect.height - 70
         let factor = 0
         console.log("Width: ", width, "Height: , ", height)
         if ((width / maxX) < (height / maxY)) {
@@ -91,6 +96,10 @@ export default class MainViewController extends React.Component {
                     <Button
                         label="Triangulate"
                         handleButtonClicked={this.handleTriangulateButtonClicked}
+                    />
+                    <Button
+                        label="Calc MST"
+                        handleButtonClicked={this.handleMSTButtonClicked}
                     />
                     <input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
                         onChange={this.handleSliderChanged}></input>

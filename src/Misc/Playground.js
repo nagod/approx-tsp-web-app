@@ -1,25 +1,19 @@
-let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-for (let number of numbers) {
-
-    if (number % 2 === 0) {
-        numbers.push(number + 11)
-    } else {
-        let index = numbers.indexOf(element => element === number)
-        numbers = numbers.filter(element => element !== number)
-        numbers = numbers.filter(element => element !== numbers[index + 1])
-
-
+function union(arr1, arr2) {
+    //null check
+    if (!arr1.includes(Infinity) && !arr2.includes(Infinity)) {
+        if (arr1.length < arr2.length) {
+            // add elements from arr1 to arr2
+            arr1.forEach(element => {
+                arr2.push(element)
+                arr1.pop()
+            })
+            arr1[0] = Infinity
+        } else {
+            arr2.forEach(element => {
+                arr1.push(element)
+                arr2.pop()
+            })
+            arr2[0] = Infinity
+        }
     }
-
 }
-
-
-let log = []
-if (log) {
-    console.log("Log")
-}
-
-console.log(numbers)
-
-console.log("13, 15, 17, 19")

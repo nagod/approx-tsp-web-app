@@ -6,17 +6,21 @@
 
 import Graph from "../Model/Graph";
 import FileService from "../Services/FileService";
-//const ex = require("../Resources/Examples/Examples");
 export default class MainPresenter {
     constructor(viewController) {
         this.graph = new Graph(this);
         this.viewController = viewController;
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
+        this.handleMSTButtonClicked = this.handleMSTButtonClicked.bind(this)
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
     }
 
     handleTriangulateButtonClicked() {
         this.graph.sHullTriangulation(this.graph.vertices)
+    }
+
+    handleMSTButtonClicked() {
+        this.graph.kruskal()
     }
     scaleCanvasWithVertex(maxX, maxY) {
         this.viewController.scaleCanvasWithVertex(maxX, maxY)

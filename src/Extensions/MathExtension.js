@@ -1,4 +1,3 @@
-
 //TODO look up how to export this properly so that it extends the global object math
 export default class MathExtension {
 
@@ -96,8 +95,63 @@ export default class MathExtension {
         return result;
     }
 
+    // Merge two Arrays
+    // Output : - 1 merged  array 
+    //          - 1 array with one element = NULL
 
-
+    static union(arr1, arr2) {
+        //null check
+        if (!arr1.includes(Infinity) && !arr2.includes(Infinity)) {
+            if (arr1.length < arr2.length) {
+                // add elements from arr1 to arr2
+                arr1.forEach(element => {
+                    arr2.push(element)
+                    arr1.pop()
+                })
+                arr1[0] = Infinity
+            } else {
+                arr2.forEach(element => {
+                    arr1.push(element)
+                    arr2.pop()
+                })
+                arr2[0] = Infinity
+            }
+        }
+    }
+    // input verticies connected throuh Edge , listOfSetObjects
+    // output setindices
+    static find(edgeVertex1, edgeVertex2, listOfSetObjects) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                let setIndexVerterxOne = Infinity
+                let setIndexVerterxTwo = Infinity
+                //iterating through all setObjects in listOfsets
+                for (let j = 0; j < listOfSetObjects.length; j++) {
+                    // itering through all objs in a single setObject
+                    for (let k = 0; k < listOfSetObjects[j].obj.length; k++) {
+                        // see UNION definition @MathExtension
+                        if (listOfSetObjects[j].obj[k] !== Infinity) {
+                            let xPos = listOfSetObjects[j].obj[k].xPos
+                            let yPos = listOfSetObjects[j].obj[k].yPos
+                            // check if current vertex in setObjects.obj matches edgeVertex1 or edgeVertex2
+                            // safe setObject.id 
+                            if (xPos === edgeVertex1.xPos && yPos === edgeVertex1.yPos) {
+                                setIndexVerterxOne = listOfSetObjects[j].id
+                            }
+                            if (xPos === edgeVertex2.xPos && yPos === edgeVertex2.yPos) {
+                                setIndexVerterxTwo = listOfSetObjects[j].id
+                            }
+                        }
+                    }
+                }
+                /**
+                 * resolve setIndicis 
+                 * ! if search terminated without success => Infinity will be resolved, needs to be check at function call [done]
+                 */
+                resolve([setIndexVerterxOne, setIndexVerterxTwo])
+            }, 0)
+        })
+    }
 
 
 }

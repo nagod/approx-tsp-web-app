@@ -9,7 +9,8 @@ const Config = {
     defaultVertexColor: "SteelBlue",
     defaultVertexBorderColor: "DarkSlateGray",
     defaultEdgeColor: "LightSlateGray",
-
+    defaultCanvasWidth: 1100,
+    defaultCanvasHeight: 750,
 }
 
 export default Config
