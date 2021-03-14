@@ -21,6 +21,7 @@ export default class Graph extends Observable {
         this.sortVerticesByXPos = this.sortVerticesByXPos.bind(this);
         this.sortVerticesByYPos = this.sortVerticesByYPos.bind(this);
         this.calculateConvexHull = this.calculateConvexHull.bind(this);
+        this.numberOfEdgesOnConvexHull = this.numberOfEdgesOnConvexHull.bind(this);
         this.addVertex = this.addVertex.bind(this);
         this.makeGraphFromData = this.makeGraphFromData.bind(this);
         this.connectConvexHull = this.connectConvexHull.bind(this);
@@ -33,6 +34,7 @@ export default class Graph extends Observable {
         this.sharedTriangles = this.sharedTriangles.bind(this)
         this.sharedEdge = this.sharedEdge.bind(this)
         this.kruskal = this.kruskal.bind(this)
+        this.eulersFormular = this.eulersFormular.bind(this)
 
     }
 
@@ -263,6 +265,35 @@ export default class Graph extends Observable {
         }
         // Stack contains the convex hull points starting with p0 in counter clockwise orientation
         return stack;
+    }
+
+    numberOfEdgesOnConvexHull() {
+        this.sortVerticesByYPos();
+        let points = [...this.vertices]
+        // Catch special case where two points share the same y-coordinate.
+        // We want to set the leftmost as P0
+        let p0 = points.shift();
+        let sortedPoints = this.sortVerticesByPolarAnglesWithVertex(
+            p0,
+            points
+        );
+        sortedPoints.unshift(p0);
+        let stack = [];
+        for (let point of sortedPoints) {
+            while (
+                stack.length > 1 &&
+                this.counterclockwise(
+                    stack[stack.length - 2],
+                    stack[stack.length - 1],
+                    point
+                ) <= 0
+            ) {
+                stack.pop();
+            }
+            stack.push(point);
+        }
+        // Stack contains the convex hull points starting with p0 in counter clockwise orientation
+        return stack.size;
     }
 
 
@@ -671,9 +702,16 @@ export default class Graph extends Observable {
 
     async kruskal() {
 
+        if (this.eulersFormular() === true) {
+            console.log("HOMEBOOY WE GOOD")
+        } else {
+            console.log("HUSTON WE GOT A PROBLEM")
+        }
+
+        console.log(this.edges)
+
         // reset egdge color
         this.edges.forEach(n => n.color = Config.defaultEdgeColor)
-
         // initial datastructures 
         let listOfsets = []
         let minimumSpannigTree = []  // hier wird mst reingespeichert 
@@ -694,6 +732,7 @@ export default class Graph extends Observable {
 
         //sort edges by length
         let edges = this.edges.sort((a, b) => a.length - b.length)
+
         // check for all edges 
         //for (let i = 0; i < edges.length; i++) {
         let edgeIndex = 0;
@@ -745,4 +784,18 @@ export default class Graph extends Observable {
             this.edges.push(new Edge(currentVertex, nextVertex));
         }
     }
+
+    //Any triangulation of a set P ⊂ R2 of n points has exactly 3n−h−3 edges, where h is the number of points from P on ∂conv(P)
+    eulersFormular() {
+        let n = this.vertices.size
+        let h = this.numberOfEdgesOnConvexHull()
+        let eulerNumber = 3 * n - h - 3
+        if (this.edges.count === eulerNumber) {
+            return true
+        } else {
+            return false
+        }
+
+    }
+
 }
