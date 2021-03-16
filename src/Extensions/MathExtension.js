@@ -101,54 +101,47 @@ export default class MathExtension {
 
     static union(arr1, arr2) {
         //null check
-        if (!arr1.includes(Infinity) && !arr2.includes(Infinity)) {
+        if ((arr1.length > 0) && (arr2.length > 0)) {
             if (arr1.length < arr2.length) {
                 // add elements from arr1 to arr2
-                arr1.forEach(element => {
-                    arr2.push(element)
-                    arr1.pop()
-                })
-                arr1[0] = Infinity
+                for (let i = 0; i < arr1.length; i++) {
+                    arr2.push(arr1[i])
+                }
+                arr1.forEach(n => arr1.pop())
             } else {
-                arr2.forEach(element => {
-                    arr1.push(element)
-                    arr2.pop()
-                })
-                arr2[0] = Infinity
+                for (let i = 0; i < arr2.length; i++) {
+                    arr1.push(arr2[i])
+                }
+                arr2.forEach(n => arr2.pop())
+                //arr2[0] = null
             }
         }
     }
     // input verticies connected throuh Edge , listOfSetObjects
     // output setindices
-    static find(edgeVertex1, edgeVertex2, listOfSetObjects) {
+    static find(edgeVertex, listOfSetObjects) {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                let setIndexVerterxOne = Infinity
-                let setIndexVerterxTwo = Infinity
+                let setIndexVertex = Infinity
                 //iterating through all setObjects in listOfsets
                 for (let j = 0; j < listOfSetObjects.length; j++) {
                     // itering through all objs in a single setObject
                     for (let k = 0; k < listOfSetObjects[j].obj.length; k++) {
                         // see UNION definition @MathExtension
-                        if (listOfSetObjects[j].obj[k] !== Infinity) {
+                        if (listOfSetObjects[j].obj[k].length !== 0) {                  //!== null) {
                             let xPos = listOfSetObjects[j].obj[k].xPos
                             let yPos = listOfSetObjects[j].obj[k].yPos
                             // check if current vertex in setObjects.obj matches edgeVertex1 or edgeVertex2
                             // safe setObject.id 
-                            if (xPos === edgeVertex1.xPos && yPos === edgeVertex1.yPos) {
-                                setIndexVerterxOne = listOfSetObjects[j].id
+                            if (xPos === edgeVertex.xPos && yPos === edgeVertex.yPos) {
+                                setIndexVertex = listOfSetObjects[j].id
+                                resolve(setIndexVertex)
                             }
-                            if (xPos === edgeVertex2.xPos && yPos === edgeVertex2.yPos) {
-                                setIndexVerterxTwo = listOfSetObjects[j].id
-                            }
+
                         }
                     }
                 }
-                /**
-                 * resolve setIndicis 
-                 * ! if search terminated without success => Infinity will be resolved, needs to be check at function call [done]
-                 */
-                resolve([setIndexVerterxOne, setIndexVerterxTwo])
+                reject(null)
             }, 0)
         })
     }

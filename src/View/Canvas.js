@@ -22,6 +22,8 @@ export default class Canvas extends React.Component {
         this.renderingLoop = this.renderingLoop.bind(this)
         this.handleCircleButtonClicked = this.handleCircleButtonClicked.bind(this)
         this.showTriangles = false
+        this.drawEdge = this.drawEdge.bind(this)
+        this.drawEdgeWithIndex = this.drawEdgeWithIndex.bind(this)
 
     }
 
@@ -119,7 +121,7 @@ export default class Canvas extends React.Component {
 
     drawGraph(graph) {
         graph.vertices.forEach(vertex => this.drawVertex(vertex))
-        graph.edges.forEach(edge => this.drawEdge(edge))
+        graph.edges.forEach((edge, index) => this.drawEdgeWithIndex(edge, index))
         if (this.showTriangles) {
             graph.triangles.forEach(triangle => this.drawTriangleCircumCircle(triangle))
         }
@@ -153,6 +155,18 @@ export default class Canvas extends React.Component {
 
     drawEdge(edge) {
         this.drawEdgeBetweenPoints(edge.vertexOne.xPos, edge.vertexOne.yPos, edge.vertexTwo.xPos, edge.vertexTwo.yPos, edge.color)
+    }
+
+    drawEdgeWithIndex(edge, index) {
+        this.drawEdgeBetweenPoints(edge.vertexOne.xPos, edge.vertexOne.yPos, edge.vertexTwo.xPos, edge.vertexTwo.yPos, edge.color)
+        let halfway = { xPos: (edge.vertexOne.xPos + edge.vertexTwo.xPos) / 2, yPos: (edge.vertexOne.yPos + edge.vertexTwo.yPos) / 2 }
+        this.drawIndexAtPosition(new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 }).format(edge.length), halfway)
+    }
+
+    drawIndexAtPosition(index, position) {
+        // Do something at postition
+        this.ctx.font = "12px Helvetica"
+        this.ctx.fillText(index, position.xPos, position.yPos)
     }
 
     drawEdgeBetweenPoints(x1Pos, y1Pos, x2Pos, y2Pos, color = Config.defaultEdgeColor) {
