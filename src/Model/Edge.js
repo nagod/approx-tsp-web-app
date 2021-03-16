@@ -8,7 +8,6 @@ export default class Edge {
         this.vertexTwo = vertex2;
         this.color = Config.defaultEdgeColor
         this.length = this.calculateLength(this.vertexOne, this.vertexTwo);
-        console.log(this.length)
     }
 
     calculateLength(vertexOne, vertexTwo) {

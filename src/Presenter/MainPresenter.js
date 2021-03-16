@@ -13,10 +13,14 @@ export default class MainPresenter {
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleMSTButtonClicked = this.handleMSTButtonClicked.bind(this)
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
+        this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
     }
 
     handleTriangulateButtonClicked() {
         this.graph.sHullTriangulation(this.graph.vertices)
+    }
+    handleEdgesButtonClicked() {
+        console.log(this.graph.edges)
     }
 
     handleMSTButtonClicked() {
