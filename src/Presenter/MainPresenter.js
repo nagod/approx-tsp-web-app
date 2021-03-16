@@ -21,6 +21,10 @@ export default class MainPresenter {
     }
     handleEdgesButtonClicked() {
         console.log(this.graph.edges)
+        this.graph.edges.forEach(element => {
+            element.color = "Yellow"
+
+        });
     }
 
     handleMSTButtonClicked() {
