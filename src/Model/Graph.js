@@ -353,12 +353,13 @@ export default class Graph extends Observable {
             // Initialize the convex hull
             let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
             let tmpTriangle = new Triangle(referencePoint, nearestToReference, smallestCircumCirclePoint)
-            this.triangles.push(tmpTriangle)
+            this.triangles.push(tmpTriangle) // inital, starting triangle 
+
             referencePoint.triangles.push(tmpTriangle)
             nearestToReference.triangles.push(tmpTriangle)
             smallestCircumCirclePoint.triangles.push(tmpTriangle)
 
-            // Resort the remaining points according to |xi−C|^2to give points si
+            // Reort the remaining points according to |xi−C|^2to give points sis
             array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
 
             // Connect initial triangle
@@ -448,9 +449,6 @@ export default class Graph extends Observable {
                     tmpTriangle.edges.push(this.edgeWithEndpoints(point, connectedVertices[i + 1]))
                     tmpTriangle.edges.push(this.edgeWithEndpoints(connectedVertices[i], connectedVertices[i + 1]))
                     // Do something with the trianlge
-
-                    //point.triangles.push(triangle)
-                    //connectedVertices.push(triangle)
                     // Remove all triangles for edge flipping that share exactly One edge with the final convex hull
                 }
 
@@ -464,6 +462,9 @@ export default class Graph extends Observable {
     async flipEdges(triangles) {
 
         let allTriangles = [...triangles]
+        let triangleQueue = []
+
+        let c = 0;
 
         let notFinishedWithAllTriangles = true
         while (notFinishedWithAllTriangles) { // Warte, bis alle triangles betrachtet wurden
@@ -478,6 +479,8 @@ export default class Graph extends Observable {
                 let currentTriangle = allTriangles[triangleIndex]
 
                 while (!visitedAllEdges) { // Warte, bis alle edges eines triangles betrachtet wurden
+                    console.log(c)
+                    c++;
                     while (i < currentTriangle.edges.length) { // Betrachte alle edges
                         // Case that a triangle has no points in it ( Must never be flipped again )
                         if (!(currentTriangle.verticesInCircumCircle(this.vertices).length > 0)) {
@@ -499,13 +502,14 @@ export default class Graph extends Observable {
 
                                 await this.flipEdge(sharedTriangles[0], sharedTriangles[1])
                                     .then(data => {
+                                        console.log(data)
                                         // Add resulting triangles to the queue, if they aren't Delaunay triangles already ( finite )
                                         for (let newTriangle of data) {
                                             // Check if the triangle contains any points in its circumcircle
 
                                             if (newTriangle.verticesInCircumCircle(this.vertices).length > 0) {
                                                 //look at triangle again at some later point - it isn't a delaunay triangle yet
-                                                allTriangles.push(newTriangle)
+                                                allTriangles.push(newTriangle) // Maybe we should still look at it again only if some other edge has flipped
                                             }
                                         }
 
@@ -528,14 +532,19 @@ export default class Graph extends Observable {
                                         // Look at the same index again, filter shifts all remaining indices
                                         visitedAllEdges = true
 
+                                        // Since we flipped and edge and now might have influenced another triangle, look at the queued up triangles again
+                                        allTriangles.push(...triangleQueue)
+                                        triangleQueue = []
+
 
                                     })
                                     .catch(data => {
+                                        console.log("CATCH", data)
                                         // Look at next edge
                                         i++
                                         if (i === 3) { // We looked at all edges
-                                            //FEHLER ?? @TODO
-                                            //allTriangles.push(currentTriangle) // Push old triangle to look at it later ( But isn't a Delaunay Triangle yet)
+                                            // Push old triangle to look at it later (might not be delaunay yet)
+                                            triangleQueue.push(currentTriangle)
                                             i = Infinity
                                             // Break out of waiting while
                                             visitedAllEdges = true
@@ -565,7 +574,11 @@ export default class Graph extends Observable {
              }
              console.log("peter")
          }*/
-
+        if (this.eulersFormular() === true) {
+            console.log("HOMEBOOY WE GOOD")
+        } else {
+            console.log("HUSTON WE GOT A PROBLEM")
+        }
     }
 
 
@@ -603,7 +616,8 @@ export default class Graph extends Observable {
                 // Triangles arent adjacent
                 // Error handling
                 if (c.length !== 2) {
-                    reject([triangleA, triangleB])
+                    //reject([triangleA, triangleB])
+                    reject("Triangles arent adjacent")
                     return
                 }
 
@@ -676,7 +690,7 @@ export default class Graph extends Observable {
                     // Push new edge
                     let newEdge = this.addEdge(a[0], b[0])
                     newEdge.color = "green"
-                    this.edges.push(newEdge)
+                    //this.edges.push(newEdge)
                     tmpA.edges.push(newEdge)
                     tmpB.edges.push(newEdge)
 
@@ -684,7 +698,6 @@ export default class Graph extends Observable {
                     return
                 }
                 reject([triangleA, triangleB])
-
                 return
             }, Config.baseRateSpeed * 0.2)
         })
@@ -699,11 +712,7 @@ export default class Graph extends Observable {
 
     async kruskal() {
 
-        if (this.eulersFormular() === true) {
-            console.log("HOMEBOOY WE GOOD")
-        } else {
-            console.log("HUSTON WE GOT A PROBLEM")
-        }
+
 
         // reset egdge color
         this.edges.forEach(n => n.color = Config.defaultEdgeColor)
@@ -711,7 +720,8 @@ export default class Graph extends Observable {
         let listOfsets = []
         let minimumSpannigTree = []  // hier wird mst reingespeichert 
 
-        // generate a UNION-FIND-Datastructure Obj for each Vertex 
+
+        // compare obj
         this.vertices.forEach((vertex, index) => {
             let setObject = {
                 id: index,
@@ -729,37 +739,44 @@ export default class Graph extends Observable {
         let edges = this.edges.sort((a, b) => a.length - b.length)
 
         // check for all edges 
-        //for (let i = 0; i < edges.length; i++) {
+
         let edgeIndex = 0;
         while (edgeIndex < edges.length) {
             let edgeVertex1 = edges[edgeIndex].vertexOne
             let edgeVertex2 = edges[edgeIndex].vertexTwo
-            edges[edgeIndex].color = "green"
-            let setIndices = await MathExtension.find(edgeVertex1, edgeVertex2, listOfsets)
+
+            let setIndexOne = null
+            let setIndexTwo = null
+
+            await MathExtension.find(edgeVertex1, listOfsets).then(data => {
+                setIndexOne = data
+            }).catch(data => setIndexOne = data)
+
+            await MathExtension.find(edgeVertex2, listOfsets).then(data => {
+                setIndexTwo = data
+            }).catch(data => setIndexTwo = data)
+
+            console.log(listOfsets)
             // 
-            if (setIndices[0] === Infinity || setIndices[1] === Infinity) {
+            if (setIndexOne === null || setIndexTwo === null) {
                 edgeIndex++
+                console.log("kann doch nicht sein")
             } else {
                 // both vertices have been found in listOfsets with their setID
                 // if their setID´s are unequal => merge the sets together 
                 // current Edge is part of MST edges
-                if (setIndices[0] !== setIndices[1]) {
-                    MathExtension.union(listOfsets[setIndices[0]].obj, listOfsets[setIndices[1]].obj)
+                if (setIndexOne !== setIndexTwo) {
+                    MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)
                     minimumSpannigTree.push(edges[edgeIndex])
                     edges[edgeIndex].color = "red"
                     edgeIndex++
                 } else {
-                    edges[edgeIndex].color = Config.defaultEdgeColor
+                    //edges[edgeIndex].color = "green"//Config.defaultEdgeColor
                     edgeIndex++
                 }
             }
+            console.log("ENDE iter")
         }
-        // highlight MST
-        edges.forEach(n => {
-            if (n.color === "green") {
-                n.color = Config.defaultEdgeColor
-            }
-        })
     }
 
     // DRAWING
