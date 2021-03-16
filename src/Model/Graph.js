@@ -385,7 +385,6 @@ export default class Graph extends Observable {
                     }
                 })
             }
-
         } catch (e) {
             window.alert("Push at least 3 points")
             console.error(e)
@@ -617,8 +616,6 @@ export default class Graph extends Observable {
                 // Check if an edge flip would result in a valid triangulation ( both are left or both are right to the new edge)
                 if ((MathExtension.isLeft(c[0], a[0], b[0]) && MathExtension.isLeft(c[1], a[0], b[0])) || (!MathExtension.isLeft(c[0], a[0], b[0]) && !MathExtension.isLeft(c[1], a[0], b[0]))) {
                     reject([triangleA, triangleB])
-
-                    //console.log("rejected")
                     return
                 }
                 // Calculate resulting min angle
@@ -708,8 +705,6 @@ export default class Graph extends Observable {
             console.log("HUSTON WE GOT A PROBLEM")
         }
 
-        console.log(this.edges)
-
         // reset egdge color
         this.edges.forEach(n => n.color = Config.defaultEdgeColor)
         // initial datastructures 
@@ -787,14 +782,22 @@ export default class Graph extends Observable {
 
     //Any triangulation of a set P ⊂ R2 of n points has exactly 3n−h−3 edges, where h is the number of points from P on ∂conv(P)
     eulersFormular() {
-        let n = this.vertices.size
-        let h = this.numberOfEdgesOnConvexHull()
+        let n = this.vertices.length
+        let convexHull = this.calculateConvexHull();
+        let h = convexHull.length   //this.numberOfEdgesOnConvexHull()
         let eulerNumber = 3 * n - h - 3
-        if (this.edges.count === eulerNumber) {
+
+        console.log("N : ", n, "H : ", h)
+        console.log("eulerNumber 3 * n - h - 3 : ", eulerNumber)
+        if (this.edges.length === eulerNumber) {
+            console.log("#edges:", this.edges.length)
             return true
         } else {
+            console.log("PROBLEM #edges:", this.edges.length)
+
             return false
         }
+        //return this.edges.count === eulerNumber ? true : false
 
     }
 
