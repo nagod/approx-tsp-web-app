@@ -703,7 +703,6 @@ export default class Graph extends Observable {
         this.edges.forEach(n => n.color = Config.defaultEdgeColor)
         // initial datastructures 
         let listOfsets = []
-        let minimumSpannigTree = []  // hier wird mst reingespeichert 
 
 
         // compare obj
@@ -761,12 +760,9 @@ export default class Graph extends Observable {
                         listOfsets[setIndexOne].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[1]
 
                     }
-                    //minimumSpannigTree.push(edges[edgeIndex])
                     this.mst.push(edges[edgeIndex])
-                    //edges[edgeIndex].color = "red"
                     edgeIndex++
                 } else {
-                    //edges[edgeIndex].color = "green"//Config.defaultEdgeColor
                     edgeIndex++
                 }
             }
