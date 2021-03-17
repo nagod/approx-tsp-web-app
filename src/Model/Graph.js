@@ -696,16 +696,10 @@ export default class Graph extends Observable {
     // 6) für alle edges wiederholen => MST
 
     async kruskal() {
-
-
-
         // reset egdge color
         this.edges.forEach(n => n.color = Config.defaultEdgeColor)
         // initial datastructures 
         let listOfsets = []
-        let minimumSpannigTree = []  // hier wird mst reingespeichert 
-
-
         // compare obj
         this.vertices.forEach((vertex, index) => {
             let setObject = {
@@ -725,7 +719,6 @@ export default class Graph extends Observable {
         let edges = this.edges.sort((a, b) => a.length - b.length)
 
         // check for all edges 
-
         let edgeIndex = 0;
         while (edgeIndex < edges.length) {
             let edgeVertex1 = edges[edgeIndex].vertexOne
@@ -761,21 +754,16 @@ export default class Graph extends Observable {
                         listOfsets[setIndexOne].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[1]
 
                     }
-                    //minimumSpannigTree.push(edges[edgeIndex])
                     this.mst.push(edges[edgeIndex])
-                    //edges[edgeIndex].color = "red"
                     edgeIndex++
                 } else {
-                    //edges[edgeIndex].color = "green"//Config.defaultEdgeColor
                     edgeIndex++
                 }
             }
         }
+        // mark mst route
         this.mst.forEach(edge => edge.color = "red")
     }
-
-    // DRAWING
-
 
     // For testing, if draw edges Works
     connectConvexHull() {
