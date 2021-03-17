@@ -13,6 +13,7 @@ export default class Graph extends Observable {
         this.vertices = [];
         this.edges = [];
         this.triangles = []
+        this.mst = []
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
@@ -194,14 +195,11 @@ export default class Graph extends Observable {
     // Returns an array containing the shared triangles of two vertices
     // If the length of the result equals 2 the triangles share an edge that may be flipped
     sharedTriangles(vertexA, vertexB) {
-        //console.log("Getting shared triangle of ", vertexA, vertexB)
-
         let result = []
         //Java style
         for (let triangleA of vertexA.triangles) {
             for (let triangleB of vertexB.triangles) {
                 if (triangleA === triangleB) {
-                    //console.log("Pushing Triangle taht is not null!", triangleA)
                     result.push(triangleA)
                 }
             }
@@ -463,9 +461,6 @@ export default class Graph extends Observable {
 
         let allTriangles = [...triangles]
         let triangleQueue = []
-
-        let c = 0;
-
         let notFinishedWithAllTriangles = true
         while (notFinishedWithAllTriangles) { // Warte, bis alle triangles betrachtet wurden
 
@@ -479,8 +474,6 @@ export default class Graph extends Observable {
                 let currentTriangle = allTriangles[triangleIndex]
 
                 while (!visitedAllEdges) { // Warte, bis alle edges eines triangles betrachtet wurden
-                    console.log(c)
-                    c++;
                     while (i < currentTriangle.edges.length) { // Betrachte alle edges
                         // Case that a triangle has no points in it ( Must never be flipped again )
                         if (!(currentTriangle.verticesInCircumCircle(this.vertices).length > 0)) {
@@ -502,7 +495,6 @@ export default class Graph extends Observable {
 
                                 await this.flipEdge(sharedTriangles[0], sharedTriangles[1])
                                     .then(data => {
-                                        console.log(data)
                                         // Add resulting triangles to the queue, if they aren't Delaunay triangles already ( finite )
                                         for (let newTriangle of data) {
                                             // Check if the triangle contains any points in its circumcircle
@@ -539,7 +531,6 @@ export default class Graph extends Observable {
 
                                     })
                                     .catch(data => {
-                                        console.log("CATCH", data)
                                         // Look at next edge
                                         i++
                                         if (i === 3) { // We looked at all edges
@@ -568,12 +559,6 @@ export default class Graph extends Observable {
         }
         // this code part is not executed 
 
-        /* for (let peter of this.triangles) {
-             if (peter.verticesInCircumCircle(this.vertices).length > 0) {
-                 window.alert("Gefickt")
-             }
-             console.log("peter")
-         }*/
         if (this.eulersFormular() === true) {
             console.log("HOMEBOOY WE GOOD")
         } else {
@@ -735,6 +720,7 @@ export default class Graph extends Observable {
             listOfsets.push(setObject)
         })
 
+
         //sort edges by length
         let edges = this.edges.sort((a, b) => a.length - b.length)
 
@@ -756,7 +742,8 @@ export default class Graph extends Observable {
                 setIndexTwo = data
             }).catch(data => setIndexTwo = data)
 
-            console.log(listOfsets)
+
+
             // 
             if (setIndexOne === null || setIndexTwo === null) {
                 edgeIndex++
@@ -766,20 +753,29 @@ export default class Graph extends Observable {
                 // if their setID´s are unequal => merge the sets together 
                 // current Edge is part of MST edges
                 if (setIndexOne !== setIndexTwo) {
-                    MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)
-                    minimumSpannigTree.push(edges[edgeIndex])
-                    edges[edgeIndex].color = "red"
+                    if (listOfsets[setIndexOne].obj.length > listOfsets[setIndexTwo].obj.length) {
+                        listOfsets[setIndexOne].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[0]
+                        listOfsets[setIndexTwo].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[1]
+                    } else {
+                        listOfsets[setIndexTwo].obj = MathExtension.union(listOfsets[setIndexTwo].obj, listOfsets[setIndexOne].obj)[0]
+                        listOfsets[setIndexOne].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[1]
+
+                    }
+                    //minimumSpannigTree.push(edges[edgeIndex])
+                    this.mst.push(edges[edgeIndex])
+                    //edges[edgeIndex].color = "red"
                     edgeIndex++
                 } else {
                     //edges[edgeIndex].color = "green"//Config.defaultEdgeColor
                     edgeIndex++
                 }
             }
-            console.log("ENDE iter")
         }
+        this.mst.forEach(edge => edge.color = "red")
     }
 
     // DRAWING
+
 
     // For testing, if draw edges Works
     connectConvexHull() {

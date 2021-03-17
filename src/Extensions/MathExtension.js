@@ -96,27 +96,22 @@ export default class MathExtension {
     }
 
     // Merge two Arrays
+    // Input  : Two arrys
+    //          - first array is the bigger one  
     // Output : - 1 merged  array 
-    //          - 1 array with one element = NULL
+    //          - 1 empty array
 
     static union(arr1, arr2) {
-        //null check
-        if ((arr1.length > 0) && (arr2.length > 0)) {
-            if (arr1.length < arr2.length) {
-                // add elements from arr1 to arr2
-                for (let i = 0; i < arr1.length; i++) {
-                    arr2.push(arr1[i])
-                }
-                arr1.forEach(n => arr1.pop())
-            } else {
-                for (let i = 0; i < arr2.length; i++) {
-                    arr1.push(arr2[i])
-                }
-                arr2.forEach(n => arr2.pop())
-                //arr2[0] = null
-            }
+        // arr2 not empty
+        if (arr2.length > 0) {
+            arr2.forEach(element => {
+                arr1.push(element)
+            })
         }
+        arr2 = []
+        return [arr1, arr2]
     }
+
     // input verticies connected throuh Edge , listOfSetObjects
     // output setindices
     static find(edgeVertex, listOfSetObjects) {
@@ -128,7 +123,7 @@ export default class MathExtension {
                     // itering through all objs in a single setObject
                     for (let k = 0; k < listOfSetObjects[j].obj.length; k++) {
                         // see UNION definition @MathExtension
-                        if (listOfSetObjects[j].obj[k].length !== 0) {                  //!== null) {
+                        if (listOfSetObjects[j].obj[k].length !== 0) {
                             let xPos = listOfSetObjects[j].obj[k].xPos
                             let yPos = listOfSetObjects[j].obj[k].yPos
                             // check if current vertex in setObjects.obj matches edgeVertex1 or edgeVertex2
