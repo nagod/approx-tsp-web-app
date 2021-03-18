@@ -140,6 +140,130 @@ export default class MathExtension {
             }, 0)
         })
     }
+    // input  : mst []
+    // output : nodeList[{ (v,u), color ......} ] 
+    static generateTupelList(mst) {
+        class Tupel {
+            constructor() {
+                this.index = Infinity
+                this.vertexOne = {
+                    xPos: Infinity,
+                    yPos: Infinity
+                }
+                this.vertexTwo = {
+                    xPos: Infinity,
+                    yPos: Infinity
+                }
+                this.color = "white"
+            }
+        }
+        let edgeTupel = []
+        mst.forEach((edge, index) => {
+            let tupel = new Tupel()
+            tupel.index = index
+            tupel.vertexOne.xPos = edge.vertexOne.xPos
+            tupel.vertexOne.yPos = edge.vertexOne.yPos
 
+            tupel.vertexTwo.xPos = edge.vertexTwo.xPos
+            tupel.vertexTwo.yPos = edge.vertexTwo.yPos
+            edgeTupel.push(tupel)
+        })
+
+        return edgeTupel
+    }
+    // adding nodes to list without duplicates 
+    // kann man locker anders machen, war erste idee doofian
+    static add(node, list) {
+        let found = list.find(knöten => knöten.xPos === node.xPos && knöten.yPos === node.yPos)
+        if (found === undefined) {
+            list.push(node)
+            return list
+        }
+    }
+    static gernerateMstVertexList(mst) {
+        class Node {
+            constructor(xPos, yPos) {
+                this.xPos = xPos
+                this.yPos = yPos
+                this.children = []
+                this.parent = []
+            }
+        }
+        let mstVertexList = []
+
+        mst.forEach(edge => {
+            let nodeOne = new Node(edge.vertexOne.xPos, edge.vertexOne.yPos)
+            let nodeTwo = new Node(edge.vertexTwo.xPos, edge.vertexTwo.yPos)
+
+            this.add(nodeOne, mstVertexList)
+            this.add(nodeTwo, mstVertexList)
+        })
+        return mstVertexList
+    }
+    // returns array with i(ndices,vertexOne/Two) of occurence in tupelist
+    static findOccurence(node, tupelList) {
+        let index = []
+        tupelList.forEach(currentTupel => {
+            if (currentTupel.vertexOne.xPos === node.xPos && currentTupel.vertexOne.yPos === node.yPos) {
+                index.push([currentTupel.index, 1])
+            } else if (currentTupel.vertexTwo.xPos === node.xPos && currentTupel.vertexTwo.yPos === node.yPos) {
+                index.push([currentTupel.index, 2])
+            }
+        })
+        return index
+    }
+
+    /**
+        * 1) pick random vertex from nodeList
+        * 2) search for occurence in Tupel
+        *      - Case 1: color = white
+        *          - connected node is child
+        *          - create child  reference in random vertex to vertex in tupel
+        *          - create parent reference in vertex from tupel
+        *          - change color to "gray"
+        *          - pop random vertex from nodelist
+        *
+        *     - Case 2: color = gray
+        *          - connected node is parent
+        *          - check if parent reference is set , if necessary correct it
+        * 
+        *   repeat till nodeList is empty 
+        */
+
+
+    static createTree(mst) {
+        // contains every MST vertex 
+        let nodeList = this.gernerateMstVertexList(mst)
+        // contains every tupel( (u,v), color) e MST 
+        let tupelList = this.generateTupelList(mst)
+
+        let head = null
+
+        while (nodeList.length > 0) {
+            let node = nodeList.shift()
+            let occurence = this.findOccurence(node, tupelList)
+            for (let i = 0; i < occurence.length; i++) {
+                if (tupelList[i].color === "white") {
+                    // check if current node is tupel.vertexOne
+                    if (occurence[i][1] === 1) {
+                        console.log("")
+                        // check if current node is tupel.vertexOne
+                    } else if (occurence[i][1] === 2) {
+                        console.log("")
+                    }
+                } else if (tupelList[i].color === "gray") {
+                    console.log("")
+                }
+            }
+        }
+    }
+    static dfs() {
+        return Promise((resolve, reject) => {
+
+            setTimeout(() => {
+            }, 0)
+        })
+    }
 
 }
+
