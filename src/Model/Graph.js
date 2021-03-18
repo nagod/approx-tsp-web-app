@@ -14,6 +14,7 @@ export default class Graph extends Observable {
         this.edges = [];
         this.triangles = []
         this.mst = []
+        this.mstVertices = []
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
@@ -36,7 +37,6 @@ export default class Graph extends Observable {
         this.sharedEdge = this.sharedEdge.bind(this)
         this.kruskal = this.kruskal.bind(this)
         this.eulersFormular = this.eulersFormular.bind(this)
-
     }
 
     addVertex(id, xPos, yPos) {
@@ -688,7 +688,7 @@ export default class Graph extends Observable {
         })
     }
 
-    // 1) beide verticies in setObjs finden
+    // 1) beide vertices in setObjs finden
     // 2) checken ob in selben set
     // 3) falls nicht in gleichen sets
     // 4) beide sets kombinieren, kleineres "löschen"
@@ -807,6 +807,11 @@ export default class Graph extends Observable {
             return false
         }
         //return this.edges.count === eulerNumber ? true : false
+
+    }
+    async euleTour() {
+        // DFS
+        // jumpen 
 
     }
 
