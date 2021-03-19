@@ -802,4 +802,99 @@ export default class Graph extends Observable {
 
     }
 
+
+    // New approach while playing around: Skipping turned out to be just valid and equal when the subsequence that is skipped 
+    calculateMirroringTour
+
+
+
+    // What do we do here: We first take the array in preorder and make an eulertour out of it
+    // We do this by taking an empty array and appending an element to it that is not yet contained in it => 
+    // This is like pseudo deleting every additional instance of the node
+    // Then we rotate the array by any desired degree, like the first instance of a node that is on the convex hull
+    // With this rotated array and every other rotation we make another eulertour. Then we have an array of different eulertours, 
+    // After we check if those are legit
+    calculateSkippingTour(preorderArray) {
+        let preorder = [...preorderArray]
+        let validEulertour = []
+        preorder.forEach(element => {
+            if (!validEulertour.includes(element)) {
+                validEulertour.append(element)
+            }
+        })
+
+        // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
+        // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
+
+        let verticesOnConvexHull = 0
+        let leafCount = 0
+
+        preorder.forEach(element => {
+            if (element.isOnConvexHull) {
+                // THIS MAY BE WRONG; THINK IT THROUGH!
+                verticesOnConvexHull += 1
+            }
+        })
+
+        let allValidTours = [[validEulertour]]
+
+        let rotation = [...preorder]
+
+        for (let i = 0; i < verticesOnConvexHull; i++) {
+            // Make a copy of preorder
+            let ogversion = [...rotation]
+            // And another one to play with - for tmp stuff
+            let tmpRotation = [...rotation]
+            // Find first index of element on convex hull
+            let firstIndex = tmpRotation.findIndex(element => element.isOnConvexHull)
+
+            //Remove it and every other item before it and call it head.
+            let withoutHead = [...tmpRotation]
+            withoutHead.splice(0, firstIndex + 1)
+
+            // Find index of list without head. Need to add something to it.
+            let secondIndex = withoutHead.findIndex(element => element.isOnConvexHull)
+            // Add the oder indices so that we find the index from the original list without the removed head.
+            secondIndex += (firstIndex + 1)
+            // Now first and second index represent the indices of the first two elements that are on the convex hull.
+            let spliceIndex = firstIndex + 1
+            let count = secondIndex - spliceIndex
+            /// Remove everything in the tmp rotation in between first and second index
+            let withSkipping = tmpRotation.splice(spliceIndex, count)
+            // Congratz, you now have a list that does not contain items between the first two points on the convex hull.
+            // Now need to check if a resulting eulertour would still be valid, we can do this by checking its length against the validEulerTour
+            let tour = []
+            withSkipping.forEach(element => {
+                if (!tour.includes(element)) {
+                    tour.append(element)
+                }
+            })
+            if (tour.length === validEulertour.length) {
+                allValidTours.append(tour)
+            }
+
+            // We appended a new tour from the ogversion. Now rotate the OGTour like a barrelshifter and go to next iteration
+
+            let head = []
+            for (let k = 0; k < spliceIndex; spliceIndex++) { // Remove everything up to the splice index
+                head.append(ogversion.shift())
+            }
+            // And append it to the end to get a rotation
+            ogversion.append([...head])
+            // Set rotation to ogversion
+            rotation = ogversion
+        }
+
+        // Now I have all valid eulertours in an array callded "allValidTours"
+
+
+        // allValidTours
+
+        // => First, find the shortest of those tours.
+        // I think this shortest tour should be the "base" tour to improve upon. It could be the case that merging 2 longer tours
+        // result in a tour that is ultimately shorter but guess what I dont care.
+        // TODO: Make some tea and think of a good way to merge these tours.
+
+    }
+
 }
