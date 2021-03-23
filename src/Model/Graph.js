@@ -36,6 +36,10 @@ export default class Graph extends Observable {
         this.sharedEdge = this.sharedEdge.bind(this)
         this.kruskal = this.kruskal.bind(this)
         this.eulersFormular = this.eulersFormular.bind(this)
+        this.calculateSkippingTour = this.calculateSkippingTour.bind(this)
+        this.mergeTours = this.mergeTours.bind(this)
+        this.mergeTourSet = this.mergeTourSet.bind(this)
+        this.rotateToFirstId = this.rotateToFirstId.bind(this)
 
     }
 
@@ -887,7 +891,7 @@ export default class Graph extends Observable {
 
         // Now I have all valid eulertours in an array callded "allValidTours"
 
-
+        this.mergeTourSet(allValidTours)
         // allValidTours
 
         // => First, find the shortest of those tours.
@@ -895,6 +899,77 @@ export default class Graph extends Observable {
         // result in a tour that is ultimately shorter but guess what I dont care.
         // TODO: Make some tea and think of a good way to merge these tours.
 
+    }
+
+    // Tours param: Array of array of Node Object
+
+    // Merges a Set of tours to a final shortest tour
+    mergeTourSet(tours) {
+        let tmpTours = [...tours]
+        // Rotate every so that id 0 is at first index. This makes it easier to compare and merge them.
+        for (let tour of tmpTours) {
+            tour = this.rotateToFirstIndex(tour)
+        }
+        tmpTours.sort((a, b) => this.tourLength(a, true) - this.tourLength(b, true))
+        // Now I should have all tours sorted by length. Now take the first one and merge them all.
+        let shortestTour = tmpTours.shift()
+        for (let tour of tmpTours) {
+            shortestTour = this.mergeTours(shortestTour, tour)
+        }
+        return shortestTour
+    }
+
+    // Idea, iterate though both lists and stop, when ID at index+1 is not equal. Remember index
+    // Then find second index of both tours where two IDs are equal again. ( With different ID's in between)
+    // Calculate this.tourLength of the two subsequences and compare them.
+    // If b's subsequence lenght is shorter, substitute a's subsequence with b's subsequence
+    // Repeat above for other subsequences
+    // Return a which represents the shortest subsequences
+    mergeTours(a, b) {
+        let indexOne = 0
+        if (a[indexOne].id !== b[indexOne].id) { return a }
+        while (a[indexOne].id === b[indexOne].id) { indexOne++ }
+        let indexTwo = indexOne
+        indexOne -= 1
+        while (a[indexTwo].id !== b[indexTwo].id) { indexTwo++ }
+        let subsequenceLength = indexTwo + 1 - indexOne
+        let subsequenceA = a.splice(subsequenceLength, indexOne)
+        let subsequenceB = b.splice(subsequenceLength, indexOne)
+        if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
+            a.splice(indexOne, 0, ...subsequenceB)
+        } else { a.splice(indexOne, 0, ...subsequenceA) }
+        return a
+    }
+
+    // Accepts array of Node objects and barell shifts it until the first Node is of Index 0 
+    rotateToFirstId(tour) {
+        let hasIdZero = false
+        for (let node of tour) {
+            if (node.id === 0) {
+                hasIdZero = true
+            }
+        }
+        if (!hasIdZero) {
+            console.log("ERROR: No node of index 0 found")
+        }
+        while (tour[0].id !== 0) {
+            tour.append(tour.shift())
+        }
+        return tour
+    }
+
+    // returns the length of a given tour of Vertices in an array
+
+    tourLength(tour, isCycle = false) {
+        let count = tour.length
+        let length = 0
+        for (let index = 0; index < count - 1; index++) {
+            length += MathExtension.euclideanDistance2D(tour[index], tour[index + 1])
+        }
+        if (isCycle) {
+            length += MathExtension.euclideanDistance2D(tour[count - 1], tour[0])
+        }
+        return length
     }
 
 }
