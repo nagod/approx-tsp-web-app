@@ -37,6 +37,7 @@ export default class Graph extends Observable {
         this.sharedEdge = this.sharedEdge.bind(this)
         this.kruskal = this.kruskal.bind(this)
         this.eulersFormular = this.eulersFormular.bind(this)
+        this.dfs = this.dfs.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
@@ -558,12 +559,13 @@ export default class Graph extends Observable {
 
         }
         // this code part is not executed 
-
+        /*
         if (this.eulersFormular() === true) {
             console.log("HOMEBOOY WE GOOD")
         } else {
             console.log("HUSTON WE GOT A PROBLEM")
         }
+        */
     }
 
 
@@ -696,9 +698,6 @@ export default class Graph extends Observable {
     // 6) für alle edges wiederholen => MST
 
     async kruskal() {
-
-
-
         // reset egdge color
         this.edges.forEach(n => n.color = Config.defaultEdgeColor)
         // initial datastructures 
@@ -812,6 +811,14 @@ export default class Graph extends Observable {
     async euleTour() {
         // DFS
         // jumpen 
+    }
+
+    dfs() {
+        try {
+            let lesh = MathExtension.dfs(this.mst)
+        } catch (e) {
+            console.log(e)
+        }
 
     }
 
