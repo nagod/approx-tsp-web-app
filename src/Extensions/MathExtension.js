@@ -1,5 +1,33 @@
 //TODO look up how to export this properly so that it extends the global object math
+class Node {
+    constructor(xPos, yPos, id) {
+        this.id = id
+        this.xPos = xPos
+        this.yPos = yPos
+        this.children = []
+        this.parent = null
+        this.isOnConvexHull = false
+        this.visited = false
+        this.polarAngle = null
+    }
+}
+class Tupel {
+    constructor() {
+        this.index = Infinity
+        this.vertices = [{
+            id: Infinity,
+            xPos: Infinity,
+            yPos: Infinity
+        }, {
+            id: Infinity,
+            xPos: Infinity,
+            yPos: Infinity
+        }]
+        this.visited = false
+    }
+}
 export default class MathExtension {
+
 
     static euclideanDistance2D = function (x, y = { xPos: 0, yPos: 0 }) {
         return Math.sqrt(
@@ -140,6 +168,172 @@ export default class MathExtension {
             }, 0)
         })
     }
+    static generateMstNodeList(mst) {
+        let mstVertexList = []
+        for (let i = 0; i < mst.length; i++) {
+            let nodeOne = new Node(mst[i].vertexOne.xPos, mst[i].vertexOne.yPos, mst[i].vertexOne.id)
+            let nodeTwo = new Node(mst[i].vertexTwo.xPos, mst[i].vertexTwo.yPos, mst[i].vertexTwo.id)
+
+            this.add(nodeOne, mstVertexList)
+            this.add(nodeTwo, mstVertexList)
+        }
+        return mstVertexList
+    }
+    // input  : mst []
+    // output : nodeList[{ (v,u), color ......} ] 
+    static generateTupelList(mst) {
+
+        let edgeTupel = []
+        for (let i = 0; i < mst.length; i++) {
+            let tupel = new Tupel()
+            tupel.index = i
+            tupel.vertices[0].id = mst[i].vertexOne.id
+            tupel.vertices[0].xPos = mst[i].vertexOne.xPos
+            tupel.vertices[0].yPos = mst[i].vertexOne.yPos
+
+            tupel.vertices[1].id = mst[i].vertexTwo.id
+            tupel.vertices[1].xPos = mst[i].vertexTwo.xPos
+            tupel.vertices[1].yPos = mst[i].vertexTwo.yPos
+
+            edgeTupel.push(tupel)
+        }
+
+        return edgeTupel
+    }
+    // adding nodes to list without duplicates 
+    static add(node, list) {
+        let found = list.find(knöten => knöten.xPos === node.xPos && knöten.yPos === node.yPos)
+        if (found === undefined) {
+            list.push(node)
+            return list
+        }
+    }
+
+    // returns array with (indices,vertexOne/Two) of occurence in tupelist
+    static findOccurence(node, tupelList) {
+        let index = []
+
+        for (let i = 0; i < tupelList.length; i++) {
+            if (tupelList[i].vertices[0].xPos === node.xPos && tupelList[i].vertices[0].yPos === node.yPos) {
+                index.push([tupelList[i].index, 0])
+            } else if (tupelList[i].vertices[1].xPos === node.xPos && tupelList[i].vertices[1].yPos === node.yPos) {
+                index.push([tupelList[i].index, 1])
+            }
+        }
+        return index
+    }
+
+    /**
+        * 1) pick random vertex from nodeList
+        * 2) search for occurence in Tupel
+        *      - Case 1: color = white
+        *          - connected node is child
+        *          - create child  reference in random vertex to vertex in tupel
+        *          - create parent reference in vertex from tupel
+        *          - change color to "gray"
+        *          - pop random vertex from nodelist
+        *
+        *     - Case 2: color = gray
+        *          - connected node is parent
+        *          - check if parent reference is set , if necessary correct it
+        * 
+        *   repeat till nodeList is empty 
+        */
+
+    // return head
+    static createTree(nodeList1, tupelObjectList) {
+        // need to manage head
+        let nodeList = [...nodeList1]
+        let head = nodeList[0]
+        let queue = []
+        queue.push(head)
+        // make queue 
+        let index = 0
+        while (index < queue.length) {
+            let node = queue[index]
+            // node occurence in tupellist if Found: [[index, vertexNumber],[index, vertexNumber]] : else  occurence = []
+            let occurence = this.findOccurence(node, tupelObjectList)
+            for (let i = 0; i < occurence.length; i++) {
+                // index in tupelList
+                let tupelIndex = occurence[i][0]
+                // "edge" has not been visited yet
+                if (tupelObjectList[tupelIndex].visited === false) {
+                    //
+                    //find Child of current Node 
+                    let childNode = nodeList.find(tmpNode => tmpNode.id === tupelObjectList[tupelIndex].vertices[1 - occurence[i][1]].id)
+                    if (childNode !== undefined) {
+                        //
+                        //NODE HAS A PARENT , is NOT ROOT NODE 
+                        //
+                        childNode.parent = node
+                        if (node.parent !== null) {
+                            //calc porlar angle with parent reference                             
+                            childNode.polarAngle = this.calculatePolarAngle(node, childNode, { xPos: node.parent.xPos - node.xPos, yPos: node.parent.yPos - node.yPos })
+                            //childNode.polarAngle = this.calculatePolarAngle(node, childNode, { xPos: node.xPos - node.parent.xPos, yPos: node.yPos - node.parent.yPos })
+                            // convert rad in deg
+                            childNode.polarAngle *= (180 / Math.PI)
+                            node.children.push(childNode)
+                            queue.push(childNode)
+                            //
+                            // Childnode is on the right hand side of current Node
+                            //
+                            if (!(MathExtension.isLeft(childNode, node, node.parent))) {
+                                // update polarangle
+                                childNode.polarAngle = 360 - childNode.polarAngle
+                            }
+                            tupelObjectList[tupelIndex].visited = true
+                        }
+                        //
+                        // NODE IS ROOT => HAS NO PARENT
+                        //
+                        else {
+                            console.log(`Bin drin childnode ist ${node.id}`)
+                            childNode.polarAngle = this.calculatePolarAngle(node, childNode)
+                            childNode.polarAngle *= (180 / Math.PI)
+
+                            node.children.push(childNode)
+                            queue.push(childNode)
+                            if (!(MathExtension.isLeft(childNode, node, { xPos: node.xPos + 10, yPos: node.yPos }))) {
+                                // update polarangle
+                                childNode.polarAngle = 360 - childNode.polarAngle
+                            }
+                            tupelObjectList[tupelIndex].visited = true
+                        }
+                    }
+                }
+                // sort polarAngle in desc
+                node.children.sort((a, b) => a.polarAngle - b.polarAngle)
+            }
+            index++
+        }
+        return head
+    }
 
 
+    static hasChildren(node) {
+        return node.children.length !== 0 ? true : false
+    }
+
+    static dfsTraversal(head, tour) {
+        tour.push(head.id)
+        head.children.forEach(node => {
+            this.dfsTraversal(node, tour)
+            tour.push(head.id)
+        })
+    }
+
+    static dfsTour(mst) {
+        try {
+            let tupels = this.generateTupelList(mst) // v,u : V , color ="white
+            let nodes = this.generateMstNodeList(mst)
+            let head = this.createTree(nodes, tupels)
+            let tour = []
+            this.dfsTraversal(head, tour)
+            console.log(head)
+            return tour
+
+        } catch (e) {
+            console.log(e)
+        }
+    }
 }

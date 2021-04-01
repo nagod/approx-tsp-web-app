@@ -14,6 +14,7 @@ export default class Graph extends Observable {
         this.edges = [];
         this.triangles = []
         this.mst = []
+        this.mstVertices = []
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
@@ -41,6 +42,7 @@ export default class Graph extends Observable {
         this.mergeTourSet = this.mergeTourSet.bind(this)
         this.rotateToFirstId = this.rotateToFirstId.bind(this)
 
+        this.dfs = this.dfs.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
@@ -562,12 +564,13 @@ export default class Graph extends Observable {
 
         }
         // this code part is not executed 
-
+        /*
         if (this.eulersFormular() === true) {
             console.log("HOMEBOOY WE GOOD")
         } else {
             console.log("HUSTON WE GOT A PROBLEM")
         }
+        */
     }
 
 
@@ -692,7 +695,7 @@ export default class Graph extends Observable {
         })
     }
 
-    // 1) beide verticies in setObjs finden
+    // 1) beide vertices in setObjs finden
     // 2) checken ob in selben set
     // 3) falls nicht in gleichen sets
     // 4) beide sets kombinieren, kleineres "löschen"
@@ -805,10 +808,23 @@ export default class Graph extends Observable {
         //return this.edges.count === eulerNumber ? true : false
 
     }
+    async euleTour() {
+        // DFS
+        // jumpen 
+    }
+
+    dfs() {
+        try {
+            let tour = MathExtension.dfsTour(this.mst)
+            console.log(tour)
+        } catch (e) {
+            console.log(e)
+        }
+
+    }
 
 
     // New approach while playing around: Skipping turned out to be just valid and equal when the subsequence that is skipped 
-    calculateMirroringTour
 
 
 

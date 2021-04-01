@@ -14,6 +14,7 @@ export default class MainPresenter {
         this.handleMSTButtonClicked = this.handleMSTButtonClicked.bind(this)
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
+        this.handleDFSButtonClicked = this.handleDFSButtonClicked.bind(this)
     }
 
     handleTriangulateButtonClicked() {
@@ -22,7 +23,7 @@ export default class MainPresenter {
     handleEdgesButtonClicked() {
         console.log(this.graph.edges)
         this.graph.edges.forEach(element => {
-            element.color = "Yellow"
+            element.color = "lightblue"
 
         });
     }
@@ -32,6 +33,10 @@ export default class MainPresenter {
     }
     scaleCanvasWithVertex(maxX, maxY) {
         this.viewController.scaleCanvasWithVertex(maxX, maxY)
+    }
+
+    handleDFSButtonClicked() {
+        this.graph.dfs()
     }
     // TODO: Make dropdown, rename function and accept string to select example value
     //Read Data
