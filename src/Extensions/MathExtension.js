@@ -5,7 +5,7 @@ class Node {
         this.xPos = xPos
         this.yPos = yPos
         this.children = []
-        this.parent = []
+        this.parent = null
         this.isOnConvexHull = false
         this.visited = false
         this.polarAngle = null
@@ -14,17 +14,16 @@ class Node {
 class Tupel {
     constructor() {
         this.index = Infinity
-        this.vertexOne = {
+        this.vertices = [{
             id: Infinity,
             xPos: Infinity,
             yPos: Infinity
-        }
-        this.vertexTwo = {
+        }, {
             id: Infinity,
             xPos: Infinity,
             yPos: Infinity
-        }
-        this.color = "white"
+        }]
+        this.visited = false
     }
 }
 export default class MathExtension {
@@ -188,20 +187,20 @@ export default class MathExtension {
         for (let i = 0; i < mst.length; i++) {
             let tupel = new Tupel()
             tupel.index = i
-            tupel.vertexOne.id = mst[i].vertexOne.id
-            tupel.vertexOne.xPos = mst[i].vertexOne.xPos
-            tupel.vertexOne.yPos = mst[i].vertexOne.yPos
+            tupel.vertices[0].id = mst[i].vertexOne.id
+            tupel.vertices[0].xPos = mst[i].vertexOne.xPos
+            tupel.vertices[0].yPos = mst[i].vertexOne.yPos
 
-            tupel.vertexTwo.id = mst[i].vertexTwo.id
-            tupel.vertexTwo.xPos = mst[i].vertexTwo.xPos
-            tupel.vertexTwo.yPos = mst[i].vertexTwo.yPos
+            tupel.vertices[1].id = mst[i].vertexTwo.id
+            tupel.vertices[1].xPos = mst[i].vertexTwo.xPos
+            tupel.vertices[1].yPos = mst[i].vertexTwo.yPos
+
             edgeTupel.push(tupel)
         }
 
         return edgeTupel
     }
     // adding nodes to list without duplicates 
-    // kann man locker anders machen, war erste idee doofian
     static add(node, list) {
         let found = list.find(knöten => knöten.xPos === node.xPos && knöten.yPos === node.yPos)
         if (found === undefined) {
@@ -210,15 +209,15 @@ export default class MathExtension {
         }
     }
 
-    // returns array with i(ndices,vertexOne/Two) of occurence in tupelist
+    // returns array with (indices,vertexOne/Two) of occurence in tupelist
     static findOccurence(node, tupelList) {
         let index = []
 
         for (let i = 0; i < tupelList.length; i++) {
-            if (tupelList[i].vertexOne.xPos === node.xPos && tupelList[i].vertexOne.yPos === node.yPos) {
+            if (tupelList[i].vertices[0].xPos === node.xPos && tupelList[i].vertices[0].yPos === node.yPos) {
+                index.push([tupelList[i].index, 0])
+            } else if (tupelList[i].vertices[1].xPos === node.xPos && tupelList[i].vertices[1].yPos === node.yPos) {
                 index.push([tupelList[i].index, 1])
-            } else if (tupelList[i].vertexTwo.xPos === node.xPos && tupelList[i].vertexTwo.yPos === node.yPos) {
-                index.push([tupelList[i].index, 2])
             }
         }
         return index
@@ -250,143 +249,91 @@ export default class MathExtension {
         queue.push(head)
         // make queue 
         let index = 0
-        //while (index < nodeList.length) {
         while (index < queue.length) {
             let node = queue[index]
-            // node occurence in tupellist if Found: [[index, vertexNumber],[index, vertexNumber]]
-            // else  occurence = []
+            // node occurence in tupellist if Found: [[index, vertexNumber],[index, vertexNumber]] : else  occurence = []
             let occurence = this.findOccurence(node, tupelObjectList)
             for (let i = 0; i < occurence.length; i++) {
                 // index in tupelList
                 let tupelIndex = occurence[i][0]
                 // "edge" has not been visited yet
-                if (tupelObjectList[tupelIndex].color === "white") {
-                    // check if current node is tupel.vertexOne
-                    if (occurence[i][1] === 1) {
-                        //current node is parent of node at tupelObjectList[tupelIndex].vertexTwo
-                        //find this one in nodelist
-                        let tmpNode = nodeList.find(nöde => nöde.id === tupelObjectList[tupelIndex].vertexTwo.id)
-                        // determine Polarangle
-                        if (tmpNode !== undefined) {
-                            //if (tmpNode.yPos < node.yPos) {
-                            if (!(MathExtension.isLeft(tmpNode, node, node.parent))) {
-                                if (node.parent) {
-                                    tmpNode.polarAngle = this.calculatePolarAngle(node, tmpNode, { xPos: node.parent.xPos - node.xPos, yPos: node.parent.yPos - node.yPos })
-                                    tmpNode.polarAngle += 3.1415926535898 // 180 degree in rad
-                                }
-
-                            } else {
-                                if (node.parent) {
-                                    tmpNode.polarAngle = this.calculatePolarAngle(node, tmpNode, { xPos: node.parent.xPos - node.xPos, yPos: node.parent.yPos - node.yPos })
-                                }
-
+                if (tupelObjectList[tupelIndex].visited === false) {
+                    //
+                    //find Child of current Node 
+                    let childNode = nodeList.find(tmpNode => tmpNode.id === tupelObjectList[tupelIndex].vertices[1 - occurence[i][1]].id)
+                    if (childNode !== undefined) {
+                        //
+                        //NODE HAS A PARENT , is NOT ROOT NODE 
+                        //
+                        childNode.parent = node
+                        if (node.parent !== null) {
+                            //calc porlar angle with parent reference                             
+                            childNode.polarAngle = this.calculatePolarAngle(node, childNode, { xPos: node.parent.xPos - node.xPos, yPos: node.parent.yPos - node.yPos })
+                            //childNode.polarAngle = this.calculatePolarAngle(node, childNode, { xPos: node.xPos - node.parent.xPos, yPos: node.yPos - node.parent.yPos })
+                            // convert rad in deg
+                            childNode.polarAngle *= (180 / Math.PI)
+                            node.children.push(childNode)
+                            queue.push(childNode)
+                            //
+                            // Childnode is on the right hand side of current Node
+                            //
+                            if (!(MathExtension.isLeft(childNode, node, node.parent))) {
+                                // update polarangle
+                                childNode.polarAngle = 360 - childNode.polarAngle
                             }
-                            let duplicate = node.children.find(element => element.xPos === tmpNode.xPos && element.yPos === tmpNode.yPos)
-                            if (duplicate === undefined) {
-                                node.children.push(tmpNode)
-                                queue.push(tmpNode)
-                                //(u,v) tupel has been visited => mark it with an gray color 
-                                tupelObjectList[tupelIndex].color = "gray"
-                            }
-
+                            tupelObjectList[tupelIndex].visited = true
                         }
-                        // check if current node is tupel.vertexTwo
-                    } else if (occurence[i][1] === 2) {
-                        //current node is parent of node at tupelObjectList[tupelIndex].vertexOne
-                        let tmpNode = nodeList.find(nöde => nöde.id === tupelObjectList[tupelIndex].vertexOne.id)
-                        if (tmpNode !== undefined) {
-                            if (tmpNode.yPos < node.yPos) {
-                                if (node.parent) {
-                                    tmpNode.polarAngle = this.calculatePolarAngle(node, tmpNode, { xPos: node.parent.xPos - node.xPos, yPos: node.parent.yPos - node.yPos })
-                                    tmpNode.polarAngle += 3.1415926535898 // 180 degree in rad
-                                }
-                            } else {
-                                if (node.parent) {
-                                    tmpNode.polarAngle = this.calculatePolarAngle(node, tmpNode, { xPos: node.parent.xPos - node.xPos, yPos: node.parent.yPos - node.yPos })
-                                }
+                        //
+                        // NODE IS ROOT => HAS NO PARENT
+                        //
+                        else {
+                            console.log(`Bin drin childnode ist ${node.id}`)
+                            childNode.polarAngle = this.calculatePolarAngle(node, childNode)
+                            childNode.polarAngle *= (180 / Math.PI)
+
+                            node.children.push(childNode)
+                            queue.push(childNode)
+                            if (!(MathExtension.isLeft(childNode, node, { xPos: node.xPos + 10, yPos: node.yPos }))) {
+                                // update polarangle
+                                childNode.polarAngle = 360 - childNode.polarAngle
                             }
-                            let duplicate = node.children.find(element => element.xPos === tmpNode.xPos && element.yPos === tmpNode.yPos)
-                            if (duplicate === undefined) {
-                                node.children.push(tmpNode)
-                                queue.push(tmpNode)
-                                //(u,v) tupel has been visited => mark it with an gray color 
-                                tupelObjectList[tupelIndex].color = "gray"
-                            }
-                        }
-                    }
-                } else if (tupelObjectList[tupelIndex].color === "gray") {
-                    // check if current node is tupel.vertexOne
-                    if (occurence[i][1] === 1) {
-                        //current node is child of node at tupelObjectList[i].vertexTwo
-                        let tmpNode = nodeList.find(nöde => nöde.id === tupelObjectList[tupelIndex].vertexTwo.id)
-                        if (tmpNode !== undefined) {
-                            let duplicate = node.parent.find(element => element.id === tmpNode.id)
-                            if (duplicate === undefined) {
-                                node.parent.push(tmpNode)
-                            }
-                        }
-                        // check if current node is tupel.vertexTwo
-                    } else if (occurence[i][1] === 2) {
-                        //current note is child of node at tupelObjectList[i].vertexTwo
-                        let tmpNode = nodeList.find(nöde => nöde.id === tupelObjectList[tupelIndex].vertexOne.id)
-                        if (tmpNode !== undefined) {
-                            let duplicate = node.parent.find(element => element.id === tmpNode.id)
-                            if (duplicate === undefined) {
-                                node.parent.push(tmpNode)
-                            }
+                            tupelObjectList[tupelIndex].visited = true
                         }
                     }
                 }
+                // sort polarAngle in desc
+                node.children.sort((a, b) => a.polarAngle - b.polarAngle)
             }
-            // sort children, result :b
-            // sorted from right to left , max value is point most right
-            node.children.sort((a, b) => a.polarAngle - b.polarAngle)
             index++
         }
         return head
     }
+
+
     static hasChildren(node) {
         return node.children.length !== 0 ? true : false
     }
-    // input head, visited[], notVisited[]
-    // return array in preOder
-    static dfsOrder(head, visited, notVisited) {
-        let stack = []
-        if (head !== undefined) {
-            visited.push(head.id)
-        }
 
-        //     for (let i = 0; i < head.children.length; i++) {
-        //         if (head.children[i].visited === false) {
-        //             notVisited.push(head.children[i])
-        //         }
-        //         if (head.children[i].length === 0) {
-        //             console.log("PARENT in FOR: ", head.children[i].parent[0])
-        //         }
-        //     }
-        //     if (notVisited.length > 0) {
-        //         let newHead = notVisited.shift()
-        //         this.dfsOrder(newHead, visited, notVisited)
-        //     }
-        // }
-        // return visited
+    static dfsTraversal(head, tour) {
+        tour.push(head.id)
+        head.children.forEach(node => {
+            this.dfsTraversal(node, tour)
+            tour.push(head.id)
+        })
     }
-    static dfs(mst) {
-        try {
 
-            let tupels = this.generateTupelList(mst)
+    static dfsTour(mst) {
+        try {
+            let tupels = this.generateTupelList(mst) // v,u : V , color ="white
             let nodes = this.generateMstNodeList(mst)
             let head = this.createTree(nodes, tupels)
-            let s = []
-            let s2 = []
-            this.dfsOrder(head, s, s2)
+            let tour = []
+            this.dfsTraversal(head, tour)
             console.log(head)
-
+            return tour
 
         } catch (e) {
             console.log(e)
         }
     }
 }
-
-
