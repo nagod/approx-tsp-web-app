@@ -315,10 +315,10 @@ export default class MathExtension {
     }
 
     static dfsTraversal(head, tour) {
-        tour.push(head.id)
+        tour.push(head)
         head.children.forEach(node => {
             this.dfsTraversal(node, tour)
-            tour.push(head.id)
+            tour.push(head)
         })
     }
 

@@ -14,7 +14,7 @@ export default class Graph extends Observable {
         this.edges = [];
         this.triangles = []
         this.mst = []
-        this.mstVertices = []
+        this.tour = null
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
@@ -815,8 +815,8 @@ export default class Graph extends Observable {
 
     dfs() {
         try {
-            let tour = MathExtension.dfsTour(this.mst)
-            console.log(tour)
+            this.tour = MathExtension.dfsTour(this.mst)
+            console.log(this.tour)
         } catch (e) {
             console.log(e)
         }
@@ -829,7 +829,7 @@ export default class Graph extends Observable {
 
 
     // What do we do here: We first take the array in preorder and make an eulertour out of it
-    // We do this by taking an empty array and appending an element to it that is not yet contained in it => 
+    // We do this by taking an empty array and pushing an element to it that is not yet contained in it => 
     // This is like pseudo deleting every additional instance of the node
     // Then we rotate the array by any desired degree, like the first instance of a node that is on the convex hull
     // With this rotated array and every other rotation we make another eulertour. Then we have an array of different eulertours, 
@@ -837,21 +837,23 @@ export default class Graph extends Observable {
     calculateSkippingTour(preorderArray) {
         let preorder = [...preorderArray]
         let validEulertour = []
+        // head is neede at end
         preorder.forEach(element => {
             if (!validEulertour.includes(element)) {
-                validEulertour.append(element)
+                validEulertour.push(element)
             }
         })
+        console.log("VALID TOUR")
+        validEulertour.forEach(node => console.log(node))
+        console.log("\n")
 
         // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
         // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
 
         let verticesOnConvexHull = 0
         let leafCount = 0
-
         preorder.forEach(element => {
             if (element.isOnConvexHull) {
-                // THIS MAY BE WRONG; THINK IT THROUGH!
                 verticesOnConvexHull += 1
             }
         })
@@ -886,21 +888,21 @@ export default class Graph extends Observable {
             let tour = []
             withSkipping.forEach(element => {
                 if (!tour.includes(element)) {
-                    tour.append(element)
+                    tour.push(element)
                 }
             })
             if (tour.length === validEulertour.length) {
-                allValidTours.append(tour)
+                allValidTours.push(tour)
             }
 
-            // We appended a new tour from the ogversion. Now rotate the OGTour like a barrelshifter and go to next iteration
+            // We pushed a new tour from the ogversion. Now rotate the OGTour like a barrelshifter and go to next iteration
 
             let head = []
             for (let k = 0; k < spliceIndex; spliceIndex++) { // Remove everything up to the splice index
-                head.append(ogversion.shift())
+                head.push(ogversion.shift())
             }
-            // And append it to the end to get a rotation
-            ogversion.append([...head])
+            // And push it to the end to get a rotation
+            ogversion.push([...head])
             // Set rotation to ogversion
             rotation = ogversion
         }
@@ -924,7 +926,7 @@ export default class Graph extends Observable {
         let tmpTours = [...tours]
         // Rotate every so that id 0 is at first index. This makes it easier to compare and merge them.
         for (let tour of tmpTours) {
-            tour = this.rotateToFirstIndex(tour)
+            tour = this.rotateToFirstId(tour)
         }
         tmpTours.sort((a, b) => this.tourLength(a, true) - this.tourLength(b, true))
         // Now I should have all tours sorted by length. Now take the first one and merge them all.
@@ -959,17 +961,19 @@ export default class Graph extends Observable {
 
     // Accepts array of Node objects and barell shifts it until the first Node is of Index 0 
     rotateToFirstId(tour) {
-        let hasIdZero = false
+        let hasIdOne = false
+        console.log("TOUR", tour)
         for (let node of tour) {
-            if (node.id === 0) {
-                hasIdZero = true
+            node.forEach(attr => console.log(attr))
+            if (node.id === 1) {
+                hasIdOne = true
             }
         }
-        if (!hasIdZero) {
+        if (!hasIdOne) {
             console.log("ERROR: No node of index 0 found")
         }
-        while (tour[0].id !== 0) {
-            tour.append(tour.shift())
+        while (tour[0].id !== 1) {
+            tour.push(tour.shift())
         }
         return tour
     }

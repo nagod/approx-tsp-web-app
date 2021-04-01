@@ -15,6 +15,7 @@ export default class MainPresenter {
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
         this.handleDFSButtonClicked = this.handleDFSButtonClicked.bind(this)
+        this.handleSkippingButtonClicked = this.handleSkippingButtonClicked.bind(this)
     }
 
     handleTriangulateButtonClicked() {
@@ -37,6 +38,11 @@ export default class MainPresenter {
 
     handleDFSButtonClicked() {
         this.graph.dfs()
+    }
+
+    handleSkippingButtonClicked() {
+        console.log("LOSER", this.graph.tour)
+        this.graph.calculateSkippingTour(this.graph.tour)
     }
     // TODO: Make dropdown, rename function and accept string to select example value
     //Read Data

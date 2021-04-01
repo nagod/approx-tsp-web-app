@@ -22,6 +22,7 @@ export default class MainViewController extends React.Component {
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
         this.handleDFSButtonClicked = this.handleDFSButtonClicked.bind(this)
+        this.handleSkippingButtonClicked = this.handleSkippingButtonClicked.bind(this)
     }
 
     // Lifecycle
@@ -43,7 +44,10 @@ export default class MainViewController extends React.Component {
     // Handling events
 
     handleReadDataButtonClicked() {
-        this.presenter.handleReadDataButtonClicked();
+        this.presenter.handleReadDataButtonClicked()
+    }
+    handleSkippingButtonClicked() {
+        this.presenter.handleSkippingButtonClicked()
     }
 
     handleTriangulateButtonClicked() {
@@ -116,6 +120,10 @@ export default class MainViewController extends React.Component {
                     <Button
                         label="DFS ALgo"
                         handleButtonClicked={this.handleDFSButtonClicked}
+                    />
+                    <Button
+                        label="Skipping"
+                        handleButtonClicked={this.handleSkippingButtonClicked}
                     />
                     <input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
                         onChange={this.handleSliderChanged}></input>
