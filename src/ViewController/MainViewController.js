@@ -21,6 +21,7 @@ export default class MainViewController extends React.Component {
         this.setupViewController = this.setupViewController.bind(this)
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
+        this.handleDFSButtonClicked = this.handleDFSButtonClicked.bind(this)
     }
 
     // Lifecycle
@@ -54,6 +55,9 @@ export default class MainViewController extends React.Component {
     }
     handleEdgesButtonClicked() {
         this.presenter.handleEdgesButtonClicked()
+    }
+    handleDFSButtonClicked() {
+        this.presenter.handleDFSButtonClicked()
     }
 
     // Changing the View Functions
@@ -108,6 +112,10 @@ export default class MainViewController extends React.Component {
                     <Button
                         label="Print Edges"
                         handleButtonClicked={this.handleEdgesButtonClicked}
+                    />
+                    <Button
+                        label="DFS ALgo"
+                        handleButtonClicked={this.handleDFSButtonClicked}
                     />
                     <input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
                         onChange={this.handleSliderChanged}></input>

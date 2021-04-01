@@ -133,9 +133,11 @@ export default class Canvas extends React.Component {
         let radius = Config.circleRadius / this.scalingFactor
         this.ctx.beginPath();
         this.ctx.arc(vertex.xPos, vertex.yPos, radius, 0, 2 * Math.PI);
-        this.ctx.fillStyle = vertex.color
-        this.ctx.fill()
-        this.ctx.lineWidth = 3 / this.scalingFactor
+        this.ctx.font = "24px Helvetica Bold";
+        this.ctx.fillText(vertex.id, vertex.xPos - 4, vertex.yPos + 4)
+        //this.ctx.fillStyle = vertex.color
+        //this.ctx.fill()
+        this.ctx.lineWidth = 1 / this.scalingFactor
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
         this.ctx.closePath();
@@ -145,7 +147,7 @@ export default class Canvas extends React.Component {
         this.ctx.beginPath();
         radius /= this.scalingFactor
         this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
-        this.ctx.fillStyle = color
+        //this.ctx.fillStyle = color
         //this.ctx.fill()
         this.ctx.lineWidth = 3 / this.scalingFactor
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
@@ -174,7 +176,7 @@ export default class Canvas extends React.Component {
         this.ctx.strokeStyle = color;
         this.ctx.lineTo(x1Pos, y1Pos);
         this.ctx.lineTo(x2Pos, y2Pos);
-        this.ctx.lineWidth = 3 / this.scalingFactor
+        this.ctx.lineWidth = 1 / this.scalingFactor
         this.ctx.stroke();
         this.ctx.closePath();
     }

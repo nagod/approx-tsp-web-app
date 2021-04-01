@@ -815,7 +815,8 @@ export default class Graph extends Observable {
 
     dfs() {
         try {
-            let lesh = MathExtension.dfs(this.mst)
+            let tour = MathExtension.dfsTour(this.mst)
+            console.log(tour)
         } catch (e) {
             console.log(e)
         }
