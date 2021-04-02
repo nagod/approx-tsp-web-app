@@ -843,9 +843,6 @@ export default class Graph extends Observable {
                 validEulertour.push(element)
             }
         })
-        console.log("VALID TOUR")
-        validEulertour.forEach(node => console.log(node))
-        console.log("\n")
 
         // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
         // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
@@ -858,15 +855,21 @@ export default class Graph extends Observable {
             }
         })
 
-        let allValidTours = [[validEulertour]]
+        let allValidTours = [validEulertour]
+
 
         let rotation = [...preorder]
 
+
+        //
+        // TODO: Test the for loop, could not do it yet because there were no nodes on the convex hull
+        //
         for (let i = 0; i < verticesOnConvexHull; i++) {
             // Make a copy of preorder
             let ogversion = [...rotation]
             // And another one to play with - for tmp stuff
             let tmpRotation = [...rotation]
+
             // Find first index of element on convex hull
             let firstIndex = tmpRotation.findIndex(element => element.isOnConvexHull)
 
@@ -891,6 +894,7 @@ export default class Graph extends Observable {
                     tour.push(element)
                 }
             })
+            console.log("About to push", tour, "with first element", tour[0])
             if (tour.length === validEulertour.length) {
                 allValidTours.push(tour)
             }
@@ -906,6 +910,11 @@ export default class Graph extends Observable {
             // Set rotation to ogversion
             rotation = ogversion
         }
+
+        allValidTours.forEach(attr => {
+            console.log("Found a tour with first element", attr[0])
+        })
+
 
         // Now I have all valid eulertours in an array callded "allValidTours"
 
@@ -959,12 +968,14 @@ export default class Graph extends Observable {
         return a
     }
 
+    // Should work just fine
     // Accepts array of Node objects and barell shifts it until the first Node is of Index 0 
     rotateToFirstId(tour) {
         let hasIdOne = false
-        console.log("TOUR", tour)
+        console.log("testcaes")
+        console.log("rotating ", tour, "to first ID")
         for (let node of tour) {
-            node.forEach(attr => console.log(attr))
+            //node.forEach(attr => console.log(attr))
             if (node.id === 1) {
                 hasIdOne = true
             }
@@ -975,6 +986,7 @@ export default class Graph extends Observable {
         while (tour[0].id !== 1) {
             tour.push(tour.shift())
         }
+        console.log("finished rotating tour. First index: ", tour[0])
         return tour
     }
 

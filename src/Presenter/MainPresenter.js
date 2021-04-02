@@ -41,7 +41,6 @@ export default class MainPresenter {
     }
 
     handleSkippingButtonClicked() {
-        console.log("LOSER", this.graph.tour)
         this.graph.calculateSkippingTour(this.graph.tour)
     }
     // TODO: Make dropdown, rename function and accept string to select example value
