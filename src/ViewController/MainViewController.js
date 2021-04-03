@@ -23,6 +23,9 @@ export default class MainViewController extends React.Component {
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
         this.handleDFSButtonClicked = this.handleDFSButtonClicked.bind(this)
         this.handleSkippingButtonClicked = this.handleSkippingButtonClicked.bind(this)
+
+        this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
+        this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
     }
 
     // Lifecycle
@@ -62,6 +65,14 @@ export default class MainViewController extends React.Component {
     }
     handleDFSButtonClicked() {
         this.presenter.handleDFSButtonClicked()
+    }
+
+    handleShortestTourButtonClicked() {
+        this.presenter.handleShortestTourButtonClicked()
+    }
+
+    handleInitialTourButtonClicked() {
+        this.presenter.handleInitialTourButtonClicked()
     }
 
     // Changing the View Functions
@@ -114,7 +125,7 @@ export default class MainViewController extends React.Component {
                         handleButtonClicked={this.handleMSTButtonClicked}
                     />
                     <Button
-                        label="Print Edges"
+                        label="Print Tours"
                         handleButtonClicked={this.handleEdgesButtonClicked}
                     />
                     <Button
@@ -124,6 +135,14 @@ export default class MainViewController extends React.Component {
                     <Button
                         label="Skipping"
                         handleButtonClicked={this.handleSkippingButtonClicked}
+                    />
+                    <Button
+                        label="Highlight shortest"
+                        handleButtonClicked={this.handleShortestTourButtonClicked}
+                    />
+                    <Button
+                        label="Highlight initial"
+                        handleButtonClicked={this.handleInitialTourButtonClicked}
                     />
                     <input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
                         onChange={this.handleSliderChanged}></input>

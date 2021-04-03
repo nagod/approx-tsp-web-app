@@ -16,6 +16,8 @@ export default class MainPresenter {
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
         this.handleDFSButtonClicked = this.handleDFSButtonClicked.bind(this)
         this.handleSkippingButtonClicked = this.handleSkippingButtonClicked.bind(this)
+        this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
+        this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
     }
 
     handleTriangulateButtonClicked() {
@@ -25,8 +27,8 @@ export default class MainPresenter {
         console.log(this.graph.edges)
         this.graph.edges.forEach(element => {
             element.color = "lightblue"
-
         });
+        //this.canvas.highlightFinalTours()
     }
 
     handleMSTButtonClicked() {
@@ -38,6 +40,14 @@ export default class MainPresenter {
 
     handleDFSButtonClicked() {
         this.graph.dfs()
+    }
+
+    handleShortestTourButtonClicked() {
+        this.graph.highlightTour(this.graph.shortestTour, "orange")
+    }
+
+    handleInitialTourButtonClicked() {
+        this.graph.highlightTour(this.graph.initialTour, "blue")
     }
 
     handleSkippingButtonClicked() {

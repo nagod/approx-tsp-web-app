@@ -2,6 +2,7 @@ import React from "react";
 import Config from "../App/Config";
 import MathExtension from "../Extensions/MathExtension";
 import Edge from "../Model/Edge";
+import Button from "../View/Button";
 import "./Stylesheets/Canvas.css";
 
 // Should implement notify function to be observer
@@ -24,6 +25,7 @@ export default class Canvas extends React.Component {
         this.showTriangles = false
         this.drawEdge = this.drawEdge.bind(this)
         this.drawEdgeWithIndex = this.drawEdgeWithIndex.bind(this)
+        this.highlightFinalTours = this.highlightFinalTours.bind(this)
 
     }
 
@@ -195,6 +197,38 @@ export default class Canvas extends React.Component {
     }
 
 
+    highlightTour(tour, color) {
+        for (let i = 0; i < tour.length; i++) {
+            if (i === tour.length - 1) {
+                let nodeA1 = tour[i]
+                let nodeA2 = tour[0]
+                try {
+                    let edge = this.viewController.presenter.graph.edgeWithEndpointsById(nodeA1, nodeA2)
+                    edge.color = color
+                } catch {
+                    let v1 = this.viewController.presenter.graph.getVertexWithID(nodeA1.id)
+                    let v2 = this.viewController.presenter.graph.getVertexWithID(nodeA2.id)
+                    this.viewController.presenter.graph.addEdge(v1, v2, color)
+                }
+            } else {
+                let nodeA1 = tour[i]
+                let nodeA2 = tour[i + 1]
+                try {
+                    let edge = this.viewController.presenter.graph.edgeWithEndpointsById(nodeA1, nodeA2)
+                    edge.color = color
+                } catch {
+                    let v1 = this.viewController.presenter.graph.getVertexWithID(nodeA1.id)
+                    let v2 = this.viewController.presenter.graph.getVertexWithID(nodeA2.id)
+                    this.viewController.presenter.graph.addEdge(v1, v2, color)
+                }
+            }
+        }
+    }
+
+    highlightFinalTours() {
+        this.highlightTour(this.viewController.presenter.graph.shortestTour, "green")
+        this.highlightTour(this.viewController.presenter.graph.initialTour, "blue")
+    }
 
 
     highlightConvexHull() {

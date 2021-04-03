@@ -14,10 +14,14 @@ export default class Graph extends Observable {
         this.edges = [];
         this.triangles = []
         this.mst = []
+        this.shortestTour = []
+        this.initialTour = []
         this.tour = null
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
+        this.getVertexWithID = this.getVertexWithID.bind(this)
+        this.addEdge = this.addEdge.bind(this)
         this.hasEdges = this.hasEdges.bind(this);
         this.getEdges = this.getEdges.bind(this);
         this.sortVerticesByXPos = this.sortVerticesByXPos.bind(this);
@@ -41,6 +45,8 @@ export default class Graph extends Observable {
         this.mergeTours = this.mergeTours.bind(this)
         this.mergeTourSet = this.mergeTourSet.bind(this)
         this.rotateToFirstId = this.rotateToFirstId.bind(this)
+        this.edgeWithEndpointsById = this.edgeWithEndpointsById.bind(this)
+        this.highlightTour = this.highlightTour.bind(this)
 
         this.dfs = this.dfs.bind(this)
     }
@@ -116,8 +122,9 @@ export default class Graph extends Observable {
         return this.edges.length > 0 ? true : false;
     }
 
-    addEdge(x, y) {
+    addEdge(x, y, color = "lightblue") {
         let tmpEdge = new Edge(x, y)
+        tmpEdge.color = color
         this.edges.push(tmpEdge)
         return tmpEdge
 
@@ -191,6 +198,15 @@ export default class Graph extends Observable {
 
     edgeWithEndpoints(a, b) {
         let edge = this.edges.find(edge => (edge.vertexOne === a && edge.vertexTwo === b) || (edge.vertexOne === b && edge.vertexTwo === a))
+        if (edge !== undefined) {
+            return edge
+        } else {
+            throw Error("No edge between Endpoints", a, ", ", b)
+        }
+    }
+
+    edgeWithEndpointsById(a, b) {
+        let edge = this.edges.find(edge => (edge.vertexOne.id === a.id && edge.vertexTwo.id === b.id) || (edge.vertexOne.id === b.id && edge.vertexTwo.id === a.id))
         if (edge !== undefined) {
             return edge
         } else {
@@ -838,22 +854,31 @@ export default class Graph extends Observable {
         let preorder = [...preorderArray]
         let validEulertour = []
         // head is neede at end
+
+        // Inital euler tour
         preorder.forEach(element => {
             if (!validEulertour.includes(element)) {
                 validEulertour.push(element)
             }
         })
 
+        let initTour = [...validEulertour]
+        this.initialTour = initTour
+
+        console.log("Initial tour! of length: ", this.tourLength(validEulertour, true))
+        console.log("With nodes: ", validEulertour.length)
+
         // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
         // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
 
-        let verticesOnConvexHull = 0
         let leafCount = 0
         preorder.forEach(element => {
-            if (element.isOnConvexHull) {
-                verticesOnConvexHull += 1
+            if (element.children.length === 0) { // Changed for element.isOnConvexHull
+                element.isLeaf = true // isLeaf
+                leafCount += 1
             }
         })
+
 
         let allValidTours = [validEulertour]
 
@@ -864,60 +889,77 @@ export default class Graph extends Observable {
         //
         // TODO: Test the for loop, could not do it yet because there were no nodes on the convex hull
         //
-        for (let i = 0; i < verticesOnConvexHull; i++) {
+
+        // What does this loop do?
+        // This acts on the mst tour which is 2 length of mst. Nodes can still appear many times
+        for (let i = 0; i < leafCount; i++) { // maybe - 1 leaf count
             // Make a copy of preorder
+
             let ogversion = [...rotation]
             // And another one to play with - for tmp stuff
             let tmpRotation = [...rotation]
 
             // Find first index of element on convex hull
-            let firstIndex = tmpRotation.findIndex(element => element.isOnConvexHull)
-
+            let firstIndex = tmpRotation.findIndex(element => element.isLeaf)
             //Remove it and every other item before it and call it head.
             let withoutHead = [...tmpRotation]
             withoutHead.splice(0, firstIndex + 1)
 
             // Find index of list without head. Need to add something to it.
-            let secondIndex = withoutHead.findIndex(element => element.isOnConvexHull)
-            // Add the oder indices so that we find the index from the original list without the removed head.
-            secondIndex += (firstIndex + 1)
-            // Now first and second index represent the indices of the first two elements that are on the convex hull.
-            let spliceIndex = firstIndex + 1
-            let count = secondIndex - spliceIndex
-            /// Remove everything in the tmp rotation in between first and second index
-            let withSkipping = tmpRotation.splice(spliceIndex, count)
-            // Congratz, you now have a list that does not contain items between the first two points on the convex hull.
-            // Now need to check if a resulting eulertour would still be valid, we can do this by checking its length against the validEulerTour
-            let tour = []
-            withSkipping.forEach(element => {
-                if (!tour.includes(element)) {
-                    tour.push(element)
+            let secondIndex = withoutHead.findIndex(element => element.isLeaf) // exchanged for element.isOnConvexHull
+
+            if (!(secondIndex === -1)) {
+
+                //
+                // Handle case where no second index is found. This means
+                // that there is no leaf left and we should handle it somehow
+                //
+                //
+
+
+
+                // Hier indexspielerei prüfen
+                // Add the oder indices so that we find the index from the original list without the removed head.
+                secondIndex += (firstIndex + 1)
+                // Now first and second index represent the indices of the first two elements that are on the convex hull.
+                let spliceIndex = firstIndex + 1
+                let count = secondIndex - spliceIndex
+                /// Remove everything in the tmp rotation in between first and second index
+                let withSkipping = [...ogversion]
+                withSkipping.splice(spliceIndex, count)
+                // Congratz, you now have a list that does not contain items between the first two points on the convex hull.
+                // Now need to check if a resulting eulertour would still be valid, we can do this by checking its length against the validEulerTour
+                let tour = []
+                withSkipping.forEach(element => {
+                    if (!tour.includes(element)) {
+                        tour.push(element)
+                    }
+                })
+                if (tour.length === validEulertour.length) { // Tour is not valid if it doesnt contain all nodes
+                    allValidTours.push(tour)
                 }
-            })
-            console.log("About to push", tour, "with first element", tour[0])
-            if (tour.length === validEulertour.length) {
-                allValidTours.push(tour)
-            }
 
-            // We pushed a new tour from the ogversion. Now rotate the OGTour like a barrelshifter and go to next iteration
+                // We pushed a new tour from the ogversion. Now rotate the OGTour like a barrelshifter and go to next iteration
 
-            let head = []
-            for (let k = 0; k < spliceIndex; spliceIndex++) { // Remove everything up to the splice index
-                head.push(ogversion.shift())
-            }
-            // And push it to the end to get a rotation
-            ogversion.push([...head])
-            // Set rotation to ogversion
-            rotation = ogversion
+                let head = []
+                for (let k = 0; k < spliceIndex; k++) { // Remove everything up to the splice index
+                    head.push(ogversion.shift())
+                }
+                // And push it to the end to get a rotation
+                head.forEach(node => ogversion.push(node))
+
+                // Set rotation to ogversion
+                rotation = ogversion
+            } else { console.log("Not using this one") }
         }
-
+        /*
         allValidTours.forEach(attr => {
             console.log("Found a tour with first element", attr[0])
-        })
+        })*/
 
 
         // Now I have all valid eulertours in an array callded "allValidTours"
-
+        console.log("Finished rotating and skipping all tours, now starting Merge")
         this.mergeTourSet(allValidTours)
         // allValidTours
 
@@ -928,12 +970,12 @@ export default class Graph extends Observable {
 
     }
 
-    // Tours param: Array of array of Node Object
 
     // Merges a Set of tours to a final shortest tour
     mergeTourSet(tours) {
         let tmpTours = [...tours]
         // Rotate every so that id 0 is at first index. This makes it easier to compare and merge them.
+        console.log("Got ", tmpTours.length, " tours to merge!")
         for (let tour of tmpTours) {
             tour = this.rotateToFirstId(tour)
         }
@@ -943,6 +985,9 @@ export default class Graph extends Observable {
         for (let tour of tmpTours) {
             shortestTour = this.mergeTours(shortestTour, tour)
         }
+        console.log("Got the shortest tour!")
+        console.log("it is of length: ", this.tourLength(shortestTour, true))
+        this.shortestTour = shortestTour
         return shortestTour
     }
 
@@ -954,26 +999,32 @@ export default class Graph extends Observable {
     // Return a which represents the shortest subsequences
     mergeTours(a, b) {
         let indexOne = 0
-        if (a[indexOne].id !== b[indexOne].id) { return a }
+        if (a[indexOne].id !== b[indexOne].id) {
+            console.log("ERROR: Both tours did not have same first index")
+            return a
+        }
         while (a[indexOne].id === b[indexOne].id) { indexOne++ }
         let indexTwo = indexOne
-        indexOne -= 1
-        while (a[indexTwo].id !== b[indexTwo].id) { indexTwo++ }
-        let subsequenceLength = indexTwo + 1 - indexOne
-        let subsequenceA = a.splice(subsequenceLength, indexOne)
-        let subsequenceB = b.splice(subsequenceLength, indexOne)
+        indexOne -= 1 // Last index where both tours are equal
+        while (a[indexTwo].id !== b[indexTwo].id) {
+            indexTwo++
+            if (indexTwo === a.length || indexTwo === b.length) {
+                return a
+            }
+        }
+        let subsequenceLength = indexTwo - (indexOne + 1)
+        let subsequenceA = a.splice(indexOne + 1, subsequenceLength)
+        let subsequenceB = b.splice(indexOne + 1, subsequenceLength)
         if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
-            a.splice(indexOne, 0, ...subsequenceB)
-        } else { a.splice(indexOne, 0, ...subsequenceA) }
-        return a
+            a.splice(indexOne + 1, 0, ...subsequenceB)
+        } else { a.splice(indexOne + 1, 0, ...subsequenceA) }
+        return a.flat()
     }
 
     // Should work just fine
     // Accepts array of Node objects and barell shifts it until the first Node is of Index 0 
     rotateToFirstId(tour) {
         let hasIdOne = false
-        console.log("testcaes")
-        console.log("rotating ", tour, "to first ID")
         for (let node of tour) {
             //node.forEach(attr => console.log(attr))
             if (node.id === 1) {
@@ -986,7 +1037,6 @@ export default class Graph extends Observable {
         while (tour[0].id !== 1) {
             tour.push(tour.shift())
         }
-        console.log("finished rotating tour. First index: ", tour[0])
         return tour
     }
 
@@ -1003,5 +1053,36 @@ export default class Graph extends Observable {
         }
         return length
     }
+
+    highlightTour(tour, color) {
+        console.log("Highlighting tour with nodes of count: ", tour.length)
+        tour.forEach(node => console.log(node.id))
+        for (let i = 0; i < tour.length; i++) {
+            if (i === tour.length - 1) {
+                let nodeA1 = tour[i]
+                let nodeA2 = tour[0]
+                try {
+                    let edge = this.edgeWithEndpointsById(nodeA1, nodeA2)
+                    edge.color = color
+                } catch {
+                    let v1 = this.getVertexWithID(nodeA1.id)
+                    let v2 = this.getVertexWithID(nodeA2.id)
+                    this.addEdge(v1, v2, color)
+                }
+            } else {
+                let nodeA1 = tour[i]
+                let nodeA2 = tour[i + 1]
+                try {
+                    let edge = this.edgeWithEndpointsById(nodeA1, nodeA2)
+                    edge.color = color
+                } catch {
+                    let v1 = this.getVertexWithID(nodeA1.id)
+                    let v2 = this.getVertexWithID(nodeA2.id)
+                    this.addEdge(v1, v2, color)
+                }
+            }
+        }
+    }
+
 
 }
