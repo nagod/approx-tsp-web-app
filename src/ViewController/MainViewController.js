@@ -26,6 +26,7 @@ export default class MainViewController extends React.Component {
         this.handleSaveGraphButtonClicked = this.handleSaveGraphButtonClicked.bind(this)
         this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
         this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
+        this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
     }
 
     // Lifecycle
@@ -92,18 +93,24 @@ export default class MainViewController extends React.Component {
         factor = Math.ceil(factor)
         ctx.scale(factor, factor)
         console.log("Scaled by factor: ", factor)
-
         /*let canvasView = document.getElementById("canvasView")
-
         canvasView.scalingFactor *= factor
         */
-
     }
 
     handleSaveGraphButtonClicked() {
         this.presenter.handleSaveGraphButtonClicked()
     }
 
+    handleLoadSampleButtonClicked = async (e) => {
+        e.preventDefault()
+        const reader = new FileReader()
+        reader.onload = async (e) => {
+            const text = (e.target.result)
+            this.presenter.passData(text)
+        };
+        reader.readAsText(e.target.files[0])
+    }
 
     render() {
         return (
@@ -153,8 +160,12 @@ export default class MainViewController extends React.Component {
                     />
                     <input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
                         onChange={this.handleSliderChanged}></input>
+                    <div>
+                        <label htmlFor="file" className="File-label">"LOAD"</label>
+                        <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
+                    </div>
                 </div>
-            </div>
+            </div >
         );
     }
 }
