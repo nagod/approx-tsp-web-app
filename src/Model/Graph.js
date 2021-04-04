@@ -63,9 +63,8 @@ export default class Graph extends Observable {
         });
         let maxX = this.maxXPos(this.vertices)
         let maxY = this.maxYPos(this.vertices)
-        this.presenter.scaleCanvasWithVertex(maxX, maxY)
-
-
+        //this.presenter.scaleCanvasWithVertex(maxX, maxY)
+        this.notify("scalingNotification", [maxX, maxY])
         return this;
     }
 

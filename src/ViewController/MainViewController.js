@@ -91,8 +91,8 @@ export default class MainViewController extends React.Component {
         }
         factor = Math.ceil(factor)
         ctx.scale(factor, factor)
-        console.log("Scaled by factor: ", factor)
 
+        console.log("Das kann ich mir sparen")
         /*let canvasView = document.getElementById("canvasView")
 
         canvasView.scalingFactor *= factor
