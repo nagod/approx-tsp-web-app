@@ -24,6 +24,8 @@ export default class Canvas extends React.Component {
         this.drawEdge = this.drawEdge.bind(this)
         this.drawEdgeWithIndex = this.drawEdgeWithIndex.bind(this)
         this.highlightFinalTours = this.highlightFinalTours.bind(this)
+        this.subscribe = this.subscribe.bind(this)
+        this.unsubscribe = this.unsubscribe.bind(this)
 
     }
 
@@ -31,6 +33,7 @@ export default class Canvas extends React.Component {
     componentDidMount() {
         this.setupCanvas();
         this.setupEventListeners();
+        this.subscribe();
         window.requestAnimationFrame(this.renderingLoop)
     }
 
@@ -51,6 +54,55 @@ export default class Canvas extends React.Component {
         //this.canvas.addEventListener("mouseup", this.handleMouseUp);
         this.canvas.addEventListener("contextmenu", this.handleRightMouseDown);
     }
+
+
+    // Observer patterns
+
+    subscribe() {
+        this.viewController.presenter.graph.subscribe(this)
+    }
+
+    unsubscribe() {
+        this.viewController.presenter.graph.unsubscribe(this)
+    }
+
+    notify(identifier, data) {
+        console.log("received notification with data: ", data)
+        switch (identifier) {
+            case "scalingNotification":
+                this.handleScalingNotification(data)
+                break
+            default:
+                console.log("Could not identify notification identifier with data", data)
+                break
+        }
+    }
+
+    handleScalingNotification(data) {
+        console.log("Got notification with scaling factor!", data)
+        // do something
+        // Now you got the new scaling factor or something else in data, update the scaling respectively
+        let scaleBack = 1 / this.scalingFactor
+        this.ctx.scale(scaleBack, scaleBack)
+        let canvas = document.getElementById("mainCanvas")
+        let rect = canvas.getBoundingClientRect();
+        let width = rect.width - 70
+        let height = rect.height - 70
+        let factor = 0
+        let maxX = data[0]
+        let maxY = data[1]
+        console.log("Width: ", width, "Height: , ", height)
+        if ((width / maxX) < (height / maxY)) {
+            factor = width / maxX
+        } else {
+            factor = height / maxY
+        }
+        factor = Math.ceil(factor)
+        this.scalingFactor = factor
+        this.ctx.scale(factor, factor)
+
+    }
+
 
     // Rendering the animation frames
 
@@ -133,10 +185,10 @@ export default class Canvas extends React.Component {
         let radius = Config.circleRadius / this.scalingFactor
         this.ctx.beginPath();
         this.ctx.arc(vertex.xPos, vertex.yPos, radius, 0, 2 * Math.PI);
-        this.ctx.font = "24px Helvetica Bold";
-        this.ctx.fillText(vertex.id, vertex.xPos - 4, vertex.yPos + 4)
-        //this.ctx.fillStyle = vertex.color
-        //this.ctx.fill()
+        this.ctx.font = "2px Helvetica Bold";
+        this.ctx.textAlign = "center"
+        this.ctx.textBaseline = "middle"
+        this.ctx.fillText(vertex.id, vertex.xPos, vertex.yPos)
         this.ctx.lineWidth = 1 / this.scalingFactor
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
