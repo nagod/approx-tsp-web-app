@@ -1,8 +1,6 @@
 import React from "react";
 import Config from "../App/Config";
 import MathExtension from "../Extensions/MathExtension";
-import Edge from "../Model/Edge";
-import Button from "../View/Button";
 import "./Stylesheets/Canvas.css";
 
 // Should implement notify function to be observer

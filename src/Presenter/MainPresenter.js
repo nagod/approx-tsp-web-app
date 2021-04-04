@@ -18,6 +18,11 @@ export default class MainPresenter {
         this.handleSkippingButtonClicked = this.handleSkippingButtonClicked.bind(this)
         this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
         this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
+        this.handleSaveGraphButtonClicked = this.handleSaveGraphButtonClicked.bind(this)
+    }
+
+    handleSaveGraphButtonClicked() {
+        FileService.saveToJSON(this.graph.vertices)
     }
 
     handleTriangulateButtonClicked() {

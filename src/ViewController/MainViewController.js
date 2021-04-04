@@ -23,7 +23,7 @@ export default class MainViewController extends React.Component {
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
         this.handleDFSButtonClicked = this.handleDFSButtonClicked.bind(this)
         this.handleSkippingButtonClicked = this.handleSkippingButtonClicked.bind(this)
-
+        this.handleSaveGraphButtonClicked = this.handleSaveGraphButtonClicked.bind(this)
         this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
         this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
     }
@@ -100,6 +100,9 @@ export default class MainViewController extends React.Component {
 
     }
 
+    handleSaveGraphButtonClicked() {
+        this.presenter.handleSaveGraphButtonClicked()
+    }
 
 
     render() {
@@ -143,6 +146,10 @@ export default class MainViewController extends React.Component {
                     <Button
                         label="Highlight initial"
                         handleButtonClicked={this.handleInitialTourButtonClicked}
+                    />
+                    <Button
+                        label="Save Graph"
+                        handleButtonClicked={this.handleSaveGraphButtonClicked}
                     />
                     <input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
                         onChange={this.handleSliderChanged}></input>
