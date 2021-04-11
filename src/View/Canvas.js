@@ -185,7 +185,7 @@ export default class Canvas extends React.Component {
         let radius = Config.circleRadius / this.scalingFactor
         this.ctx.beginPath();
         this.ctx.arc(vertex.xPos, vertex.yPos, radius, 0, 2 * Math.PI);
-        this.ctx.font = "2px Helvetica Bold";
+        this.ctx.font = "12px Helvetica Bold";
         this.ctx.textAlign = "center"
         this.ctx.textBaseline = "middle"
         this.ctx.fillText(vertex.id, vertex.xPos, vertex.yPos)

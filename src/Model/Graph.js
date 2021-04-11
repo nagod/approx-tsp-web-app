@@ -47,7 +47,7 @@ export default class Graph extends Observable {
         this.rotateToFirstId = this.rotateToFirstId.bind(this)
         this.edgeWithEndpointsById = this.edgeWithEndpointsById.bind(this)
         this.highlightTour = this.highlightTour.bind(this)
-
+        this.tourContainsElementsUntilIndex = this.tourContainsElementsUntilIndex.bind(this)
         this.dfs = this.dfs.bind(this)
     }
 
@@ -982,7 +982,13 @@ export default class Graph extends Observable {
         // Now I should have all tours sorted by length. Now take the first one and merge them all.
         let shortestTour = tmpTours.shift()
         for (let tour of tmpTours) {
+            // @Deniz: 
+            // Kann das sein, dass der die Tour funktion mehrfach gleichzeitig aufruft und nicht wartet bis die eine tour fertig reingemerged wurde?
+            // JEdenfalls scheint das printing alles synchron abzulaufen aber auf einmaal ist die shortest tour nicht mehr die die sie mal war...
+            // Habe nice prints und er sagt dass die tour 2 mal OK ist und auf einmal sagt er beim evoken der funktion schon : Ja ist corrupted, obwohl ich eine early Kopie returne LOL
+            console.log("Hi :) about to merge two tours in this loop!")
             shortestTour = this.mergeTours(shortestTour, tour)
+            console.log("Hi :) After merge two tours in this loop")
         }
         console.log("Got the shortest tour!")
         console.log("it is of length: ", this.tourLength(shortestTour, true))
@@ -997,10 +1003,22 @@ export default class Graph extends Observable {
     // Repeat above for other subsequences
     // Return a which represents the shortest subsequences
     mergeTours(a, b) {
+        let saveReturn = a
+        if (!this.tourContainsElementsUntilIndex(a, a.length)) {
+            console.log("ERROR: a is already a corrupted tour while calling mergeTours -> Return")
+            return saveReturn
+        } else if (!this.tourContainsElementsUntilIndex(b, b.length)) {
+            console.log("ERROR: b is already a corrupted tour while calling mergeTours -> Return")
+            return saveReturn
+        } else { console.log("both tours to merge are not corrupted") }
+        if (a.length !== b.length) {
+            console.log("ERROR: One tour was shorter! -> Return ")
+            return saveReturn
+        }
         let indexOne = 0
         if (a[indexOne].id !== b[indexOne].id) {
             console.log("ERROR: Both tours did not have same first index")
-            return a
+            return saveReturn
         }
         while (a[indexOne].id === b[indexOne].id) { indexOne++ }
         let indexTwo = indexOne
@@ -1008,7 +1026,8 @@ export default class Graph extends Observable {
         while (a[indexTwo].id !== b[indexTwo].id) {
             indexTwo++
             if (indexTwo === a.length || indexTwo === b.length) {
-                return a
+                console.log("ERROR: Both tours were not of the same length! -> Return")
+                return saveReturn
             }
         }
         let subsequenceLength = indexTwo - (indexOne + 1)
@@ -1016,8 +1035,24 @@ export default class Graph extends Observable {
         let subsequenceB = b.splice(indexOne + 1, subsequenceLength)
         if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
             a.splice(indexOne + 1, 0, ...subsequenceB)
+            // Case where the subsequence elements were the only node occuring in the tour
+            if (!this.tourContainsElementsUntilIndex(a, saveReturn.length)) {
+                console.log("ERROR: Resulting merger Tour would be corrupted -> Return")
+                return saveReturn
+            }
         } else { a.splice(indexOne + 1, 0, ...subsequenceA) }
+        console.log("Successfully merged two Tours! End of Function")
         return a.flat()
+    }
+
+    /// Could write a shorter function that finds all indices of the removed subsequence in the new tour but who am I to decide 
+    tourContainsElementsUntilIndex(tour, index) {
+        for (let i = 1; i <= index; i++) {
+            if (tour.find(node => node.id === i) === undefined) {
+                return false
+            }
+        }
+        return true
     }
 
     // Should work just fine
@@ -1055,7 +1090,9 @@ export default class Graph extends Observable {
 
     highlightTour(tour, color) {
         console.log("Highlighting tour with nodes of count: ", tour.length)
-        tour.forEach(node => console.log(node.id))
+        for (let node of tour) {
+            console.log(node.id)
+        }
         for (let i = 0; i < tour.length; i++) {
             if (i === tour.length - 1) {
                 let nodeA1 = tour[i]
