@@ -982,13 +982,10 @@ export default class Graph extends Observable {
         // Now I should have all tours sorted by length. Now take the first one and merge them all.
         let shortestTour = tmpTours.shift()
         for (let tour of tmpTours) {
-            // @Deniz: 
-            // Kann das sein, dass der die Tour funktion mehrfach gleichzeitig aufruft und nicht wartet bis die eine tour fertig reingemerged wurde?
-            // JEdenfalls scheint das printing alles synchron abzulaufen aber auf einmaal ist die shortest tour nicht mehr die die sie mal war...
-            // Habe nice prints und er sagt dass die tour 2 mal OK ist und auf einmal sagt er beim evoken der funktion schon : Ja ist corrupted, obwohl ich eine early Kopie returne LOL
-            console.log("Hi :) about to merge two tours in this loop!")
+            // @Deniz: @EDIT: glaube habe es gefixed, war ein error mit splice und dann hat er einfach ein array verändert auf das
+            // er eig nicht mehr hätte zugreifen sollen aber was auch immer..... habe jetzt einige male getestet und immer ohne
+            // Error, dafür ist das ergebnis teilweise nicht mehr so krass wie erhofft..
             shortestTour = this.mergeTours(shortestTour, tour)
-            console.log("Hi :) After merge two tours in this loop")
         }
         console.log("Got the shortest tour!")
         console.log("it is of length: ", this.tourLength(shortestTour, true))
@@ -1002,23 +999,24 @@ export default class Graph extends Observable {
     // If b's subsequence lenght is shorter, substitute a's subsequence with b's subsequence
     // Repeat above for other subsequences
     // Return a which represents the shortest subsequences
-    mergeTours(a, b) {
-        let saveReturn = a
+    mergeTours(tourA, tourB) {
+        let a = [...tourA]
+        let b = [...tourB]
         if (!this.tourContainsElementsUntilIndex(a, a.length)) {
             console.log("ERROR: a is already a corrupted tour while calling mergeTours -> Return")
-            return saveReturn
+            return tourA
         } else if (!this.tourContainsElementsUntilIndex(b, b.length)) {
             console.log("ERROR: b is already a corrupted tour while calling mergeTours -> Return")
-            return saveReturn
+            return tourA
         } else { console.log("both tours to merge are not corrupted") }
         if (a.length !== b.length) {
             console.log("ERROR: One tour was shorter! -> Return ")
-            return saveReturn
+            return tourA
         }
         let indexOne = 0
         if (a[indexOne].id !== b[indexOne].id) {
             console.log("ERROR: Both tours did not have same first index")
-            return saveReturn
+            return tourA
         }
         while (a[indexOne].id === b[indexOne].id) { indexOne++ }
         let indexTwo = indexOne
@@ -1027,7 +1025,7 @@ export default class Graph extends Observable {
             indexTwo++
             if (indexTwo === a.length || indexTwo === b.length) {
                 console.log("ERROR: Both tours were not of the same length! -> Return")
-                return saveReturn
+                return tourA
             }
         }
         let subsequenceLength = indexTwo - (indexOne + 1)
@@ -1036,9 +1034,9 @@ export default class Graph extends Observable {
         if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
             a.splice(indexOne + 1, 0, ...subsequenceB)
             // Case where the subsequence elements were the only node occuring in the tour
-            if (!this.tourContainsElementsUntilIndex(a, saveReturn.length)) {
+            if (!this.tourContainsElementsUntilIndex(a, tourA.length)) {
                 console.log("ERROR: Resulting merger Tour would be corrupted -> Return")
-                return saveReturn
+                return tourA
             }
         } else { a.splice(indexOne + 1, 0, ...subsequenceA) }
         console.log("Successfully merged two Tours! End of Function")
@@ -1090,9 +1088,6 @@ export default class Graph extends Observable {
 
     highlightTour(tour, color) {
         console.log("Highlighting tour with nodes of count: ", tour.length)
-        for (let node of tour) {
-            console.log(node.id)
-        }
         for (let i = 0; i < tour.length; i++) {
             if (i === tour.length - 1) {
                 let nodeA1 = tour[i]
