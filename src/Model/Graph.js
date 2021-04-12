@@ -7,19 +7,27 @@ import MathExtension from "../Extensions/MathExtension"
 import Config from "../App/Config";
 
 export default class Graph extends Observable {
-    constructor() {
+    constructor(presenter) {
         super()
+        this.presenter = presenter
         this.vertices = [];
         this.edges = [];
         this.triangles = []
+        this.mst = []
+        this.shortestTour = []
+        this.initialTour = []
+        this.tour = null
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
+        this.getVertexWithID = this.getVertexWithID.bind(this)
+        this.addEdge = this.addEdge.bind(this)
         this.hasEdges = this.hasEdges.bind(this);
         this.getEdges = this.getEdges.bind(this);
         this.sortVerticesByXPos = this.sortVerticesByXPos.bind(this);
         this.sortVerticesByYPos = this.sortVerticesByYPos.bind(this);
         this.calculateConvexHull = this.calculateConvexHull.bind(this);
+        this.numberOfEdgesOnConvexHull = this.numberOfEdgesOnConvexHull.bind(this);
         this.addVertex = this.addVertex.bind(this);
         this.makeGraphFromData = this.makeGraphFromData.bind(this);
         this.connectConvexHull = this.connectConvexHull.bind(this);
@@ -31,6 +39,16 @@ export default class Graph extends Observable {
         this.flipEdges = this.flipEdges.bind(this)
         this.sharedTriangles = this.sharedTriangles.bind(this)
         this.sharedEdge = this.sharedEdge.bind(this)
+        this.kruskal = this.kruskal.bind(this)
+        this.eulersFormular = this.eulersFormular.bind(this)
+        this.calculateSkippingTour = this.calculateSkippingTour.bind(this)
+        this.mergeTours = this.mergeTours.bind(this)
+        this.mergeTourSet = this.mergeTourSet.bind(this)
+        this.rotateToFirstId = this.rotateToFirstId.bind(this)
+        this.edgeWithEndpointsById = this.edgeWithEndpointsById.bind(this)
+        this.highlightTour = this.highlightTour.bind(this)
+        this.tourContainsElementsUntilIndex = this.tourContainsElementsUntilIndex.bind(this)
+        this.dfs = this.dfs.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
@@ -43,7 +61,10 @@ export default class Graph extends Observable {
             const { id, xPos, yPos } = vertex
             this.addVertex(id, xPos, yPos);
         });
-
+        let maxX = this.maxXPos(this.vertices)
+        let maxY = this.maxYPos(this.vertices)
+        //this.presenter.scaleCanvasWithVertex(maxX, maxY)
+        this.notify("scalingNotification", [maxX, maxY])
         return this;
     }
 
@@ -77,6 +98,18 @@ export default class Graph extends Observable {
         return this.vertices.sort((x, y) => x.xPos - y.xPos);
     }
 
+    maxXPos(vertices) {
+        let tmpVertices = [...vertices]
+        let max = Math.max(...tmpVertices.map(element => element.xPos))
+        return max
+    }
+    maxYPos(vertices) {
+        let tmpVertices = [...vertices]
+        let max = Math.max(...tmpVertices.map(element => element.yPos))
+        return max
+    }
+
+
     sortVerticesByYPos() {
         if (!this.hasVertices()) {
             throw Error("Graph has no vertices");
@@ -88,8 +121,9 @@ export default class Graph extends Observable {
         return this.edges.length > 0 ? true : false;
     }
 
-    addEdge(x, y) {
+    addEdge(x, y, color = "lightblue") {
         let tmpEdge = new Edge(x, y)
+        tmpEdge.color = color
         this.edges.push(tmpEdge)
         return tmpEdge
 
@@ -170,17 +204,23 @@ export default class Graph extends Observable {
         }
     }
 
+    edgeWithEndpointsById(a, b) {
+        let edge = this.edges.find(edge => (edge.vertexOne.id === a.id && edge.vertexTwo.id === b.id) || (edge.vertexOne.id === b.id && edge.vertexTwo.id === a.id))
+        if (edge !== undefined) {
+            return edge
+        } else {
+            throw Error("No edge between Endpoints", a, ", ", b)
+        }
+    }
+
     // Returns an array containing the shared triangles of two vertices
     // If the length of the result equals 2 the triangles share an edge that may be flipped
     sharedTriangles(vertexA, vertexB) {
-        //console.log("Getting shared triangle of ", vertexA, vertexB)
-
         let result = []
         //Java style
         for (let triangleA of vertexA.triangles) {
             for (let triangleB of vertexB.triangles) {
                 if (triangleA === triangleB) {
-                    //console.log("Pushing Triangle taht is not null!", triangleA)
                     result.push(triangleA)
                 }
             }
@@ -246,6 +286,35 @@ export default class Graph extends Observable {
         return stack;
     }
 
+    numberOfEdgesOnConvexHull() {
+        this.sortVerticesByYPos();
+        let points = [...this.vertices]
+        // Catch special case where two points share the same y-coordinate.
+        // We want to set the leftmost as P0
+        let p0 = points.shift();
+        let sortedPoints = this.sortVerticesByPolarAnglesWithVertex(
+            p0,
+            points
+        );
+        sortedPoints.unshift(p0);
+        let stack = [];
+        for (let point of sortedPoints) {
+            while (
+                stack.length > 1 &&
+                this.counterclockwise(
+                    stack[stack.length - 2],
+                    stack[stack.length - 1],
+                    point
+                ) <= 0
+            ) {
+                stack.pop();
+            }
+            stack.push(point);
+        }
+        // Stack contains the convex hull points starting with p0 in counter clockwise orientation
+        return stack.size;
+    }
+
 
     // input = edges building hull and edge which needs to be checked 
     // returns true if egde is on Convexhull
@@ -303,12 +372,13 @@ export default class Graph extends Observable {
             // Initialize the convex hull
             let tmpSHull = [referencePoint, nearestToReference, smallestCircumCirclePoint]
             let tmpTriangle = new Triangle(referencePoint, nearestToReference, smallestCircumCirclePoint)
-            this.triangles.push(tmpTriangle)
+            this.triangles.push(tmpTriangle) // inital, starting triangle 
+
             referencePoint.triangles.push(tmpTriangle)
             nearestToReference.triangles.push(tmpTriangle)
             smallestCircumCirclePoint.triangles.push(tmpTriangle)
 
-            // Resort the remaining points according to |xi−C|^2to give points si
+            // Reort the remaining points according to |xi−C|^2to give points sis
             array = this.sortByDistanceFromPoint(smallestCircleCenter, array)
 
             // Connect initial triangle
@@ -398,15 +468,12 @@ export default class Graph extends Observable {
                     tmpTriangle.edges.push(this.edgeWithEndpoints(point, connectedVertices[i + 1]))
                     tmpTriangle.edges.push(this.edgeWithEndpoints(connectedVertices[i], connectedVertices[i + 1]))
                     // Do something with the trianlge
-
-                    //point.triangles.push(triangle)
-                    //connectedVertices.push(triangle)
                     // Remove all triangles for edge flipping that share exactly One edge with the final convex hull
                 }
 
                 resolve(hull)
                 return
-            }, 70) // Make speed dynamic with config
+            }, Config.baseRateSpeed * 0.7) // Make speed dynamic with config
         })
     }
 
@@ -414,7 +481,7 @@ export default class Graph extends Observable {
     async flipEdges(triangles) {
 
         let allTriangles = [...triangles]
-
+        let triangleQueue = []
         let notFinishedWithAllTriangles = true
         while (notFinishedWithAllTriangles) { // Warte, bis alle triangles betrachtet wurden
 
@@ -455,7 +522,7 @@ export default class Graph extends Observable {
 
                                             if (newTriangle.verticesInCircumCircle(this.vertices).length > 0) {
                                                 //look at triangle again at some later point - it isn't a delaunay triangle yet
-                                                allTriangles.push(newTriangle)
+                                                allTriangles.push(newTriangle) // Maybe we should still look at it again only if some other edge has flipped
                                             }
                                         }
 
@@ -478,13 +545,18 @@ export default class Graph extends Observable {
                                         // Look at the same index again, filter shifts all remaining indices
                                         visitedAllEdges = true
 
+                                        // Since we flipped and edge and now might have influenced another triangle, look at the queued up triangles again
+                                        allTriangles.push(...triangleQueue)
+                                        triangleQueue = []
+
 
                                     })
                                     .catch(data => {
                                         // Look at next edge
                                         i++
                                         if (i === 3) { // We looked at all edges
-                                            allTriangles.push(currentTriangle) // Push old triangle to look at it later ( But isn't a Delaunay Triangle yet)
+                                            // Push old triangle to look at it later (might not be delaunay yet)
+                                            triangleQueue.push(currentTriangle)
                                             i = Infinity
                                             // Break out of waiting while
                                             visitedAllEdges = true
@@ -503,17 +575,17 @@ export default class Graph extends Observable {
                     }
                 }
             }
-
             notFinishedWithAllTriangles = false
 
         }
-
-        for (let peter of this.triangles) {
-            if (peter.verticesInCircumCircle(this.vertices).length > 0) {
-                window.alert("Gefickt")
-            }
+        // this code part is not executed 
+        /*
+        if (this.eulersFormular() === true) {
+            console.log("HOMEBOOY WE GOOD")
+        } else {
+            console.log("HUSTON WE GOT A PROBLEM")
         }
-
+        */
     }
 
 
@@ -551,7 +623,8 @@ export default class Graph extends Observable {
                 // Triangles arent adjacent
                 // Error handling
                 if (c.length !== 2) {
-                    reject([triangleA, triangleB])
+                    //reject([triangleA, triangleB])
+                    reject("Triangles arent adjacent")
                     return
                 }
 
@@ -564,8 +637,6 @@ export default class Graph extends Observable {
                 // Check if an edge flip would result in a valid triangulation ( both are left or both are right to the new edge)
                 if ((MathExtension.isLeft(c[0], a[0], b[0]) && MathExtension.isLeft(c[1], a[0], b[0])) || (!MathExtension.isLeft(c[0], a[0], b[0]) && !MathExtension.isLeft(c[1], a[0], b[0]))) {
                     reject([triangleA, triangleB])
-
-                    //console.log("rejected")
                     return
                 }
                 // Calculate resulting min angle
@@ -626,7 +697,7 @@ export default class Graph extends Observable {
                     // Push new edge
                     let newEdge = this.addEdge(a[0], b[0])
                     newEdge.color = "green"
-                    this.edges.push(newEdge)
+                    //this.edges.push(newEdge)
                     tmpA.edges.push(newEdge)
                     tmpB.edges.push(newEdge)
 
@@ -634,13 +705,87 @@ export default class Graph extends Observable {
                     return
                 }
                 reject([triangleA, triangleB])
-
                 return
-            }, 20)
+            }, Config.baseRateSpeed * 0.2)
         })
     }
 
-    // DRAWING
+    // 1) beide vertices in setObjs finden
+    // 2) checken ob in selben set
+    // 3) falls nicht in gleichen sets
+    // 4) beide sets kombinieren, kleineres "löschen"
+    // 5) edge in minimumSpannigTree aufnehmen für highligh
+    // 6) für alle edges wiederholen => MST
+
+    async kruskal() {
+        // reset egdge color
+        this.edges.forEach(n => n.color = Config.defaultEdgeColor)
+        // initial datastructures 
+        let listOfsets = []
+        // compare obj
+        this.vertices.forEach((vertex, index) => {
+            let setObject = {
+                id: index,
+                obj: [
+                    {
+                        xPos: vertex.xPos,
+                        yPos: vertex.yPos
+                    }
+                ]
+            }
+            listOfsets.push(setObject)
+        })
+
+
+        //sort edges by length
+        let edges = this.edges.sort((a, b) => a.length - b.length)
+
+        // check for all edges 
+        let edgeIndex = 0;
+        while (edgeIndex < edges.length) {
+            let edgeVertex1 = edges[edgeIndex].vertexOne
+            let edgeVertex2 = edges[edgeIndex].vertexTwo
+
+            let setIndexOne = null
+            let setIndexTwo = null
+
+            await MathExtension.find(edgeVertex1, listOfsets).then(data => {
+                setIndexOne = data
+            }).catch(data => setIndexOne = data)
+
+            await MathExtension.find(edgeVertex2, listOfsets).then(data => {
+                setIndexTwo = data
+            }).catch(data => setIndexTwo = data)
+
+
+
+            // 
+            if (setIndexOne === null || setIndexTwo === null) {
+                edgeIndex++
+                console.log("kann doch nicht sein")
+            } else {
+                // both vertices have been found in listOfsets with their setID
+                // if their setID´s are unequal => merge the sets together 
+                // current Edge is part of MST edges
+                if (setIndexOne !== setIndexTwo) {
+                    if (listOfsets[setIndexOne].obj.length > listOfsets[setIndexTwo].obj.length) {
+                        listOfsets[setIndexOne].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[0]
+                        listOfsets[setIndexTwo].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[1]
+                    } else {
+                        listOfsets[setIndexTwo].obj = MathExtension.union(listOfsets[setIndexTwo].obj, listOfsets[setIndexOne].obj)[0]
+                        listOfsets[setIndexOne].obj = MathExtension.union(listOfsets[setIndexOne].obj, listOfsets[setIndexTwo].obj)[1]
+
+                    }
+                    this.mst.push(edges[edgeIndex])
+                    edgeIndex++
+                } else {
+                    edgeIndex++
+                }
+            }
+        }
+        // mark mst route
+        this.mst.forEach(edge => edge.color = "red")
+    }
 
     // For testing, if draw edges Works
     connectConvexHull() {
@@ -657,4 +802,318 @@ export default class Graph extends Observable {
             this.edges.push(new Edge(currentVertex, nextVertex));
         }
     }
+
+    //Any triangulation of a set P ⊂ R2 of n points has exactly 3n−h−3 edges, where h is the number of points from P on ∂conv(P)
+    eulersFormular() {
+        let n = this.vertices.length
+        let convexHull = this.calculateConvexHull();
+        let h = convexHull.length   //this.numberOfEdgesOnConvexHull()
+        let eulerNumber = 3 * n - h - 3
+
+        console.log("N : ", n, "H : ", h)
+        console.log("eulerNumber 3 * n - h - 3 : ", eulerNumber)
+        if (this.edges.length === eulerNumber) {
+            console.log("#edges:", this.edges.length)
+            return true
+        } else {
+            console.log("PROBLEM #edges:", this.edges.length)
+
+            return false
+        }
+        //return this.edges.count === eulerNumber ? true : false
+
+    }
+    async euleTour() {
+        // DFS
+        // jumpen 
+    }
+
+    dfs() {
+        try {
+            this.tour = MathExtension.dfsTour(this.mst)
+            console.log(this.tour)
+        } catch (e) {
+            console.log(e)
+        }
+
+    }
+
+
+    // New approach while playing around: Skipping turned out to be just valid and equal when the subsequence that is skipped 
+
+
+
+    // What do we do here: We first take the array in preorder and make an eulertour out of it
+    // We do this by taking an empty array and pushing an element to it that is not yet contained in it => 
+    // This is like pseudo deleting every additional instance of the node
+    // Then we rotate the array by any desired degree, like the first instance of a node that is on the convex hull
+    // With this rotated array and every other rotation we make another eulertour. Then we have an array of different eulertours, 
+    // After we check if those are legit
+    calculateSkippingTour(preorderArray) {
+        let preorder = [...preorderArray]
+        let validEulertour = []
+        // head is neede at end
+
+        // Inital euler tour
+        preorder.forEach(element => {
+            if (!validEulertour.includes(element)) {
+                validEulertour.push(element)
+            }
+        })
+
+        let initTour = [...validEulertour]
+        this.initialTour = initTour
+
+        console.log("Initial tour! of length: ", this.tourLength(validEulertour, true))
+        console.log("With nodes: ", validEulertour.length)
+
+        // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
+        // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
+
+        let leafCount = 0
+        preorder.forEach(element => {
+            if (element.children.length === 0) { // Changed for element.isOnConvexHull
+                element.isLeaf = true // isLeaf
+                leafCount += 1
+            }
+        })
+
+
+        let allValidTours = [validEulertour]
+
+
+        let rotation = [...preorder]
+
+
+        //
+        // TODO: Test the for loop, could not do it yet because there were no nodes on the convex hull
+        //
+
+        // What does this loop do?
+        // This acts on the mst tour which is 2 length of mst. Nodes can still appear many times
+        for (let i = 0; i < leafCount; i++) { // maybe - 1 leaf count
+            // Make a copy of preorder
+
+            let ogversion = [...rotation]
+            // And another one to play with - for tmp stuff
+            let tmpRotation = [...rotation]
+
+            // Find first index of element on convex hull
+            let firstIndex = tmpRotation.findIndex(element => element.isLeaf)
+            //Remove it and every other item before it and call it head.
+            let withoutHead = [...tmpRotation]
+            withoutHead.splice(0, firstIndex + 1)
+
+            // Find index of list without head. Need to add something to it.
+            let secondIndex = withoutHead.findIndex(element => element.isLeaf) // exchanged for element.isOnConvexHull
+
+            if (!(secondIndex === -1)) {
+
+                //
+                // Handle case where no second index is found. This means
+                // that there is no leaf left and we should handle it somehow
+                //
+                //
+
+
+
+                // Hier indexspielerei prüfen
+                // Add the oder indices so that we find the index from the original list without the removed head.
+                secondIndex += (firstIndex + 1)
+                // Now first and second index represent the indices of the first two elements that are on the convex hull.
+                let spliceIndex = firstIndex + 1
+                let count = secondIndex - spliceIndex
+                /// Remove everything in the tmp rotation in between first and second index
+                let withSkipping = [...ogversion]
+                withSkipping.splice(spliceIndex, count)
+                // Congratz, you now have a list that does not contain items between the first two points on the convex hull.
+                // Now need to check if a resulting eulertour would still be valid, we can do this by checking its length against the validEulerTour
+                let tour = []
+                withSkipping.forEach(element => {
+                    if (!tour.includes(element)) {
+                        tour.push(element)
+                    }
+                })
+                if (tour.length === validEulertour.length) { // Tour is not valid if it doesnt contain all nodes
+                    allValidTours.push(tour)
+                }
+
+                // We pushed a new tour from the ogversion. Now rotate the OGTour like a barrelshifter and go to next iteration
+
+                let head = []
+                for (let k = 0; k < spliceIndex; k++) { // Remove everything up to the splice index
+                    head.push(ogversion.shift())
+                }
+                // And push it to the end to get a rotation
+                head.forEach(node => ogversion.push(node))
+
+                // Set rotation to ogversion
+                rotation = ogversion
+            } else { console.log("Not using this one") }
+        }
+        /*
+        allValidTours.forEach(attr => {
+            console.log("Found a tour with first element", attr[0])
+        })*/
+
+
+        // Now I have all valid eulertours in an array callded "allValidTours"
+        console.log("Finished rotating and skipping all tours, now starting Merge")
+        this.mergeTourSet(allValidTours)
+        // allValidTours
+
+        // => First, find the shortest of those tours.
+        // I think this shortest tour should be the "base" tour to improve upon. It could be the case that merging 2 longer tours
+        // result in a tour that is ultimately shorter but guess what I dont care.
+        // TODO: Make some tea and think of a good way to merge these tours.
+
+    }
+
+
+    // Merges a Set of tours to a final shortest tour
+    mergeTourSet(tours) {
+        let tmpTours = [...tours]
+        // Rotate every so that id 0 is at first index. This makes it easier to compare and merge them.
+        console.log("Got ", tmpTours.length, " tours to merge!")
+        for (let tour of tmpTours) {
+            tour = this.rotateToFirstId(tour)
+        }
+        tmpTours.sort((a, b) => this.tourLength(a, true) - this.tourLength(b, true))
+        // Now I should have all tours sorted by length. Now take the first one and merge them all.
+        let shortestTour = tmpTours.shift()
+        for (let tour of tmpTours) {
+            // @Deniz: @EDIT: glaube habe es gefixed, war ein error mit splice und dann hat er einfach ein array verändert auf das
+            // er eig nicht mehr hätte zugreifen sollen aber was auch immer..... habe jetzt einige male getestet und immer ohne
+            // Error, dafür ist das ergebnis teilweise nicht mehr so krass wie erhofft..
+            shortestTour = this.mergeTours(shortestTour, tour)
+        }
+        console.log("Got the shortest tour!")
+        console.log("it is of length: ", this.tourLength(shortestTour, true))
+        this.shortestTour = shortestTour
+        return shortestTour
+    }
+
+    // Idea, iterate though both lists and stop, when ID at index+1 is not equal. Remember index
+    // Then find second index of both tours where two IDs are equal again. ( With different ID's in between)
+    // Calculate this.tourLength of the two subsequences and compare them.
+    // If b's subsequence lenght is shorter, substitute a's subsequence with b's subsequence
+    // Repeat above for other subsequences
+    // Return a which represents the shortest subsequences
+    mergeTours(tourA, tourB) {
+        let a = [...tourA]
+        let b = [...tourB]
+        if (!this.tourContainsElementsUntilIndex(a, a.length)) {
+            console.log("ERROR: a is already a corrupted tour while calling mergeTours -> Return")
+            return tourA
+        } else if (!this.tourContainsElementsUntilIndex(b, b.length)) {
+            console.log("ERROR: b is already a corrupted tour while calling mergeTours -> Return")
+            return tourA
+        } else { console.log("both tours to merge are not corrupted") }
+        if (a.length !== b.length) {
+            console.log("ERROR: One tour was shorter! -> Return ")
+            return tourA
+        }
+        let indexOne = 0
+        if (a[indexOne].id !== b[indexOne].id) {
+            console.log("ERROR: Both tours did not have same first index")
+            return tourA
+        }
+        while (a[indexOne].id === b[indexOne].id) { indexOne++ }
+        let indexTwo = indexOne
+        indexOne -= 1 // Last index where both tours are equal
+        while (a[indexTwo].id !== b[indexTwo].id) {
+            indexTwo++
+            if (indexTwo === a.length || indexTwo === b.length) {
+                console.log("ERROR: Both tours were not of the same length! -> Return")
+                return tourA
+            }
+        }
+        let subsequenceLength = indexTwo - (indexOne + 1)
+        let subsequenceA = a.splice(indexOne + 1, subsequenceLength)
+        let subsequenceB = b.splice(indexOne + 1, subsequenceLength)
+        if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
+            a.splice(indexOne + 1, 0, ...subsequenceB)
+            // Case where the subsequence elements were the only node occuring in the tour
+            if (!this.tourContainsElementsUntilIndex(a, tourA.length)) {
+                console.log("ERROR: Resulting merger Tour would be corrupted -> Return")
+                return tourA
+            }
+        } else { a.splice(indexOne + 1, 0, ...subsequenceA) }
+        console.log("Successfully merged two Tours! End of Function")
+        return a.flat()
+    }
+
+    /// Could write a shorter function that finds all indices of the removed subsequence in the new tour but who am I to decide 
+    tourContainsElementsUntilIndex(tour, index) {
+        for (let i = 1; i <= index; i++) {
+            if (tour.find(node => node.id === i) === undefined) {
+                return false
+            }
+        }
+        return true
+    }
+
+    // Should work just fine
+    // Accepts array of Node objects and barell shifts it until the first Node is of Index 0 
+    rotateToFirstId(tour) {
+        let hasIdOne = false
+        for (let node of tour) {
+            //node.forEach(attr => console.log(attr))
+            if (node.id === 1) {
+                hasIdOne = true
+            }
+        }
+        if (!hasIdOne) {
+            console.log("ERROR: No node of index 0 found")
+        }
+        while (tour[0].id !== 1) {
+            tour.push(tour.shift())
+        }
+        return tour
+    }
+
+    // returns the length of a given tour of Vertices in an array
+
+    tourLength(tour, isCycle = false) {
+        let count = tour.length
+        let length = 0
+        for (let index = 0; index < count - 1; index++) {
+            length += MathExtension.euclideanDistance2D(tour[index], tour[index + 1])
+        }
+        if (isCycle) {
+            length += MathExtension.euclideanDistance2D(tour[count - 1], tour[0])
+        }
+        return length
+    }
+
+    highlightTour(tour, color) {
+        console.log("Highlighting tour with nodes of count: ", tour.length)
+        for (let i = 0; i < tour.length; i++) {
+            if (i === tour.length - 1) {
+                let nodeA1 = tour[i]
+                let nodeA2 = tour[0]
+                try {
+                    let edge = this.edgeWithEndpointsById(nodeA1, nodeA2)
+                    edge.color = color
+                } catch {
+                    let v1 = this.getVertexWithID(nodeA1.id)
+                    let v2 = this.getVertexWithID(nodeA2.id)
+                    this.addEdge(v1, v2, color)
+                }
+            } else {
+                let nodeA1 = tour[i]
+                let nodeA2 = tour[i + 1]
+                try {
+                    let edge = this.edgeWithEndpointsById(nodeA1, nodeA2)
+                    edge.color = color
+                } catch {
+                    let v1 = this.getVertexWithID(nodeA1.id)
+                    let v2 = this.getVertexWithID(nodeA2.id)
+                    this.addEdge(v1, v2, color)
+                }
+            }
+        }
+    }
+
+
 }
