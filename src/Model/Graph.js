@@ -49,8 +49,6 @@ export default class Graph extends Observable {
         this.highlightTour = this.highlightTour.bind(this)
         this.tourContainsElementsUntilIndex = this.tourContainsElementsUntilIndex.bind(this)
         this.dfs = this.dfs.bind(this)
-        //this.restoreEdgeDefaultColor = this.restoreEdgeDefaultColor.bind(this)
-        //this.restoreEdgesDefaultColor = this.restoreEdgesDefaultColor.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
@@ -396,7 +394,6 @@ export default class Graph extends Observable {
             // We must use a counter variable i and increment it only after the promise, which is adding the point to the current hull, is fulfilled
             let i = 0
             let size = array.length
-            let flippedEdgesIsDone = false
             while (i < size) {
                 let point = array.shift()
                 // eslint-disable-next-line no-loop-func
@@ -406,13 +403,9 @@ export default class Graph extends Observable {
                     if (i === size) {
                         // Now flip all edges
                         // flipedges returns true when done
-                        flippedEdgesIsDone = this.flipEdges(this.triangles)
+                        this.flipEdges(this.triangles)
                     }
                 })
-            }
-            // 
-            if (flippedEdgesIsDone) {
-                this.restoreEdgesDefaultColor(this.edges)
             }
         } catch (e) {
             window.alert("Push at least 3 points")
@@ -420,34 +413,6 @@ export default class Graph extends Observable {
         }
         // reset Edge Color
     }
-    /*
-    @TIMO
-    War ne idee, geht aber noch nicht 
-
-    async restoreEdgesDefaultColor(edgesArray) {
-        let edges = [...edgesArray]
-        let edgeIndex = 0;
-        while (edgeIndex < edges.length) {
-            console.log("Prev", edges[edgeIndex])
-            await this.restoreEdgeDefaultColor(edges[edgeIndex])
-                .then(data => {
-                    edges[edgeIndex] = data
-                    console.log("current", edges[edgeIndex])
-                    edgeIndex++
-                })
-        }
-    }
-
-    restoreEdgeDefaultColor(edge) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                edge.color = Config.defaultEdgeColor
-                resolve(edge)
-            }, 0)
-
-        })
-    }
-    */
 
     addToSHull(point, hull, circleCenter) {
         return new Promise(resolve => {
