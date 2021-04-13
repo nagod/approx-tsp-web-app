@@ -49,8 +49,8 @@ export default class Graph extends Observable {
         this.highlightTour = this.highlightTour.bind(this)
         this.tourContainsElementsUntilIndex = this.tourContainsElementsUntilIndex.bind(this)
         this.dfs = this.dfs.bind(this)
-        this.restoreEdgeDefaultColor = this.restoreEdgeDefaultColor.bind(this)
-        this.restoreEdgesDefaultColor = this.restoreEdgesDefaultColor.bind(this)
+        //this.restoreEdgeDefaultColor = this.restoreEdgeDefaultColor.bind(this)
+        //this.restoreEdgesDefaultColor = this.restoreEdgesDefaultColor.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
