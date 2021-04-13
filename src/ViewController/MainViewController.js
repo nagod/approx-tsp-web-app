@@ -3,17 +3,23 @@
 // Inhibits all views and notifies the presenter of any event.
 //
 
-import React from "react";
+import React, { Component } from "react";
 import Canvas from "../View/Canvas";
-import { Button, Slider, Input } from '@material-ui/core';
+import { Button, Slider, FormControlLabel, Switch } from '@material-ui/core';
 import MainPresenter from "../Presenter/MainPresenter";
 import "./Stylesheets/MainViewController.css"
 import Config from "../App/Config";
 
-export default class MainViewController extends React.Component {
+export default class MainViewController extends Component {
     constructor() {
         super();
         this.presenter = new MainPresenter(this); // Presenter takes care of app logic
+        this.state = {
+            distanceToggle: false,
+            canvas: {}
+        };
+
+
         // Bind this to function so that "this" refers to this object
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
@@ -27,6 +33,8 @@ export default class MainViewController extends React.Component {
         this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
         this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
         this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
+        this.handleShowDistnance = this.handleShowDistnance.bind(this)
+        this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
     }
 
     // Lifecycle
@@ -40,14 +48,13 @@ export default class MainViewController extends React.Component {
     }
 
     handleSliderChanged(event, value) {
-        //let slider = document.getElementById("animationSpeedSlider")
-
         Config.baseRateSpeed = (500 - value)
-        //slider.value = event.target.value
     }
 
     // Handling events
-
+    handleSaveAsJPEGButtonClicked() {
+        this.presenter.handleSaveAsJPEGButtonClicked()
+    }
     handleReadDataButtonClicked() {
         this.presenter.handleReadDataButtonClicked()
     }
@@ -76,6 +83,9 @@ export default class MainViewController extends React.Component {
     handleInitialTourButtonClicked() {
         this.presenter.handleInitialTourButtonClicked()
     }
+    handleShowDistnance(e) {
+        this.setState({ distanceToggle: e.target.checked })
+    }
 
     // Changing the View Functions
     scaleCanvasWithVertex(maxX, maxY) {
@@ -85,7 +95,6 @@ export default class MainViewController extends React.Component {
         let width = rect.width - 70
         let height = rect.height - 70
         let factor = 0
-        console.log("Width: ", width, "Height: , ", height)
         if ((width / maxX) < (height / maxY)) {
             factor = width / maxX
         } else {
@@ -93,10 +102,6 @@ export default class MainViewController extends React.Component {
         }
         factor = Math.ceil(factor)
         ctx.scale(factor, factor)
-        console.log("Scaled by factor: ", factor)
-        /*let canvasView = document.getElementById("canvasView")
-        canvasView.scalingFactor *= factor
-        */
     }
 
     handleSaveGraphButtonClicked() {
@@ -112,6 +117,7 @@ export default class MainViewController extends React.Component {
         };
         reader.readAsText(e.target.files[0])
     }
+
 
     render() {
         return (
@@ -158,14 +164,27 @@ export default class MainViewController extends React.Component {
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => this.handleSaveGraphButtonClicked()}>Save 10X Reiniger</Button>
+                        onClick={() => this.handleSaveGraphButtonClicked()}>Save as JSON</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
                     <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
-                    {/*<input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
-                        onChange={this.handleSliderChanged}></input>*/}
                     <div>
                         <label htmlFor="file" className="File-label">"LOAD"</label>
                         <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
                     </div>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={this.distanceToggle}
+                                onChange={(e) => this.handleShowDistnance(e)}
+                                name="checkedB"
+                                color="primary"
+                            />
+                        }
+                        label="Show Distance"
+                    />
                 </div>
             </div >
         );

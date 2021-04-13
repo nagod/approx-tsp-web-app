@@ -54,4 +54,17 @@ export default class FileService {
         }
         return dataObj
     }
+
+    static saveAsJPEG(canvas) {
+
+        // create temporary link  
+        var tmpLink = document.createElement('a');
+        tmpLink.download = 'image.jpeg'; // set the name of the download file 
+        tmpLink.href = canvas.toDataURL();;
+
+        // temporarily add link to body and initiate the download  
+        document.body.appendChild(tmpLink);
+        tmpLink.click();
+        document.body.removeChild(tmpLink);
+    }
 }

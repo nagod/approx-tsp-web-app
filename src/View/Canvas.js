@@ -44,6 +44,8 @@ export default class Canvas extends React.Component {
     setupCanvas() {
         this.canvas = document.getElementById("mainCanvas");
         this.ctx = this.canvas.getContext("2d");
+        this.viewController.setState({ canvas: this.canvas })
+
         //this.ctx.scale(19, 19)
         //this.scalingFactor *= Math.ceil(11)
     }
@@ -173,6 +175,7 @@ export default class Canvas extends React.Component {
 
     drawGraph(graph) {
         graph.vertices.forEach(vertex => this.drawVertex(vertex))
+
         graph.edges.forEach((edge, index) => this.drawEdgeWithIndex(edge, index))
         if (this.showTriangles) {
             graph.triangles.forEach(triangle => this.drawTriangleCircumCircle(triangle))
@@ -213,8 +216,11 @@ export default class Canvas extends React.Component {
 
     drawEdgeWithIndex(edge, index) {
         this.drawEdgeBetweenPoints(edge.vertexOne.xPos, edge.vertexOne.yPos, edge.vertexTwo.xPos, edge.vertexTwo.yPos, edge.color)
-        let halfway = { xPos: (edge.vertexOne.xPos + edge.vertexTwo.xPos) / 2, yPos: (edge.vertexOne.yPos + edge.vertexTwo.yPos) / 2 }
-        this.drawIndexAtPosition(new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 }).format(edge.length), halfway)
+        if (this.viewController.state.distanceToggle) {
+            let halfway = { xPos: (edge.vertexOne.xPos + edge.vertexTwo.xPos) / 2, yPos: (edge.vertexOne.yPos + edge.vertexTwo.yPos) / 2 }
+            this.drawIndexAtPosition(new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 }).format(edge.length), halfway)
+        }
+
     }
 
     drawIndexAtPosition(index, position) {
@@ -298,7 +304,9 @@ export default class Canvas extends React.Component {
             console.log(error.message)
         }
     }
-
+    jo() {
+        return document.getElementById("mainCanvas");
+    }
     // Rendering
 
     render() {

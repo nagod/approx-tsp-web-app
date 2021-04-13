@@ -19,8 +19,13 @@ export default class MainPresenter {
         this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
         this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
         this.handleSaveGraphButtonClicked = this.handleSaveGraphButtonClicked.bind(this)
-        //        this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
+        //this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
+        this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
         this.passData = this.passData.bind(this)
+    }
+    handleSaveAsJPEGButtonClicked() {
+        let canvas = this.viewController.state.canvas
+        FileService.saveAsJPEG(canvas)
     }
 
     handleSaveGraphButtonClicked() {
