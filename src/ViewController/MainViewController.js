@@ -5,7 +5,7 @@
 
 import React from "react";
 import Canvas from "../View/Canvas";
-import Button from "../View/Button";
+import { Button, Slider, Input } from '@material-ui/core';
 import MainPresenter from "../Presenter/MainPresenter";
 import "./Stylesheets/MainViewController.css"
 import Config from "../App/Config";
@@ -39,10 +39,11 @@ export default class MainViewController extends React.Component {
     setupViewController() {
     }
 
-    handleSliderChanged(event) {
-        let slider = document.getElementById("animationSpeedSlider")
-        Config.baseRateSpeed = (500 - event.target.value)
-        slider.value = event.target.value
+    handleSliderChanged(event, value) {
+        //let slider = document.getElementById("animationSpeedSlider")
+
+        Config.baseRateSpeed = (500 - value)
+        //slider.value = event.target.value
     }
 
     // Handling events
@@ -123,43 +124,44 @@ export default class MainViewController extends React.Component {
                 <div className="buttonDiv">
 
                     <Button
-                        label="Read Data"
-                        handleButtonClicked={this.handleReadDataButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleTriangulateButtonClicked()}>Triangulieren</Button>
                     <Button
-                        label="Triangulate"
-                        handleButtonClicked={this.handleTriangulateButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleMSTButtonClicked()}>Calc MST</Button>
                     <Button
-                        label="Calc MST"
-                        handleButtonClicked={this.handleMSTButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleEdgesButtonClicked()}>Print Tours</Button>
                     <Button
-                        label="Print Tours"
-                        handleButtonClicked={this.handleEdgesButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleDFSButtonClicked()}>DFS ALgo</Button>
                     <Button
-                        label="DFS ALgo"
-                        handleButtonClicked={this.handleDFSButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleReadDataButtonClicked()}>Read Data</Button>
                     <Button
-                        label="Skipping"
-                        handleButtonClicked={this.handleSkippingButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleSkippingButtonClicked()}>Skipping</Button>
                     <Button
-                        label="Highlight shortest"
-                        handleButtonClicked={this.handleShortestTourButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleShortestTourButtonClicked()}>Shortest</Button>
                     <Button
-                        label="Highlight initial"
-                        handleButtonClicked={this.handleInitialTourButtonClicked}
-                    />
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleInitialTourButtonClicked()}>EulerTour</Button>
                     <Button
-                        label="Save Graph"
-                        handleButtonClicked={this.handleSaveGraphButtonClicked}
-                    />
-                    <input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
-                        onChange={this.handleSliderChanged}></input>
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleSaveGraphButtonClicked()}>Save 10X Reiniger</Button>
+                    <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
+                    {/*<input type="range" min="10" max="500" value="100" className="slider" id="animationSpeedSlider"
+                        onChange={this.handleSliderChanged}></input>*/}
                     <div>
                         <label htmlFor="file" className="File-label">"LOAD"</label>
                         <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
