@@ -6,8 +6,13 @@
 
 import Graph from "../Model/Graph";
 import FileService from "../Services/FileService";
-export default class MainPresenter {
+import Config from "../App/Config";
+import Observable from "../Architecture/Observable";
+
+
+export default class MainPresenter extends Observable {
     constructor(viewController) {
+        super();
         this.graph = new Graph(this);
         this.viewController = viewController;
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
@@ -22,10 +27,25 @@ export default class MainPresenter {
         //this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
         this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
         this.passData = this.passData.bind(this)
+        this.handleClearGraphGButtonClicked = this.handleClearGraphGButtonClicked.bind(this)
     }
     handleSaveAsJPEGButtonClicked() {
         let canvas = this.viewController.state.canvas
         FileService.saveAsJPEG(canvas)
+    }
+
+    handleClearGraphGButtonClicked() {
+        this.notify("clear", true)
+        try {
+            this.graph.vertices = [];
+            this.graph.edges = [];
+            this.graph.triangles = []
+            this.graph.mst = []
+            this.graph.shortestTour = []
+            this.graph.initialTour = []
+            this.graph.tour = null
+        } catch (e) { console.log(e.stack) }
+
     }
 
     handleSaveGraphButtonClicked() {
@@ -40,11 +60,9 @@ export default class MainPresenter {
         this.graph.sHullTriangulation(this.graph.vertices)
     }
     handleEdgesButtonClicked() {
-        console.log(this.graph.edges)
         this.graph.edges.forEach(element => {
             element.color = "lightblue"
         });
-        //this.canvas.highlightFinalTours()
     }
 
     handleMSTButtonClicked() {

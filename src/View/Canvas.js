@@ -26,6 +26,7 @@ export default class Canvas extends React.Component {
         this.highlightFinalTours = this.highlightFinalTours.bind(this)
         this.subscribe = this.subscribe.bind(this)
         this.unsubscribe = this.unsubscribe.bind(this)
+        this.clearCanvas = this.clearCanvas.bind(this)
 
     }
 
@@ -45,9 +46,7 @@ export default class Canvas extends React.Component {
         this.canvas = document.getElementById("mainCanvas");
         this.ctx = this.canvas.getContext("2d");
         this.viewController.setState({ canvas: this.canvas })
-
-        //this.ctx.scale(19, 19)
-        //this.scalingFactor *= Math.ceil(11)
+        this.viewController.setState({ context: this.ctx })
     }
 
     setupEventListeners() {
@@ -62,10 +61,12 @@ export default class Canvas extends React.Component {
 
     subscribe() {
         this.viewController.presenter.graph.subscribe(this)
+        this.viewController.presenter.subscribe(this)
     }
 
     unsubscribe() {
         this.viewController.presenter.graph.unsubscribe(this)
+        this.viewController.unsubscribe(this)
     }
 
     notify(identifier, data) {
@@ -73,6 +74,9 @@ export default class Canvas extends React.Component {
         switch (identifier) {
             case "scalingNotification":
                 this.handleScalingNotification(data)
+                break
+            case "clear":
+                this.clearCanvas()
                 break
             default:
                 console.log("Could not identify notification identifier with data", data)
@@ -100,14 +104,19 @@ export default class Canvas extends React.Component {
             factor = height / maxY
         }
         factor = Math.ceil(factor)
+        this.fontSize = this.fontSize / factor
         this.scalingFactor = factor
         this.ctx.scale(factor, factor)
 
     }
 
+    clearCanvas() {
+        this.canvas = document.getElementById("mainCanvas");
+        this.ctx = this.canvas.getContext("2d");
+        this.ctx.clearRect(0, 0, Config.defaultCanvasWidth, Config.defaultCanvasHeight);
+    }
 
     // Rendering the animation frames
-
     renderingLoop(timeStamp) {
         // Update game objects in the loop
         this.draw();
@@ -116,7 +125,9 @@ export default class Canvas extends React.Component {
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        this.drawGraph(this.viewController.presenter.graph)
+        if (this.viewController.presenter.graph.vertices.length > 0) {
+            this.drawGraph(this.viewController.presenter.graph)
+        }
     }
 
 
@@ -154,6 +165,8 @@ export default class Canvas extends React.Component {
 
     handleRightMouseDown(event) {
         //alert("Right click is working")
+        this.ctx.clearRect(0, 0, Config.defaultCanvasWidth, Config.defaultCanvasHeight);
+
     }
 
     // Functions
@@ -202,8 +215,6 @@ export default class Canvas extends React.Component {
         this.ctx.beginPath();
         radius /= this.scalingFactor
         this.ctx.arc(xPos, yPos, radius, 0, 2 * Math.PI);
-        //this.ctx.fillStyle = color
-        //this.ctx.fill()
         this.ctx.lineWidth = 3 / this.scalingFactor
         this.ctx.strokeStyle = Config.defaultVertexBorderColor
         this.ctx.stroke();
@@ -304,9 +315,7 @@ export default class Canvas extends React.Component {
             console.log(error.message)
         }
     }
-    jo() {
-        return document.getElementById("mainCanvas");
-    }
+
     // Rendering
 
     render() {

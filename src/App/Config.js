@@ -11,6 +11,7 @@ const Config = {
     defaultEdgeColor: "LightSlateGray",
     defaultCanvasWidth: 1100,
     defaultCanvasHeight: 750,
+    defaultVertexFont: 12
 }
 
 export default Config

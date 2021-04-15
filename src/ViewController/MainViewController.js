@@ -7,6 +7,7 @@ import React, { Component } from "react";
 import Canvas from "../View/Canvas";
 import { Button, Slider, FormControlLabel, Switch } from '@material-ui/core';
 import MainPresenter from "../Presenter/MainPresenter";
+import Icons from "../View/Icons"
 import "./Stylesheets/MainViewController.css"
 import Config from "../App/Config";
 
@@ -16,7 +17,7 @@ export default class MainViewController extends Component {
         this.presenter = new MainPresenter(this); // Presenter takes care of app logic
         this.state = {
             distanceToggle: false,
-            canvas: {}
+            canvas: {},
         };
 
 
@@ -35,6 +36,7 @@ export default class MainViewController extends Component {
         this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
         this.handleShowDistnance = this.handleShowDistnance.bind(this)
         this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
+        this.handleClearGraphGButtonClicked = this.handleClearGraphGButtonClicked.bind(this)
     }
 
     // Lifecycle
@@ -86,6 +88,13 @@ export default class MainViewController extends Component {
     handleShowDistnance(e) {
         this.setState({ distanceToggle: e.target.checked })
     }
+    handleClearGraphGButtonClicked() {
+        this.presenter.handleClearGraphGButtonClicked()
+    }
+
+    handleSaveGraphButtonClicked() {
+        this.presenter.handleSaveGraphButtonClicked()
+    }
 
     // Changing the View Functions
     scaleCanvasWithVertex(maxX, maxY) {
@@ -104,9 +113,7 @@ export default class MainViewController extends Component {
         ctx.scale(factor, factor)
     }
 
-    handleSaveGraphButtonClicked() {
-        this.presenter.handleSaveGraphButtonClicked()
-    }
+
 
     handleLoadSampleButtonClicked = async (e) => {
         e.preventDefault()
@@ -121,6 +128,7 @@ export default class MainViewController extends Component {
 
     render() {
         return (
+
             <div className="mainDiv">
                 <div className="canvasDiv">
 
@@ -169,6 +177,10 @@ export default class MainViewController extends Component {
                         variant="contained"
                         color="primary"
                         onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleClearGraphGButtonClicked()}>Clear Graph</Button>
                     <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
                     <div>
                         <label htmlFor="file" className="File-label">"LOAD"</label>
@@ -185,6 +197,7 @@ export default class MainViewController extends Component {
                         }
                         label="Show Distance"
                     />
+                    <Icons />
                 </div>
             </div >
         );
