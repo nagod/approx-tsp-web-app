@@ -1010,7 +1010,7 @@ export default class Graph extends Observable {
         return shortestTour
     }
 
-    // Idea, iterate though both lists and stop, when ID at index+1 is not equal. Remember index
+    // Idea, iterate though both lists and stop, when sID at index+1 is not equal. Remember index
     // Then find second index of both tours where two IDs are equal again. ( With different ID's in between)
     // Calculate this.tourLength of the two subsequences and compare them.
     // If b's subsequence lenght is shorter, substitute a's subsequence with b's subsequence
@@ -1044,8 +1044,6 @@ export default class Graph extends Observable {
         if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
             a.splice(indexOne + 1, 0, ...subsequenceB)
             // Case where the subsequence elements were the only node occuring in the tour
-
-
             // Now test if a still contains all elements from subsequence A
             subsequenceA.forEach(node => {
                 if (!this.tourContainsId(a, node.id)) {
