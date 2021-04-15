@@ -47,10 +47,10 @@ export default class Graph extends Observable {
         this.rotateToFirstId = this.rotateToFirstId.bind(this)
         this.edgeWithEndpointsById = this.edgeWithEndpointsById.bind(this)
         this.highlightTour = this.highlightTour.bind(this)
-        this.tourContainsElementsUntilIndex = this.tourContainsElementsUntilIndex.bind(this)
         this.dfs = this.dfs.bind(this)
         this.deleteVertex = this.deleteVertex.bind(this)
         this.deleteAdjacentEdges = this.deleteAdjacentEdges.bind(this)
+        this.tourContainsId = this.tourContainsId.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
@@ -1016,13 +1016,6 @@ export default class Graph extends Observable {
     mergeTours(tourA, tourB) {
         let a = [...tourA]
         let b = [...tourB]
-        if (!this.tourContainsElementsUntilIndex(a, a.length)) {
-            console.log("ERROR: a is already a corrupted tour while calling mergeTours -> Return")
-            return tourA
-        } else if (!this.tourContainsElementsUntilIndex(b, b.length)) {
-            console.log("ERROR: b is already a corrupted tour while calling mergeTours -> Return")
-            return tourA
-        } else { console.log("both tours to merge are not corrupted") }
         if (a.length !== b.length) {
             console.log("ERROR: One tour was shorter! -> Return ")
             return tourA
@@ -1048,35 +1041,45 @@ export default class Graph extends Observable {
         if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
             a.splice(indexOne + 1, 0, ...subsequenceB)
             // Case where the subsequence elements were the only node occuring in the tour
-            if (!this.tourContainsElementsUntilIndex(a, tourA.length)) {
-                console.log("ERROR: Resulting merger Tour would be corrupted -> Return")
-                return tourA
-            }
-        } else { a.splice(indexOne + 1, 0, ...subsequenceA) }
+
+
+            // Now test if a still contains all elements from subsequence A
+            subsequenceA.forEach(node => {
+                if (!this.tourContainsId(a, node.id)) {
+                    console.log("ERROR: Merger Tour would not have all Elements!")
+                    return tourA
+                }
+            })
+        }
         console.log("Successfully merged two Tours! End of Function")
-        return a.flat()
+        return tourA
     }
 
-    /// Could write a shorter function that finds all indices of the removed subsequence in the new tour but who am I to decide 
-    tourContainsElementsUntilIndex(tour, index) {
-        for (let i = 1; i <= index; i++) {
-            if (tour.find(node => node.id === i) === undefined) {
-                return false
-            }
+    tourContainsId(tour, id) {
+        if (tour.find(node => node.id === id) === undefined) {
+            return false
+        } else {
+            return true
         }
-        return true
     }
+
+    // @TODO: Take care! What is going to happen if someone deletes node with id1? => Find lowest ID
 
     // Should work just fine
     // Accepts array of Node objects and barell shifts it until the first Node is of Index 0 
     rotateToFirstId(tour) {
         let hasIdOne = false
         for (let node of tour) {
+            console.log(node.id)
             //node.forEach(attr => console.log(attr))
-            if (node.id === 1) {
+            if (node.id === "1") {
+                console.log("FOUND IT :D")
                 hasIdOne = true
+                console.log("Print In If: ", hasIdOne)
             }
         }
+        console.log("HasIDOne is: ", hasIdOne)
+        console.log("exactly right")
         if (!hasIdOne) {
             console.log("ERROR: No node of index 0 found")
         }
@@ -1084,7 +1087,7 @@ export default class Graph extends Observable {
             tour.push(tour.shift())
         }
         return tour
-    } u
+    }
 
     // returns the length of a given tour of Vertices in an array
 
