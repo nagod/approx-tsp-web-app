@@ -46,6 +46,7 @@ export default class MainPresenter extends Observable {
             this.graph.shortestTour = []
             this.graph.initialTour = []
             this.graph.tour = null
+            this.graph.idCounter = 1
         } catch (e) { console.log(e.stack) }
 
     }
