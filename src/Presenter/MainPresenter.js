@@ -28,12 +28,14 @@ export default class MainPresenter extends Observable {
         this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
         this.passData = this.passData.bind(this)
         this.handleClearGraphGButtonClicked = this.handleClearGraphGButtonClicked.bind(this)
+        this.handleIconClicked = this.handleIconClicked.bind(this)
     }
     handleSaveAsJPEGButtonClicked() {
-        let canvas = this.viewController.state.canvas
-        FileService.saveAsJPEG(canvas)
+        FileService.saveAsJPEG(this.viewController.state.canvas)
     }
-
+    handleIconClicked() {
+        this.notify("editMode", this.viewController.state.editMode)
+    }
     handleClearGraphGButtonClicked() {
         this.notify("clear", true)
         try {

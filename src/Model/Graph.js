@@ -49,11 +49,30 @@ export default class Graph extends Observable {
         this.highlightTour = this.highlightTour.bind(this)
         this.tourContainsElementsUntilIndex = this.tourContainsElementsUntilIndex.bind(this)
         this.dfs = this.dfs.bind(this)
+        this.deleteVertex = this.deleteVertex.bind(this)
+        this.deleteAdjacentEdges = this.deleteAdjacentEdges.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
         const vertex = new Vertex(id, xPos, yPos)
         this.vertices.push(vertex);
+    }
+    deleteVertex(vertex) {
+        let new_vertices = this.vertices.filter(v => v.xPos !== vertex.xPos && v.yPos !== vertex.yPos)
+        this.vertices = new_vertices
+        this.deleteAdjacentEdges(vertex)
+    }
+    deleteAdjacentEdges(vertex) {
+        // sehr sehr sehr dreckig gecoded, habs anders nicht gerallt lol xd Peppega
+        let adj_edges = this.edges.filter(edge => (edge.vertexOne.xPos === vertex.xPos && edge.vertexOne.yPos === vertex.yPos) || (edge.vertexTwo.xPos === vertex.xPos && edge.vertexTwo.yPos === vertex.yPos))
+        let finalEdges = []
+        this.edges.forEach(edge => {
+            if (!(adj_edges.includes(edge))) {
+                finalEdges.push(edge)
+            }
+        })
+
+        this.edges = finalEdges
     }
 
     makeGraphFromData(vertices) {

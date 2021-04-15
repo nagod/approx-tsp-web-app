@@ -78,11 +78,15 @@ export default class Canvas extends React.Component {
             case "clear":
                 this.clearCanvas()
                 break
+            case "editMode":
+                console.log(data)
+                break
             default:
                 console.log("Could not identify notification identifier with data", data)
                 break
         }
     }
+
 
     handleScalingNotification(data) {
         console.log("Got notification with scaling factor!", data)
@@ -135,9 +139,13 @@ export default class Canvas extends React.Component {
 
     handleMouseDown(event) {
         let mousePos = this.getMousePosition(event);
+        let mode = this.viewController.state.editMode
 
         for (let vertex of this.viewController.presenter.graph.vertices) {
             if (this.isIntersect(mousePos, vertex)) {
+                if (mode === "erase") {
+                    this.viewController.presenter.graph.deleteVertex(vertex)
+                }
                 console.log("recognized one click")
                 this.currentVertex = vertex
                 this.canvas.addEventListener("mousemove", this.handleMouseMove);
@@ -164,9 +172,7 @@ export default class Canvas extends React.Component {
     }
 
     handleRightMouseDown(event) {
-        //alert("Right click is working")
-        this.ctx.clearRect(0, 0, Config.defaultCanvasWidth, Config.defaultCanvasHeight);
-
+        alert("Right click is working")
     }
 
     // Functions
@@ -257,8 +263,6 @@ export default class Canvas extends React.Component {
 
 
     // Obsolete function? 
-
-
     handleCircleButtonClicked() {
         this.showTriangles = !this.showTriangles
     }

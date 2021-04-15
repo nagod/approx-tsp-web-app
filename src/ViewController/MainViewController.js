@@ -18,9 +18,13 @@ export default class MainViewController extends Component {
         this.state = {
             distanceToggle: false,
             canvas: {},
+            /**
+             *   default mode  "draw " (ADD NODE) === when pencil icon is clicked.
+             *                "erase" (delte Node) == when erase icon is clicked.
+             */
+            editMode: "draw"
+
         };
-
-
         // Bind this to function so that "this" refers to this object
         this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
@@ -37,6 +41,17 @@ export default class MainViewController extends Component {
         this.handleShowDistnance = this.handleShowDistnance.bind(this)
         this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
         this.handleClearGraphGButtonClicked = this.handleClearGraphGButtonClicked.bind(this)
+        this.setEditMode = this.setEditMode.bind(this)
+        this.handleIconClicked = this.handleIconClicked.bind(this)
+
+    }
+
+    setEditMode(dataFromIcons) {
+        this.setState({ editMode: dataFromIcons })
+        this.handleIconClicked()
+    }
+    handleIconClicked() {
+        this.presenter.handleIconClicked()
     }
 
     // Lifecycle
@@ -197,7 +212,7 @@ export default class MainViewController extends Component {
                         }
                         label="Show Distance"
                     />
-                    <Icons />
+                    <Icons action={this.setEditMode} />
                 </div>
             </div >
         );
