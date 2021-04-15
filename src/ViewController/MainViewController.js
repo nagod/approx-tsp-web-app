@@ -5,7 +5,7 @@
 
 import React, { Component } from "react";
 import Canvas from "../View/Canvas";
-import { Button, Slider, FormControlLabel, Switch } from '@material-ui/core';
+import { Button, Slider, FormControlLabel, Switch, Drawer } from '@material-ui/core';
 import MainPresenter from "../Presenter/MainPresenter";
 import Icons from "../View/Icons"
 import "./Stylesheets/MainViewController.css"
@@ -22,7 +22,8 @@ export default class MainViewController extends Component {
              *   default mode  "draw " (ADD NODE) === when pencil icon is clicked.
              *                "erase" (delte Node) == when erase icon is clicked.
              */
-            editMode: "draw"
+            editMode: "draw",
+            drawerOpen: false
 
         };
         // Bind this to function so that "this" refers to this object
@@ -45,6 +46,11 @@ export default class MainViewController extends Component {
         this.handleIconClicked = this.handleIconClicked.bind(this)
 
     }
+
+    toggleDrawer(event) {
+        let currentState = this.state.drawerOpen
+        this.setState({ drawerOpen: !currentState })
+    };
 
     setEditMode(dataFromIcons) {
         this.setState({ editMode: dataFromIcons })
@@ -143,78 +149,94 @@ export default class MainViewController extends Component {
 
     render() {
         return (
+            <div className="mainBody">
+                <div className="Header">Some Cool Header with Padding :)</div>
+                <div className="mainDiv">
+                    <div className="buttonDiv">
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleTriangulateButtonClicked()}>Triangulieren</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleMSTButtonClicked()}>MST Berechnen</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleDFSButtonClicked()}>DFS Algorithmus</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleSkippingButtonClicked()}>Leaf Skipping</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleClearGraphGButtonClicked()}>Clear Graph</Button>
+                        <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
 
-            <div className="mainDiv">
-                <div className="canvasDiv">
-
-                    <Canvas viewController={this} id="canvasView" />
-
-                </div>
-                <div className="buttonDiv">
-
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleTriangulateButtonClicked()}>Triangulieren</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleMSTButtonClicked()}>Calc MST</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleEdgesButtonClicked()}>Print Tours</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleDFSButtonClicked()}>DFS ALgo</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleReadDataButtonClicked()}>Read Data</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleSkippingButtonClicked()}>Skipping</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleShortestTourButtonClicked()}>Shortest</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleInitialTourButtonClicked()}>EulerTour</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleSaveGraphButtonClicked()}>Save as JSON</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleClearGraphGButtonClicked()}>Clear Graph</Button>
-                    <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
-                    <div>
-                        <label htmlFor="file" className="File-label">"LOAD"</label>
-                        <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.toggleDrawer()}>Advanced {'>'}</Button>
                     </div>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={this.distanceToggle}
-                                onChange={(e) => this.handleShowDistnance(e)}
-                                name="checkedB"
-                                color="primary"
+                    <div className="canvasDiv">
+                        <div className="canvasToolBar">
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={this.distanceToggle}
+                                        onChange={(e) => this.handleShowDistnance(e)}
+                                        name="checkedB"
+                                        color="primary"
+                                    />
+                                }
+                                label="Distance"
                             />
-                        }
-                        label="Show Distance"
-                    />
-                    <Icons action={this.setEditMode} />
+                            <Icons action={this.setEditMode} />
+                        </div>
+                        <Canvas viewController={this} id="canvasView" />
+                    </div>
+                    <Drawer variant="persistent" anchor={"right"} open={this.state.drawerOpen}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleReadDataButtonClicked()}>Load Example</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleShortestTourButtonClicked()}>Highlight Shortest</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleInitialTourButtonClicked()}>Highlight Initial</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleEdgesButtonClicked()}>Kanten cleanen</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleSaveGraphButtonClicked()}>Save as JSON</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
+                        <div className="fileUploadDiv">
+                            <label htmlFor="file" className="File-label">Upload File</label>
+                            <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
+                        </div>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.toggleDrawer()}>Close</Button>
+                    </Drawer>
+                </div >
+                <div className="footer">
+                    <hr></hr>
+                    Ich hab kein Bock mehr
                 </div>
-            </div >
+            </div>
         );
     }
 }
