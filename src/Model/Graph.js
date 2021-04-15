@@ -17,6 +17,7 @@ export default class Graph extends Observable {
         this.shortestTour = []
         this.initialTour = []
         this.tour = null
+        this.idCounter = 1
         this.hasVertices = this.hasVertices.bind(this);
         this.getVertices = this.getVertices.bind(this);
         this.getVertexAtIndex = this.getVertexAtIndex.bind(this);
@@ -54,17 +55,19 @@ export default class Graph extends Observable {
     }
 
     addVertex(id, xPos, yPos) {
-        const vertex = new Vertex(id, xPos, yPos)
+        const vertex = new Vertex(this.idCounter, xPos, yPos)
+        this.idCounter += 1
         this.vertices.push(vertex);
     }
     deleteVertex(vertex) {
-        let new_vertices = this.vertices.filter(v => v.xPos !== vertex.xPos && v.yPos !== vertex.yPos)
+        let new_vertices = this.vertices.filter(v => (v.id !== vertex.id))
         this.vertices = new_vertices
         this.deleteAdjacentEdges(vertex)
     }
+
     deleteAdjacentEdges(vertex) {
         // sehr sehr sehr dreckig gecoded, habs anders nicht gerallt lol xd Peppega
-        let adj_edges = this.edges.filter(edge => (edge.vertexOne.xPos === vertex.xPos && edge.vertexOne.yPos === vertex.yPos) || (edge.vertexTwo.xPos === vertex.xPos && edge.vertexTwo.yPos === vertex.yPos))
+        let adj_edges = this.edges.filter(edge => (edge.vertexOne.id === vertex.id) || (edge.vertexTwo.id === vertex.id))
         let finalEdges = []
         this.edges.forEach(edge => {
             if (!(adj_edges.includes(edge))) {

@@ -173,7 +173,6 @@ export default class MathExtension {
         for (let i = 0; i < mst.length; i++) {
             let nodeOne = new Node(mst[i].vertexOne.xPos, mst[i].vertexOne.yPos, mst[i].vertexOne.id)
             let nodeTwo = new Node(mst[i].vertexTwo.xPos, mst[i].vertexTwo.yPos, mst[i].vertexTwo.id)
-
             this.add(nodeOne, mstVertexList)
             this.add(nodeTwo, mstVertexList)
         }
@@ -242,6 +241,8 @@ export default class MathExtension {
 
     // return head
     static createTree(nodeList1, tupelObjectList) {
+        console.log("nodeList1", nodeList1)
+        console.log("tupelObjectList", tupelObjectList)
         // need to manage head
         let nodeList = [...nodeList1]
         let head = nodeList[0]

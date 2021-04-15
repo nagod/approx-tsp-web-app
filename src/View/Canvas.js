@@ -156,6 +156,7 @@ export default class Canvas extends React.Component {
         }
 
         //this.viewController.presenter.graph.addVertexFromData(this.viewController.presenter.graph.vertices.length + 1, mousePos.x, mousePos.y)
+        //@TODO
         this.viewController.presenter.graph.addVertex(this.viewController.presenter.graph.vertices.length + 1, mousePos.x, mousePos.y)
 
     }
