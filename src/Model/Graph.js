@@ -1071,18 +1071,13 @@ export default class Graph extends Observable {
     rotateToFirstId(tour) {
         let hasIdOne = false
         for (let node of tour) {
-            console.log(node.id)
-            //node.forEach(attr => console.log(attr))
-            if (node.id === "1") {
-                console.log("FOUND IT :D")
+            if (node.id === 1) {
                 hasIdOne = true
-                console.log("Print In If: ", hasIdOne)
             }
         }
-        console.log("HasIDOne is: ", hasIdOne)
-        console.log("exactly right")
         if (!hasIdOne) {
             console.log("ERROR: No node of index 0 found")
+            return tour
         }
         while (tour[0].id !== 1) {
             tour.push(tour.shift())
