@@ -10,23 +10,46 @@ body {
     margin: 0px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    background-color:#f4f4f8;
+}
+
+.header {
+    padding: 18px 0px 12px 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid rgb(211, 191, 80);
+    background-color: #202047;
+    margin: 0px 0px 20px 0px;
+}
+
+.headerLabel{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0px;
+    font-weight: lighter;
+    color: rgb(228, 228, 228);
 
 }
 
+.padding-right {
+    padding: 0px 20px 0px 0px;
+}
+
 .mainDiv{
-    padding-top: 20px;
+    padding: 0px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     margin: 0px;
-    background-color:#d8e1e2;
 }
 
 .canvasToolBar {
     display: flex;
     flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
 }
 
 .canvasDiv{
@@ -42,10 +65,10 @@ body {
     padding-right: auto;
     flex-direction: column;
     align-self: flex-start;
-    background-color:#d8e1e2;
-    min-width: 300px;
+    min-width: 240px;
+    width: 240px;
     min-height: 100%;
-
+    padding: 0px 0px 0px 20px;
 }
 .File-label {
     height: 50px;
@@ -81,5 +104,58 @@ body {
 {cursor:pointer}
 
 .footer {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    border-top: 1px solid rgb(211, 191, 80);
+    text-align: center;
+    color: rgb(228, 228, 228);
+    padding: 5px;
+    background-color: #202047;
     margin-top: auto;
+}
+
+
+.screenSizeWarningDiv {
+    z-index: 1;
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(242, 47, 47);
+}
+
+.innerScreenSizeWarningDiv {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(250, 243, 237);
+    border-radius: 7px;
+    padding: 60px 40px;
+}
+
+.warningHeader {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: rgb(3, 6, 70);
+    margin: 0px;
+}
+
+.warningDescription {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    font-weight: 300;
+    text-align: center;
+    margin: 10px 0px 0px 0px;
+    color: rgb(3, 6, 70);
+}
+
+@media screen and (max-width: 1350px) {
+    .screenSizeWarningDiv {
+        display: flex;
+    }
 }

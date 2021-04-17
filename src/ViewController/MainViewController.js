@@ -150,93 +150,104 @@ export default class MainViewController extends Component {
     render() {
         return (
             <div className="mainBody">
-                <div className="Header">Some Cool Header with Padding :)</div>
-                <div className="mainDiv">
-                    <div className="buttonDiv">
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleTriangulateButtonClicked()}>Triangulieren</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleMSTButtonClicked()}>MST Berechnen</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleDFSButtonClicked()}>DFS Algorithmus</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleSkippingButtonClicked()}>Leaf Skipping</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleClearGraphGButtonClicked()}>Clear Graph</Button>
-                        <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.toggleDrawer()}>Advanced {'>'}</Button>
+                <Drawer variant="persistent" anchor={"right"} open={this.state.drawerOpen}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleReadDataButtonClicked()}>Load Example</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleShortestTourButtonClicked()}>Highlight Shortest</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleInitialTourButtonClicked()}>Highlight Initial</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleEdgesButtonClicked()}>Kanten cleanen</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleSaveGraphButtonClicked()}>Save as JSON</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
+                    <div className="fileUploadDiv">
+                        <label htmlFor="file" className="File-label">Upload File</label>
+                        <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
                     </div>
-                    <div className="canvasDiv">
-                        <div className="canvasToolBar">
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={this.distanceToggle}
-                                        onChange={(e) => this.handleShowDistnance(e)}
-                                        name="checkedB"
-                                        color="primary"
-                                    />
-                                }
-                                label="Distance"
-                            />
-                            <Icons action={this.setEditMode} />
-                        </div>
-                        <Canvas viewController={this} id="canvasView" />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.toggleDrawer()}>Close</Button>
+                </Drawer>
+                <div className="screenSizeWarningDiv">
+                    <div className="innerScreenSizeWarningDiv">
+                        <h1 className="warningHeader">WARNING</h1>
+                        <h3 className="warningDescription">Screen size too small!
+                        <br></br>Please expand your window or <br></br>switch to a device with a bigger screen.</h3>
                     </div>
-                    <Drawer variant="persistent" anchor={"right"} open={this.state.drawerOpen}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleReadDataButtonClicked()}>Load Example</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleShortestTourButtonClicked()}>Highlight Shortest</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleInitialTourButtonClicked()}>Highlight Initial</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleEdgesButtonClicked()}>Kanten cleanen</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleSaveGraphButtonClicked()}>Save as JSON</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
-                        <div className="fileUploadDiv">
-                            <label htmlFor="file" className="File-label">Upload File</label>
-                            <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
-                        </div>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.toggleDrawer()}>Close</Button>
-                    </Drawer>
-                </div >
-                <div className="footer">
-                    <hr></hr>
-                    Ich hab kein Bock mehr
                 </div>
-            </div>
+
+
+
+                <div className="header"> <h1 className="headerLabel">-- Leaf Skipping Algorithm --</h1></div>
+                <div className="padding-right">
+                    <div className="canvasToolBar">
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={this.distanceToggle}
+                                    onChange={(e) => this.handleShowDistnance(e)}
+                                    name="checkedB"
+                                    color="primary"
+                                />
+                            }
+                            label="Distance"
+                        />
+                        <Icons action={this.setEditMode} />
+                    </div>
+                    <div className="mainDiv">
+                        <div className="buttonDiv">
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.handleTriangulateButtonClicked()}>Triangulieren</Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.handleMSTButtonClicked()}>MST Berechnen</Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.handleDFSButtonClicked()}>DFS Algorithmus</Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.handleSkippingButtonClicked()}>Leaf Skipping</Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.handleClearGraphGButtonClicked()}>Clear Graph</Button>
+                            <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
+
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.toggleDrawer()}>Advanced {'>'}</Button>
+                        </div>
+                        <div className="canvasDiv">
+                            <Canvas viewController={this} id="canvasView" />
+                        </div>
+                    </div >
+                </div>
+                <div className="footer">
+                    Created by Deniz Dogan and Timo Kilb © 2021. All rights reserved.
+                </div>
+            </div >
         );
     }
 }
