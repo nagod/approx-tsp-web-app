@@ -5,6 +5,7 @@ import Triangle from "./Triangle";
 import Observable from "../Architecture/Observable";
 import MathExtension from "../Extensions/MathExtension"
 import Config from "../App/Config";
+import Console from "../View/Console"
 
 export default class Graph extends Observable {
     constructor(presenter) {
@@ -143,7 +144,7 @@ export default class Graph extends Observable {
         return this.edges.length > 0 ? true : false;
     }
 
-    addEdge(x, y, color = "lightblue") {
+    addEdge(x, y, color = Config.defaultEdgeColor) {
         let tmpEdge = new Edge(x, y)
         tmpEdge.color = color
         this.edges.push(tmpEdge)
@@ -367,6 +368,7 @@ export default class Graph extends Observable {
 
     async sHullTriangulation(set) {
         try {
+            Console.log("Starting Triangulation")
             // Reset edges
             this.edges = []
             this.triangles = []
@@ -425,6 +427,7 @@ export default class Graph extends Observable {
                     if (i === size) {
                         // Now flip all edges
                         // flipedges returns true when done
+                        Console.log("Done")
                         this.flipEdges(this.triangles)
                     }
                 })
@@ -433,6 +436,8 @@ export default class Graph extends Observable {
             window.alert("Push at least 3 points")
             console.error(e)
         }
+
+        //@TODO Async - macht er schon zu früh
         // reset Edge Color
     }
 
@@ -504,6 +509,7 @@ export default class Graph extends Observable {
 
 
     async flipEdges(triangles) {
+        Console.log("Calculating Delaunay")
 
         let allTriangles = [...triangles]
         let triangleQueue = []
@@ -603,6 +609,10 @@ export default class Graph extends Observable {
             notFinishedWithAllTriangles = false
 
         }
+        // @TODO: - Async 
+
+        Console.log("Done")
+        this.kruskal()
         return true
     }
 
@@ -626,7 +636,7 @@ export default class Graph extends Observable {
                 }
                 // determine old edge
                 let oldEdge = this.sharedEdge(triangleA, triangleB)
-                if (oldEdge.color === Config.defaultEdgeColor) {
+                /*if (oldEdge.color === Config.defaultEdgeColor) {
                     oldEdge.color = "red"
                 } else if (oldEdge.color === "red") {
                     oldEdge.color = "orange"
@@ -634,7 +644,7 @@ export default class Graph extends Observable {
                     oldEdge.color = "green" // green is the flipped color also 
                 } else if (oldEdge.color === "green") {
                     // oldEdge.color = "blue" // flipped twice or looked at 4 times
-                }
+                }*/
 
                 //check if
 
@@ -714,7 +724,7 @@ export default class Graph extends Observable {
 
                     // Push new edge
                     let newEdge = this.addEdge(a[0], b[0])
-                    newEdge.color = "green"
+                    //newEdge.color = "green"
                     tmpA.edges.push(newEdge)
                     tmpB.edges.push(newEdge)
 
@@ -735,6 +745,7 @@ export default class Graph extends Observable {
     // 6) für alle edges wiederholen => MST
 
     async kruskal() {
+        Console.log("Calculating MST")
         // reset egdge color
         this.edges.forEach(n => n.color = Config.defaultEdgeColor)
         // initial datastructures 
@@ -802,6 +813,9 @@ export default class Graph extends Observable {
         }
         // mark mst route
         this.mst.forEach(edge => edge.color = "red")
+        //@TODO Async
+        Console.log("Done")
+        this.dfs()
     }
 
     // For testing, if draw edges Works
@@ -847,8 +861,11 @@ export default class Graph extends Observable {
 
     dfs() {
         try {
+            Console.log("Calculating Euler Tour")
             this.tour = MathExtension.dfsTour(this.mst)
             console.log(this.tour)
+            Console.log("Done")
+            this.calculateSkippingTour(this.tour)
         } catch (e) {
             console.log(e)
         }
@@ -867,6 +884,7 @@ export default class Graph extends Observable {
     // With this rotated array and every other rotation we make another eulertour. Then we have an array of different eulertours, 
     // After we check if those are legit
     calculateSkippingTour(preorderArray) {
+        Console.log("Using Leaf Skipping Algorithm")
         let preorder = [...preorderArray]
         let validEulertour = []
         // head is neede at end
@@ -978,7 +996,7 @@ export default class Graph extends Observable {
         console.log("Finished rotating and skipping all tours, now starting Merge")
         this.mergeTourSet(allValidTours)
         // allValidTours
-
+        Console.log("Done")
         // => First, find the shortest of those tours.
         // I think this shortest tour should be the "base" tour to improve upon. It could be the case that merging 2 longer tours
         // result in a tour that is ultimately shorter but guess what I dont care.
