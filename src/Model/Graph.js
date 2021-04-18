@@ -80,6 +80,7 @@ export default class Graph extends Observable {
     }
 
     makeGraphFromData(vertices) {
+        console.log("makeGraphFromData: ", vertices)
         vertices.forEach((vertex) => {
             const { id, xPos, yPos } = vertex
             this.addVertex(id, xPos, yPos);
@@ -1024,6 +1025,9 @@ export default class Graph extends Observable {
         }
         console.log("Got the shortest tour!")
         console.log("it is of length: ", this.tourLength(shortestTour, true))
+        Console.log(`Length after Skipping: ${this.tourLength(shortestTour, true)}`)
+
+        Console.log(`Length after Skipping: ${this.tourLength(shortestTour, true)}`)
         this.shortestTour = shortestTour
         return shortestTour
     }

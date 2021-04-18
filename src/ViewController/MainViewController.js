@@ -29,7 +29,6 @@ export default class MainViewController extends Component {
 
         };
         // Bind this to function so that "this" refers to this object
-        this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
         this.handleMSTButtonClicked = this.handleMSTButtonClicked.bind(this)
         this.setupViewController = this.setupViewController.bind(this)
@@ -83,15 +82,12 @@ export default class MainViewController extends Component {
     handleSaveAsJPEGButtonClicked() {
         this.presenter.handleSaveAsJPEGButtonClicked()
     }
-    handleReadDataButtonClicked() {
-        this.presenter.handleReadDataButtonClicked()
-    }
     handleSkippingButtonClicked() {
         this.presenter.handleSkippingButtonClicked()
     }
 
     handleTriangulateButtonClicked() {
-        Console.log("Triangulation gedrückt der nUtten")
+        Console.log("Triangulation gedrückt")
         this.presenter.handleTriangulateButtonClicked()
     }
 
@@ -159,10 +155,6 @@ export default class MainViewController extends Component {
         return (
             <div className="mainBody">
                 <Drawer variant="persistent" anchor={"right"} open={this.state.drawerOpen}>
-                    {/* { <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.handleReadDataButtonClicked()}>Load Example</Button>} */}
                     <Button
                         variant="contained"
                         color="primary"

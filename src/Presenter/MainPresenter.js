@@ -15,7 +15,6 @@ export default class MainPresenter extends Observable {
         super();
         this.graph = new Graph(this);
         this.viewController = viewController;
-        this.handleReadDataButtonClicked = this.handleReadDataButtonClicked.bind(this);
         this.handleMSTButtonClicked = this.handleMSTButtonClicked.bind(this)
         this.scaleCanvasWithVertex = this.scaleCanvasWithVertex.bind(this)
         this.handleEdgesButtonClicked = this.handleEdgesButtonClicked.bind(this)
@@ -24,7 +23,6 @@ export default class MainPresenter extends Observable {
         this.handleShortestTourButtonClicked = this.handleShortestTourButtonClicked.bind(this)
         this.handleInitialTourButtonClicked = this.handleInitialTourButtonClicked.bind(this)
         this.handleSaveGraphButtonClicked = this.handleSaveGraphButtonClicked.bind(this)
-        //this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
         this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
         this.passData = this.passData.bind(this)
         this.openFile = this.openFile.bind(this)
@@ -66,8 +64,8 @@ export default class MainPresenter extends Observable {
     }
     // recives date from MainviewController ( Examples .txt)
     passData(text) {
-        let jacksonOBJ = FileService.textToJason(text)
-        this.graph.makeGraphFromData(jacksonOBJ);
+        let data = JSON.parse(text)
+        this.graph.makeGraphFromData(data);
     }
 
     handleTriangulateButtonClicked() {
@@ -101,11 +99,4 @@ export default class MainPresenter extends Observable {
     handleSkippingButtonClicked() {
         this.graph.calculateSkippingTour(this.graph.tour)
     }
-    // TODO: Make dropdown, rename function and accept string to select example value
-    //Read Data
-    handleReadDataButtonClicked() {
-        const data = FileService.getExampleByKey("example03");
-        this.graph.makeGraphFromData(data);
-    }
-
 }

@@ -31,9 +31,9 @@ export default class ExampleDropDown extends Component {
             "Beispiel34(318).json",
             "Beispiel35(1379nrw).json",
         ]
-        this.passData = this.passData.bind(this)
+        this.sendData = this.sendData.bind(this)
     }
-    passData(data) {
+    sendData(data) {
         this.props.action(data)
     }
     render() {
@@ -43,8 +43,8 @@ export default class ExampleDropDown extends Component {
                     <Dropdown.Toggle variant="primary" id="dropdown-basic" style={{ maxWidth: '186px', minWidth: '186px', maxHeight: '45px', minHeight: '45px' }}>
                         Examples
                     </Dropdown.Toggle>
-                    <Dropdown.Menu >
-                        {this.data.map((entry) => <DropdownItem onClick={() => this.passData(entry)}> {entry}</DropdownItem>)}
+                    <Dropdown.Menu style={{ height: "411px", width: "204px", overflow: "scroll" }} >
+                        {this.data.map((entry, index) => <DropdownItem key={index} onClick={() => this.sendData(entry)}> {entry.split(".")[0]}</DropdownItem>)}
                     </Dropdown.Menu>
                 </Dropdown>
             </div>

@@ -42,19 +42,20 @@ export default class FileService {
         //document.body.appendChild(link);
         link.click()
     }
-    static textToJason(data) {
-        let dataObj = []
-        let tmpData = data.replace(/\s+/g, '')
-        for (let i = 0; i < tmpData.length / 3; i++) {
-            let node = {
-                id: tmpData[i * 3],
-                xPos: tmpData[(i * 3 + 1)],
-                yPos: tmpData[i * 3 + 2]
-            }
-            dataObj.push(node)
-        }
-        return dataObj
-    }
+
+    // static textToJason(data) {
+    //     let dataObj = []
+    //     let tmpData = data.replace(/\s+/g, '')
+    //     for (let i = 0; i < tmpData.length / 3; i++) {
+    //         let node = {
+    //             id: tmpData[i * 3],
+    //             xPos: tmpData[(i * 3 + 1)],
+    //             yPos: tmpData[i * 3 + 2]
+    //         }
+    //         dataObj.push(node)
+    //     }
+    //     return dataObj
+    // }
 
     static saveAsJPEG(canvas) {
         // create temporary link  
