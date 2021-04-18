@@ -64,6 +64,7 @@ export default class MainPresenter extends Observable {
     }
     // recives date from MainviewController ( Examples .txt)
     passData(text) {
+        this.handleClearGraphGButtonClicked()
         let data = JSON.parse(text)
         this.graph.makeGraphFromData(data);
     }

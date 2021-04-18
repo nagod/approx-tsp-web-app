@@ -44,7 +44,7 @@ export default class ExampleDropDown extends Component {
                         Examples
                     </Dropdown.Toggle>
                     <Dropdown.Menu style={{ height: "411px", width: "204px", overflow: "scroll" }} >
-                        {this.data.map((entry, index) => <DropdownItem key={index} onClick={() => this.sendData(entry)}> {entry.split(".")[0]}</DropdownItem>)}
+                        {this.data.map((entry, index) => <DropdownItem key={index} onClick={() => this.sendData(entry)}> {`Example ${index + 1} (${entry.split("(")[1].split(")")[0]})`}</DropdownItem>)}
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
