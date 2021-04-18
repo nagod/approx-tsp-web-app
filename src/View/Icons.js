@@ -1,6 +1,4 @@
 import React from "react"
-import Icon from '@mdi/react'
-import { mdiPencil } from '@mdi/js'
 export default class Icons extends React.Component {
 
     constructor() {
