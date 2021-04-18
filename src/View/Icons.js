@@ -1,16 +1,36 @@
 import React from "react"
 export default class Icons extends React.Component {
-    render() {
-
-        const handle = () => {
-            this.props.action("erase")
-            console.log(this.style)
+    constructor() {
+        super();
+        this.state = {
+            active: "draw"
         }
+    }
+    render() {
+        const handle = (e) => {
+            let drawElement = document.getElementById("draw")
+            let eraseElement = document.getElementById("erase")
+
+            if (e.currentTarget.id === "erase") {
+                drawElement.setAttribute("fill", "#cccccc")
+                eraseElement.setAttribute("fill", "#4B6FFF")
+                this.props.action("erase")
+
+            } else if (e.currentTarget.id === "draw") {
+                drawElement.setAttribute("fill", "#4B6FFF")
+                eraseElement.setAttribute("fill", "#cccccc")
+                this.props.action("draw")
+            }
+        }
+
+
         return (
             <div className="icons">
                 <svg
+                    className="eraser"
+                    id="erase"
                     viewBox="0 0 24 24"
-                    fill="currentColor"
+                    fill="#cccccc"
                     height="2em"
                     width="2em"
                     onClick={handle}
@@ -21,11 +41,12 @@ export default class Icons extends React.Component {
 
                 <svg
                     className="pencil"
-                    fill="currentColor"
+                    id="draw"
+                    fill="#4B6FFF"
                     viewBox="0 0 16 16"
                     height="2em"
                     width="2em"
-                    onClick={() => this.props.action("draw")}
+                    onClick={handle}
                     cursor="pointer"
                 >
                     <path
