@@ -46,6 +46,7 @@ export default class MainViewController extends Component {
         this.handleClearGraphGButtonClicked = this.handleClearGraphGButtonClicked.bind(this)
         this.setEditMode = this.setEditMode.bind(this)
         this.handleIconClicked = this.handleIconClicked.bind(this)
+        this.openFile = this.openFile.bind(this)
 
     }
 
@@ -61,7 +62,9 @@ export default class MainViewController extends Component {
     handleIconClicked() {
         this.presenter.handleIconClicked()
     }
-
+    openFile(data) {
+        this.presenter.openFile(data)
+    }
     // Lifecycle
 
     componentDidMount() {
@@ -200,7 +203,7 @@ export default class MainViewController extends Component {
                 <div className="header"> <h1 className="headerLabel">-- Leaf Skipping Algorithm --</h1></div>
                 <div className="padding-right">
                     <div className="canvasToolBar">
-                        <ExampleDropDown />
+                        <ExampleDropDown action={(data) => this.presenter.openFile(data)} />
                         <FormControlLabel
                             control={
                                 <Switch

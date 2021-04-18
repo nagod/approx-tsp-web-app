@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import DropdownButton from 'react-bootstrap/DropdownButton'
 import Dropdown from 'react-bootstrap/Dropdown'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
@@ -7,65 +6,48 @@ export default class ExampleDropDown extends Component {
     constructor() {
         super();
         this.data = [
-            "Beispiel2(280).txt",
-            "Beispiel3(52).txt",
-            "Beispiel4(127).txt",
-            "Beispiel5(14051).txt",
-            "Beispiel6(130).txt",
-            "Beispiel7(150).txt",
-            "Beispiel10(18512).txt",
-            "Beispiel15(101).txt",
-            "Beispiel16(51).txt",
-            "Beispiel17(76).txt",
-            "Beispiel22(4461).txt",
-            "Beispiel23(262).txt",
-            "Beispiel24(100).txt",
-            "Beispiel25(150).txt",
-            "Beispiel26(200).txt",
-            "Beispiel27(100).txt",
-            "Beispiel28(150).txt",
-            "Beispiel29(200).txt",
-            "Beispiel30(100).txt",
-            "Beispiel31(100).txt",
-            "Beispiel32(100).txt",
-            "Beispiel33(105).txt",
-            "Beispiel34(318).txt",
-            "Beispiel35(1379nrw).txt",
+            "Beispiel2(280).json",
+            "Beispiel3(52).json",
+            "Beispiel4(127).json",
+            "Beispiel5(14051).json",
+            "Beispiel6(130).json",
+            "Beispiel7(150).json",
+            "Beispiel10(18512).json",
+            "Beispiel15(101).json",
+            "Beispiel16(51).json",
+            "Beispiel17(76).json",
+            "Beispiel22(4461).json",
+            "Beispiel23(262).json",
+            "Beispiel24(100).json",
+            "Beispiel25(150).json",
+            "Beispiel26(200).json",
+            "Beispiel27(100).json",
+            "Beispiel28(150).json",
+            "Beispiel29(200).json",
+            "Beispiel30(100).json",
+            "Beispiel31(100).json",
+            "Beispiel32(100).json",
+            "Beispiel33(105).json",
+            "Beispiel34(318).json",
+            "Beispiel35(1379nrw).json",
         ]
+        this.passData = this.passData.bind(this)
+    }
+    passData(data) {
+        this.props.action(data)
     }
     render() {
         return (
             <div>
                 <Dropdown>
-                    <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    <Dropdown.Toggle variant="primary" id="dropdown-basic" style={{ maxWidth: '186px', minWidth: '186px', maxHeight: '45px', minHeight: '45px' }}>
                         Dropdown Button
                     </Dropdown.Toggle>
                     <Dropdown.Menu >
-                        {this.data.map((entry) => <DropdownItem> {entry}</DropdownItem>)}
+                        {this.data.map((entry) => <DropdownItem onClick={() => this.passData(entry)}> {entry}</DropdownItem>)}
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
         )
     }
 }
-/*
-                <Dropdown>
-                    < DropdownButton
-                        as={'myDropdown'}
-                        key={'left'}
-                        id={`dropdown-button-drop-${'down'}`
-                        }
-                        menuAlign={`right`}
-                        drop={'left'}
-                        variant="primary"
-                        title={` Drop ${'left'} `
-                        }
-                    >
-                        <Dropdown.Item eventKey="1">Example with X Nodes</Dropdown.Item>
-                        <Dropdown.Item eventKey="2">Example with X Nodes</Dropdown.Item>
-                        <Dropdown.Item eventKey="3">Example with X Nodes</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item eventKey="4">Example with X Nodes</Dropdown.Item>
-                    </DropdownButton >
-                </Dropdown>
-                */

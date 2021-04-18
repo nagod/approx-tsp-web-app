@@ -27,6 +27,7 @@ export default class MainPresenter extends Observable {
         //this.handleLoadSampleButtonClicked = this.handleLoadSampleButtonClicked.bind(this)
         this.handleSaveAsJPEGButtonClicked = this.handleSaveAsJPEGButtonClicked.bind(this)
         this.passData = this.passData.bind(this)
+        this.openFile = this.openFile.bind(this)
         this.handleClearGraphGButtonClicked = this.handleClearGraphGButtonClicked.bind(this)
         this.handleIconClicked = this.handleIconClicked.bind(this)
     }
@@ -36,6 +37,7 @@ export default class MainPresenter extends Observable {
     handleIconClicked() {
         this.notify("editMode", this.viewController.state.editMode)
     }
+
     handleClearGraphGButtonClicked() {
         this.notify("clear", true)
         try {
@@ -54,6 +56,17 @@ export default class MainPresenter extends Observable {
     handleSaveGraphButtonClicked() {
         FileService.saveToJSON(this.graph.vertices)
     }
+
+    openFile(data) {
+        this.handleClearGraphGButtonClicked()
+        let filename = data.split("(")[0]
+        const example = FileService.getExampleByKey(filename);
+        this.graph.makeGraphFromData(example);
+
+        //this.graph.makeGraphFromData(example);
+
+    }
+    // recives date from MainviewController ( Examples .txt)
     passData(text) {
         let jacksonOBJ = FileService.textToJason(text)
         console.log(jacksonOBJ)

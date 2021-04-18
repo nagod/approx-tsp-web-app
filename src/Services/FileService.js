@@ -8,6 +8,7 @@
 
 import Examples from "../Resources/Examples/Examples";
 export default class FileService {
+
     static readFileAsText(file) {
         const reader = new FileReader();
         return reader.readAsText(file);
@@ -56,7 +57,6 @@ export default class FileService {
     }
 
     static saveAsJPEG(canvas) {
-
         // create temporary link  
         var tmpLink = document.createElement('a');
         tmpLink.download = 'image.jpeg'; // set the name of the download file 
