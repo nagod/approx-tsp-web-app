@@ -159,10 +159,10 @@ export default class MainViewController extends Component {
         return (
             <div className="mainBody">
                 <Drawer variant="persistent" anchor={"right"} open={this.state.drawerOpen}>
-                    <Button
+                    {/* { <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => this.handleReadDataButtonClicked()}>Load Example</Button>
+                        onClick={() => this.handleReadDataButtonClicked()}>Load Example</Button>} */}
                     <Button
                         variant="contained"
                         color="primary"
@@ -203,7 +203,6 @@ export default class MainViewController extends Component {
                 <div className="header"> <h1 className="headerLabel">-- Leaf Skipping Algorithm --</h1></div>
                 <div className="padding-right">
                     <div className="canvasToolBar">
-                        <ExampleDropDown action={(data) => this.presenter.openFile(data)} />
                         <FormControlLabel
                             control={
                                 <Switch
@@ -225,7 +224,7 @@ export default class MainViewController extends Component {
                                     variant="contained"
                                     color="primary"
                                     onClick={() => this.handleTriangulateButtonClicked()}>Algorithmus GO</Button>
-                                <ExampleDropDown />
+                                <ExampleDropDown action={(data) => this.presenter.openFile(data)} />
                             </div>
                             <div className="innerButtonDiv">
                                 <Button

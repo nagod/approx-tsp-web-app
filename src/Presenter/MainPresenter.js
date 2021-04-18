@@ -63,13 +63,11 @@ export default class MainPresenter extends Observable {
         const example = FileService.getExampleByKey(filename);
         this.graph.makeGraphFromData(example);
 
-        //this.graph.makeGraphFromData(example);
-
     }
     // recives date from MainviewController ( Examples .txt)
     passData(text) {
         let jacksonOBJ = FileService.textToJason(text)
-        console.log(jacksonOBJ)
+        this.graph.makeGraphFromData(jacksonOBJ);
     }
 
     handleTriangulateButtonClicked() {

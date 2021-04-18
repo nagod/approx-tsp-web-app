@@ -41,7 +41,7 @@ export default class ExampleDropDown extends Component {
             <div>
                 <Dropdown>
                     <Dropdown.Toggle variant="primary" id="dropdown-basic" style={{ maxWidth: '186px', minWidth: '186px', maxHeight: '45px', minHeight: '45px' }}>
-                        Dropdown Button
+                        Examples
                     </Dropdown.Toggle>
                     <Dropdown.Menu >
                         {this.data.map((entry) => <DropdownItem onClick={() => this.passData(entry)}> {entry}</DropdownItem>)}
