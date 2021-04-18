@@ -5,6 +5,7 @@
 
 import React, { Component } from "react";
 import Canvas from "../View/Canvas";
+import Console from "../View/Console"
 import { Button, Slider, FormControlLabel, Switch, Drawer } from '@material-ui/core';
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import Dropdown from 'react-bootstrap/Dropdown'
@@ -89,16 +90,19 @@ export default class MainViewController extends Component {
     }
 
     handleTriangulateButtonClicked() {
+        Console.log("Triangulation gedrückt der nUtten")
         this.presenter.handleTriangulateButtonClicked()
     }
 
     handleMSTButtonClicked() {
+        Console.log("MST Button Clicked")
         this.presenter.handleMSTButtonClicked()
     }
     handleEdgesButtonClicked() {
         this.presenter.handleEdgesButtonClicked()
     }
     handleDFSButtonClicked() {
+        Console.log("DFS Button Clicked")
         this.presenter.handleDFSButtonClicked()
     }
 
@@ -260,6 +264,7 @@ export default class MainViewController extends Component {
                                 variant="contained"
                                 color="primary"
                                 onClick={() => this.toggleDrawer()}>Advanced {'>'}</Button>
+                            <Console></Console>
                         </div>
                         <div className="canvasDiv">
                             <Canvas viewController={this} id="canvasView" />
