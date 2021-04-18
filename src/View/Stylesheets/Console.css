@@ -1,0 +1,21 @@
+.consoleDiv {
+    padding: 5px;
+    background-color: white;
+    height: 200px;
+    width: 100%;
+    overflow: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;
+    border: 1px solid #bbbdc48e;
+    border-radius: 4px;
+}
+
+.consoleDiv::-webkit-scrollbar {
+    display: none;
+}
+.consoleParagraph {
+    width: 100%;
+    max-height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}

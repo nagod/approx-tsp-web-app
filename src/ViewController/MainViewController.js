@@ -5,7 +5,11 @@
 
 import React, { Component } from "react";
 import Canvas from "../View/Canvas";
+import Console from "../View/Console"
 import { Button, Slider, FormControlLabel, Switch, Drawer } from '@material-ui/core';
+import DropdownButton from 'react-bootstrap/DropdownButton'
+import Dropdown from 'react-bootstrap/Dropdown'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import MainPresenter from "../Presenter/MainPresenter";
 import Icons from "../View/Icons"
 import "./Stylesheets/MainViewController.css"
@@ -86,16 +90,19 @@ export default class MainViewController extends Component {
     }
 
     handleTriangulateButtonClicked() {
+        Console.log("Triangulation gedrückt der nUtten")
         this.presenter.handleTriangulateButtonClicked()
     }
 
     handleMSTButtonClicked() {
+        Console.log("MST Button Clicked")
         this.presenter.handleMSTButtonClicked()
     }
     handleEdgesButtonClicked() {
         this.presenter.handleEdgesButtonClicked()
     }
     handleDFSButtonClicked() {
+        Console.log("DFS Button Clicked")
         this.presenter.handleDFSButtonClicked()
     }
 
@@ -183,7 +190,7 @@ export default class MainViewController extends Component {
                         variant="contained"
                         color="primary"
                         onClick={() => this.toggleDrawer()}>Close</Button>
-                </Drawer>
+                </Drawer >
                 <div className="screenSizeWarningDiv">
                     <div className="innerScreenSizeWarningDiv">
                         <h1 className="warningHeader">WARNING</h1>
@@ -197,6 +204,25 @@ export default class MainViewController extends Component {
                 <div className="header"> <h1 className="headerLabel">-- Leaf Skipping Algorithm --</h1></div>
                 <div className="padding-right">
                     <div className="canvasToolBar">
+                        <Dropdown>
+
+                            < DropdownButton
+                                as={'myDropdown'}
+                                key={'left'}
+                                id={`dropdown-button-drop-${'down'}`
+                                }
+                                drop={'left'}
+                                variant="primary"
+                                title={` Drop ${'left'} `
+                                }
+                            >
+                                <Dropdown.Item eventKey="1">Action</Dropdown.Item>
+                                <Dropdown.Item eventKey="2">Another action</Dropdown.Item>
+                                <Dropdown.Item eventKey="3">Something else here</Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Item eventKey="4">Separated link</Dropdown.Item>
+                            </DropdownButton >
+                        </Dropdown>
                         <FormControlLabel
                             control={
                                 <Switch
@@ -238,6 +264,7 @@ export default class MainViewController extends Component {
                                 variant="contained"
                                 color="primary"
                                 onClick={() => this.toggleDrawer()}>Advanced {'>'}</Button>
+                            <Console></Console>
                         </div>
                         <div className="canvasDiv">
                             <Canvas viewController={this} id="canvasView" />
