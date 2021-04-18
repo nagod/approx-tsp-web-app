@@ -27,7 +27,7 @@ export default class Canvas extends React.Component {
         this.subscribe = this.subscribe.bind(this)
         this.unsubscribe = this.unsubscribe.bind(this)
         this.clearCanvas = this.clearCanvas.bind(this)
-
+        this.resize = this.resize.bind(this)
     }
 
     // Lifecycle functions
@@ -123,8 +123,14 @@ export default class Canvas extends React.Component {
     // Rendering the animation frames
     renderingLoop(timeStamp) {
         // Update game objects in the loop
+        this.resize()
         this.draw();
         window.requestAnimationFrame(this.renderingLoop);
+    }
+
+    resize() {
+        let width = window.innerWidth
+        this.canvas.width = width - 440
     }
 
     draw() {

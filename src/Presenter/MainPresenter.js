@@ -64,7 +64,7 @@ export default class MainPresenter extends Observable {
     }
     handleEdgesButtonClicked() {
         this.graph.edges.forEach(element => {
-            element.color = "lightblue"
+            element.color = Config.defaultEdgeColor
         });
     }
 
