@@ -25,8 +25,8 @@ export default class MainViewController extends Component {
              *                "erase" (delte Node) == when erase icon is clicked.
              */
             editMode: "draw",
-            drawerOpen: false
-
+            drawerOpen: false,
+            isInteractable: true
         };
         // Bind this to function so that "this" refers to this object
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
@@ -50,18 +50,30 @@ export default class MainViewController extends Component {
     }
 
     toggleDrawer(event) {
+        if (!this.isInteractable) {
+            return
+        }
         let currentState = this.state.drawerOpen
         this.setState({ drawerOpen: !currentState })
     };
 
     setEditMode(dataFromIcons) {
+        if (!this.isInteractable) {
+            return
+        }
         this.setState({ editMode: dataFromIcons })
         this.handleIconClicked()
     }
     handleIconClicked() {
+        if (!this.isInteractable) {
+            return
+        }
         this.presenter.handleIconClicked()
     }
     openFile(data) {
+        if (!this.isInteractable) {
+            return
+        }
         this.presenter.openFile(data)
     }
     // Lifecycle
@@ -80,44 +92,74 @@ export default class MainViewController extends Component {
 
     // Handling events
     handleSaveAsJPEGButtonClicked() {
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleSaveAsJPEGButtonClicked()
     }
     handleSkippingButtonClicked() {
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleSkippingButtonClicked()
     }
 
     handleTriangulateButtonClicked() {
-        Console.log("Triangulation gedrückt")
+        console.log("Interactability is: ", this.isInteractable)
+        if (!this.state.isInteractable) {
+            console.log("not interactable?")
+            return
+        }
+        console.log("gogogogo")
         this.presenter.handleTriangulateButtonClicked()
     }
 
     handleMSTButtonClicked() {
-        Console.log("MST Button Clicked")
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleMSTButtonClicked()
     }
     handleEdgesButtonClicked() {
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleEdgesButtonClicked()
     }
     handleDFSButtonClicked() {
-        Console.log("DFS Button Clicked")
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleDFSButtonClicked()
     }
 
     handleShortestTourButtonClicked() {
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleShortestTourButtonClicked()
     }
 
     handleInitialTourButtonClicked() {
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleInitialTourButtonClicked()
     }
     handleShowDistnance(e) {
         this.setState({ distanceToggle: e.target.checked })
     }
     handleClearGraphGButtonClicked() {
+        if (!this.state.isInteractable) {
+            return /// Maybe stop process instead of return?
+        }
         this.presenter.handleClearGraphGButtonClicked()
     }
 
     handleSaveGraphButtonClicked() {
+        if (!this.state.isInteractable) {
+            return
+        }
         this.presenter.handleSaveGraphButtonClicked()
     }
 
@@ -141,6 +183,9 @@ export default class MainViewController extends Component {
 
 
     handleLoadSampleButtonClicked = async (e) => {
+        if (!this.isInteractable) {
+            return
+        }
         e.preventDefault()
         var filetype = e.target.files[0].name.split(".")[1]
         const reader = new FileReader()

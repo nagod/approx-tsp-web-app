@@ -11,6 +11,7 @@ export default class Canvas extends React.Component {
         super();
         this.viewController = props.viewController;
         this.scalingFactor = 1
+        this.isInteractable = true
         this.setupEventListeners = this.setupEventListeners.bind(this);
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -28,6 +29,7 @@ export default class Canvas extends React.Component {
         this.unsubscribe = this.unsubscribe.bind(this)
         this.clearCanvas = this.clearCanvas.bind(this)
         this.resize = this.resize.bind(this)
+        this.handleAnimationNotification = this.handleAnimationNotification.bind(this)
     }
 
     // Lifecycle functions
@@ -82,6 +84,9 @@ export default class Canvas extends React.Component {
             case "editMode":
                 console.log(data)
                 break
+            case "animationNotification":
+                this.handleScalingNotification(data)
+                break
             default:
                 console.log("Could not identify notification identifier with data", data)
                 break
@@ -116,6 +121,20 @@ export default class Canvas extends React.Component {
 
     }
 
+    handleAnimationNotification(data) {
+        switch (data) {
+            case "didStart":
+                this.isInteractable = false
+                break
+            case "didStop":
+                this.isInteractable = true
+                break
+            default:
+                console.log("could not identify animationNotification")
+                break
+        }
+    }
+
     clearCanvas() {
         this.canvas = document.getElementById("mainCanvas");
         this.ctx = this.canvas.getContext("2d");
@@ -146,6 +165,9 @@ export default class Canvas extends React.Component {
     // Events
 
     handleMouseDown(event) {
+        if (!this.isInteractable) {
+            return
+        }
         let mousePos = this.getMousePosition(event);
         let mode = this.viewController.state.editMode
 
@@ -167,17 +189,26 @@ export default class Canvas extends React.Component {
     }
 
     handleMouseUp(event) {
+        if (!this.isInteractable) {
+            return
+        }
         this.canvas.removeEventListener("mousemove", this.handleMouseMove)
         this.canvas.removeEventListener("mouseup", this.handleMouseUp)
     }
 
     handleMouseMove(event) {
+        if (!this.isInteractable) {
+            return
+        }
         let mousePos = this.getMousePosition(event)
         this.currentVertex.xPos = mousePos.x
         this.currentVertex.yPos = mousePos.y
     }
 
     handleRightMouseDown(event) {
+        if (!this.isInteractable) {
+            return
+        }
         alert("Right click is working")
     }
 

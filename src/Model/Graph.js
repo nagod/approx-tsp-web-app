@@ -53,6 +53,8 @@ export default class Graph extends Observable {
         this.deleteVertex = this.deleteVertex.bind(this)
         this.deleteAdjacentEdges = this.deleteAdjacentEdges.bind(this)
         this.tourContainsId = this.tourContainsId.bind(this)
+        this.animationDidStart = this.animationDidStart.bind(this)
+        this.animationDidStop = this.animationDidStop.bind(this)
     }
 
     addVertex(id, xPos, yPos) {
@@ -356,6 +358,16 @@ export default class Graph extends Observable {
         return res.includes(true)
     }
 
+    animationDidStart() {
+        this.notify("animationNotification", "didStart")
+        this.presenter.animationDidStart()
+    }
+
+    animationDidStop() {
+        this.notify("animationNotification", "didStop")
+        this.presenter.animationDidStop()
+    }
+
     // Triangulation 
     // 1) Points are sorted by the distance from the center of the initial circle
     // 2) We determine the polar coordinates of all points in the current convex hull from the point that is to be added
@@ -369,6 +381,7 @@ export default class Graph extends Observable {
 
     async sHullTriangulation(set) {
         try {
+            this.animationDidStart()
             Console.log("Starting Triangulation")
             // Reset edges
             this.edges = []
@@ -1029,6 +1042,7 @@ export default class Graph extends Observable {
 
         Console.log(`Length after Skipping: ${this.tourLength(shortestTour, true)}`)
         this.shortestTour = shortestTour
+        this.animationDidStop()
         return shortestTour
     }
 

@@ -28,12 +28,23 @@ export default class MainPresenter extends Observable {
         this.openFile = this.openFile.bind(this)
         this.handleClearGraphGButtonClicked = this.handleClearGraphGButtonClicked.bind(this)
         this.handleIconClicked = this.handleIconClicked.bind(this)
+        this.animationDidStart = this.animationDidStart.bind(this)
+        this.animationDidStop = this.animationDidStop.bind(this)
     }
     handleSaveAsJPEGButtonClicked() {
         FileService.saveAsJPEG(this.viewController.state.canvas)
     }
     handleIconClicked() {
         this.notify("editMode", this.viewController.state.editMode)
+    }
+
+    animationDidStart() {
+        console.log("did start first")
+        this.viewController.setState({ isInteractable: false })
+    }
+
+    animationDidStop() {
+        this.viewController.setState({ isInteractable: true })
     }
 
     handleClearGraphGButtonClicked() {
