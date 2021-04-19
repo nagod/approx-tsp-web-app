@@ -142,10 +142,11 @@ export default class MainViewController extends Component {
 
     handleLoadSampleButtonClicked = async (e) => {
         e.preventDefault()
+        var filetype = e.target.files[0].name.split(".")[1]
         const reader = new FileReader()
         reader.onload = async (e) => {
             const text = (e.target.result)
-            this.presenter.passData(text)
+            this.presenter.passData(text, filetype)
         };
         reader.readAsText(e.target.files[0])
     }
@@ -192,7 +193,7 @@ export default class MainViewController extends Component {
                     </div>
                 </div>
 
-                <div className="header"> <h1 className="headerLabel">-- Leaf Skipping Algorithm --</h1></div>
+                <div className="header"> <h1 className="headerLabel"> Leaf Skipping Algorithm </h1></div>
                 <div className="padding-right">
                     <div className="canvasToolBar">
                         <FormControlLabel

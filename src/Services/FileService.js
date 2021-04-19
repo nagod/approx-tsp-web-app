@@ -22,7 +22,7 @@ export default class FileService {
         return Examples[key].data;
     }
 
-    static saveToJSON(nodes) {
+    static saveToJSON(nodes, tourLenght = 0) {
         let array = []
         for (let node of nodes) {
             let obj = {
@@ -32,8 +32,10 @@ export default class FileService {
             }
             array.push(obj)
         }
-        let result = JSON.stringify(array)
-        var filename = "Graph.txt"
+        array.push({ TourLength: tourLenght })
+        let result = JSON.stringify(array, null, 3)
+        //var filename = "Graph.txt"
+        var filename = `Graph(${array.length - 1}).txt`
         var file = new Blob([result], { type: "text/plain" })
         var link = document.createElement("a");
         link.download = filename;
@@ -43,19 +45,21 @@ export default class FileService {
         link.click()
     }
 
-    // static textToJason(data) {
-    //     let dataObj = []
-    //     let tmpData = data.replace(/\s+/g, '')
-    //     for (let i = 0; i < tmpData.length / 3; i++) {
-    //         let node = {
-    //             id: tmpData[i * 3],
-    //             xPos: tmpData[(i * 3 + 1)],
-    //             yPos: tmpData[i * 3 + 2]
-    //         }
-    //         dataObj.push(node)
-    //     }
-    //     return dataObj
-    // }
+    static textToJason(data) {
+        let l = data.split(" ")
+        console.log("DATA LOOGOOO ", l)
+        let dataObj = []
+        let tmpData = data.replace(/\s+/g, '')
+        for (let i = 0; i < tmpData.length / 3; i++) {
+            let node = {
+                id: tmpData[i * 3],
+                xPos: tmpData[(i * 3 + 1)],
+                yPos: tmpData[i * 3 + 2]
+            }
+            dataObj.push(node)
+        }
+        return dataObj
+    }
 
     static saveAsJPEG(canvas) {
         // create temporary link  

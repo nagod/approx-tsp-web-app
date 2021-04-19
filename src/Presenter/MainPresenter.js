@@ -63,9 +63,19 @@ export default class MainPresenter extends Observable {
 
     }
     // recives date from MainviewController ( Examples .txt)
-    passData(text) {
+    passData(text, filetype = null) {
         this.handleClearGraphGButtonClicked()
-        let data = JSON.parse(text)
+        let data = null
+        // // wir müssen wissen ob datei json oder .txt ist 
+        // if (filetype !== null && filetype === "txt") {
+        //     data = FileService.textToJason(text)
+        // } else if (filetype !== null && filetype === "json") {
+        //     data = JSON.parse(text)
+        // }
+
+
+        // HIER GEHT NUR JSON OBJECT  FORMAT NICHTS ANDEREN !!!!!
+        data = JSON.parse(text)
         this.graph.makeGraphFromData(data);
     }
 
@@ -91,6 +101,7 @@ export default class MainPresenter extends Observable {
 
     handleShortestTourButtonClicked() {
         this.graph.highlightTour(this.graph.shortestTour, "orange")
+        FileService.saveToJSON(this.graph.shortestTour, this.graph.tourLength(this.graph.shortestTour, true))
     }
 
     handleInitialTourButtonClicked() {

@@ -35,6 +35,7 @@ export default class Canvas extends React.Component {
         this.setupCanvas();
         this.setupEventListeners();
         this.subscribe();
+        this.resize()
         window.requestAnimationFrame(this.renderingLoop)
     }
 
@@ -108,6 +109,7 @@ export default class Canvas extends React.Component {
             factor = height / maxY
         }
         factor = Math.ceil(factor)
+        //factor = Math.floor(factor)
         this.fontSize = this.fontSize / factor
         this.scalingFactor = factor
         this.ctx.scale(factor, factor)
@@ -123,7 +125,7 @@ export default class Canvas extends React.Component {
     // Rendering the animation frames
     renderingLoop(timeStamp) {
         // Update game objects in the loop
-        this.resize()
+        // this.resize()
         this.draw();
         window.requestAnimationFrame(this.renderingLoop);
     }
@@ -203,7 +205,6 @@ export default class Canvas extends React.Component {
         if (this.showTriangles) {
             graph.triangles.forEach(triangle => this.drawTriangleCircumCircle(triangle))
         }
-        //graph.orthogonale.forEach(orthogonale => this.drawEdge(new Edge(orthogonale[0], { xPos: orthogonale[0].xPos + orthogonale[1].xPos, yPos: orthogonale[0].yPos + orthogonale[1].yPos })))
         //this.drawCircleAt(graph.circle[0].xPos, graph.circle[0].yPos, graph.circle[1])
     }
 
