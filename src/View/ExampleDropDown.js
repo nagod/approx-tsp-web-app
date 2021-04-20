@@ -40,14 +40,15 @@ export default class ExampleDropDown extends Component {
         return (
             <div>
                 <Dropdown>
-                    <Dropdown.Toggle variant="primary" id="dropdown-basic" style={{ maxWidth: '186px', minWidth: '186px', maxHeight: '45px', minHeight: '45px' }}>
+                    <Dropdown.Toggle className="exampleDropDown" variant="primary" id="dropdown-basic" style={{ maxWidth: '196px', minWidth: '196px', maxHeight: '45px', minHeight: '45px', backgroundColor: "#3f51b5", borderColor: "#3f51b5" }} >
                         Examples
                     </Dropdown.Toggle>
                     <Dropdown.Menu style={{ height: "411px", width: "204px", overflow: "scroll" }} >
                         {this.data.map((entry, index) => <DropdownItem key={index} onClick={() => this.sendData(entry)}> {`Example ${index + 1} (${entry.split("(")[1].split(")")[0]})`}</DropdownItem>)}
                     </Dropdown.Menu>
                 </Dropdown>
-            </div>
+            </div >
         )
     }
 }
+

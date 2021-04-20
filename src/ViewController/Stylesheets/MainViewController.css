@@ -14,23 +14,45 @@ body {
     margin: 0px;
     display: flex;
     flex-direction: column;
+    align-items: center;
     background-color:#f4f4f8;
+}
+
+.advancedDiv {
+    display: flex;
+    font-family: Arial, Helvetica, sans-serif;
+    align-items: flex-end;
+    font-size: 16px;
+    height: 66px;
+    min-height: 66px;
+    width: 100%;
+    padding-left: 4px;
+    color:rgb(71, 71, 71);
+    background-color: 'red';
 }
 
 .header {
     padding: 18px 0px 12px 0px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid rgb(211, 191, 80);
     background-color: #202047;
-    margin: 0px 0px 20px 0px;
+    margin: 0px 0px 10px 0px;
+}
+
+.exampleDropDown:hover {
+    cursor: pointer;
+    box-shadow: 0px 3px 5px #a5a5a5;
+    background-color: #344296;
 }
 
 .headerLabel{
     font-family: Arial, Helvetica, sans-serif;
     margin: 0px;
+    font-size: 30px;
     font-weight: lighter;
     color: rgb(228, 228, 228);
 
@@ -45,8 +67,10 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin: 0px;
+    width: 1120px;
+    max-width: 1120px;;
 }
 
 .canvasToolBar {
@@ -54,13 +78,21 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
+    background-color: white;
+    border-radius: 0px 5px 5px 0px;
+    padding: 3px 0px 3px 3px;
+    border-top: 1px solid #bbbdc48e;
+    border-right: 1px solid #bbbdc48e;
+    border-bottom: 1px solid #bbbdc48e;
+    
 }
 
 .canvasDiv{
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-end;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-left: 8px;
 }
 
 .buttonDiv{
@@ -72,7 +104,7 @@ body {
     min-width: 400px;
     width: 400px;
     min-height: 100%;
-    padding: 0px 0px 0px 20px;
+    margin-right: 8px; 
 }
 
 .innerButtonDiv {
@@ -92,32 +124,33 @@ body {
 }
 
 .File-label {
-    height: 50px;
-    margin: 5px;
-    padding: 0px 30px;
+    margin: 0px;
+    width: 100%;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
-    color: #dcdfe6;
-    border-radius: 5px;
+    text-align: center;
+    color: white;
     border: 0px;
-    background: linear-gradient(180deg, rgba(0,1,77,1) 0%, rgba(2,2,121,1) 36%, rgba(2,35,126,1) 76%, rgba(2,65,130,1) 99%);
-  }
-
-  .File-label:hover {
-    cursor: pointer;
-    box-shadow: 0px 3px 3px #2f2f2f;
 }
 
-.Files-container {
+
+.fileUploadDiv {
+    height: 40px;
+    background-color: #3f51b5;
     display: flex;
-    width:550px;
-    margin: 0px;
-    height: 300px;
-    flex-direction: column;
-    border: 2px solid lightgray;
-    border-radius: 3px;
-    background-color: white;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4px;
+    border-radius: 5px;
+
 }
+
+.fileUploadDiv:hover {
+    cursor: pointer;
+    box-shadow: 0px 3px 5px #a5a5a5;
+    background-color: #344296;
+}
+
 [type="file"] {
     display: none;
   }
@@ -126,7 +159,7 @@ body {
 
 .footer {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 14px;
+    font-size: 10px;
     font-weight: 300;
     border-top: 1px solid rgb(211, 191, 80);
     text-align: center;
@@ -134,6 +167,7 @@ body {
     padding: 5px;
     background-color: #202047;
     margin-top: auto;
+    width: 100%
 }
 
 
@@ -175,7 +209,7 @@ body {
     color: rgb(3, 6, 70);
 }
 
-@media screen and (max-width: 1350px) {
+@media screen and (max-width: 1120px) {
     .screenSizeWarningDiv {
         display: flex;
     }

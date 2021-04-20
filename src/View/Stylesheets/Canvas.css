@@ -1,5 +1,5 @@
 .mainCanvas {
     background-color: white;
     border: 1px solid #bbbdc48e;
-    border-radius: 4px;
+    border-radius: 4px 0px 4px 4px;
 }

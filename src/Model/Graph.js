@@ -49,12 +49,15 @@ export default class Graph extends Observable {
         this.rotateToFirstId = this.rotateToFirstId.bind(this)
         this.edgeWithEndpointsById = this.edgeWithEndpointsById.bind(this)
         this.highlightTour = this.highlightTour.bind(this)
+        this.highlightSubTour = this.highlightSubTour.bind(this)
         this.dfs = this.dfs.bind(this)
         this.deleteVertex = this.deleteVertex.bind(this)
         this.deleteAdjacentEdges = this.deleteAdjacentEdges.bind(this)
         this.tourContainsId = this.tourContainsId.bind(this)
         this.animationDidStart = this.animationDidStart.bind(this)
         this.animationDidStop = this.animationDidStop.bind(this)
+        this.resetEdgesColors = this.resetEdgesColors.bind(this)
+
     }
 
     addVertex(id, xPos, yPos) {
@@ -280,6 +283,12 @@ export default class Graph extends Observable {
             (y.xPos - x.xPos) * (z.yPos - x.yPos) -
             (z.xPos - x.xPos) * (y.yPos - x.yPos)
         );
+    }
+
+    resetEdgesColors() {
+        this.edges.forEach(element => {
+            element.color = Config.defaultEdgeColor
+        });
     }
 
     // Returns a subset of the gr waphs vertices that build the convex hull.
@@ -829,7 +838,9 @@ export default class Graph extends Observable {
         this.mst.forEach(edge => edge.color = "red")
         //@TODO Async
         Console.log("Done")
-        this.dfs()
+        setTimeout(() => {
+            this.dfs()
+        }, 3000)
     }
 
     // For testing, if draw edges Works
@@ -899,6 +910,7 @@ export default class Graph extends Observable {
     // After we check if those are legit
     calculateSkippingTour(preorderArray) {
         Console.log("Using Leaf Skipping Algorithm")
+        this.resetEdgesColors()
         let preorder = [...preorderArray]
         let validEulertour = []
         // head is neede at end
@@ -913,8 +925,7 @@ export default class Graph extends Observable {
         let initTour = [...validEulertour]
         this.initialTour = initTour
 
-        console.log("Initial tour! of length: ", this.tourLength(validEulertour, true))
-        console.log("With nodes: ", validEulertour.length)
+        Console.log(`Length of initial Tour: ${this.tourLength(validEulertour, true)}`)
 
         // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
         // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
@@ -1020,7 +1031,7 @@ export default class Graph extends Observable {
 
 
     // Merges a Set of tours to a final shortest tour
-    mergeTourSet(tours) {
+    async mergeTourSet(tours) {
         let tmpTours = [...tours]
         // Rotate every so that id 0 is at first index. This makes it easier to compare and merge them.
         console.log("Got ", tmpTours.length, " tours to merge!")
@@ -1030,18 +1041,33 @@ export default class Graph extends Observable {
         tmpTours.sort((a, b) => this.tourLength(a, true) - this.tourLength(b, true))
         // Now I should have all tours sorted by length. Now take the first one and merge them all.
         let shortestTour = tmpTours.shift()
-        for (let tour of tmpTours) {
-            // @Deniz: @EDIT: glaube habe es gefixed, war ein error mit splice und dann hat er einfach ein array verändert auf das
-            // er eig nicht mehr hätte zugreifen sollen aber was auch immer..... habe jetzt einige male getestet und immer ohne
-            // Error, dafür ist das ergebnis teilweise nicht mehr so krass wie erhofft..
-            shortestTour = this.mergeTours(shortestTour, tour)
+        let tourIndex = 0
+        let notMergedAllTours = true
+        while (notMergedAllTours) {
+
+            while (tourIndex < tmpTours.length) {
+                console.log("about to await with index:", tourIndex)
+                await this.mergeTours(shortestTour, tmpTours[tourIndex]).then(data => {
+                    console.log("Data is:", data)
+                    shortestTour = data
+                    tourIndex++
+                    if (tourIndex === tmpTours.length) {
+                        console.log("should happen at the end")
+                        notMergedAllTours = false
+                    }
+                })
+            }
         }
-        console.log("Got the shortest tour!")
-        console.log("it is of length: ", this.tourLength(shortestTour, true))
-        Console.log(`Length after Skipping: ${this.tourLength(shortestTour, true)}`)
+        // for (let tour of tmpTours) {
+        //     await this.mergeTours(shortestTour, tour).then(data => shortestTour = data)
+        // }
+
+        console.log("Should Happen last!")
 
         Console.log(`Length after Skipping: ${this.tourLength(shortestTour, true)}`)
         this.shortestTour = shortestTour
+        this.resetEdgesColors()
+        this.highlightTour(shortestTour, "orange")
         this.animationDidStop()
         return shortestTour
     }
@@ -1053,43 +1079,58 @@ export default class Graph extends Observable {
     // Repeat above for other subsequences
     // Return a which represents the shortest subsequences
     mergeTours(tourA, tourB) {
-        let a = [...tourA]
-        let b = [...tourB]
-        if (a.length !== b.length) {
-            console.log("ERROR: One tour was shorter! -> Return ")
-            return tourA
-        }
-        let indexOne = 0
-        if (a[indexOne].id !== b[indexOne].id) {
-            console.log("ERROR: Both tours did not have same first index")
-            return tourA
-        }
-        while (a[indexOne].id === b[indexOne].id) { indexOne++ }
-        let indexTwo = indexOne
-        indexOne -= 1 // Last index where both tours are equal
-        while (a[indexTwo].id !== b[indexTwo].id) {
-            indexTwo++
-            if (indexTwo === a.length || indexTwo === b.length) {
-                console.log("ERROR: Both tours were not of the same length! -> Return")
-                return tourA
-            }
-        }
-        let subsequenceLength = indexTwo - (indexOne + 1)
-        let subsequenceA = a.splice(indexOne + 1, subsequenceLength)
-        let subsequenceB = b.splice(indexOne + 1, subsequenceLength)
-        if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
-            a.splice(indexOne + 1, 0, ...subsequenceB)
-            // Case where the subsequence elements were the only node occuring in the tour
-            // Now test if a still contains all elements from subsequence A
-            subsequenceA.forEach(node => {
-                if (!this.tourContainsId(a, node.id)) {
-                    console.log("ERROR: Merger Tour would not have all Elements!")
-                    return tourA
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                //this.resetEdgesColors()
+                console.log("Trying to merge two tours from within setTimeout")
+                let a = [...tourA]
+                let b = [...tourB]
+                if (a.length !== b.length) {
+                    resolve(tourA)
+                    return
                 }
-            })
-        }
-        console.log("Successfully merged two Tours! End of Function")
-        return tourA
+                let indexOne = 0
+                // Interiere durch beide listen so lange, wie sie gleich sind und stoppe bei der ersten Ungleichheit
+                if (a[indexOne].id !== b[indexOne].id) {
+                    resolve(tourA)
+                    return
+                }
+                while (a[indexOne].id === b[indexOne].id) { indexOne++ }
+                let indexTwo = indexOne
+                console.log("A is long: ", a.length)
+                console.log("indexTwo is: ", indexTwo)
+                indexOne -= 1 // Last index where both tours are equal
+                while (a[indexTwo].id !== b[indexTwo].id) {
+                    indexTwo++
+                    if (indexTwo === a.length || indexTwo === b.length) {
+                        resolve(tourA)
+                        return
+                    }
+                }
+                let subsequenceLength = indexTwo - (indexOne + 1)
+                let subsequenceA = a.splice(indexOne + 1, subsequenceLength)
+                let subsequenceB = b.splice(indexOne + 1, subsequenceLength)
+                //this.notify("highlightNotification", [subsequenceB, "sub"])
+                if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
+                    a.splice(indexOne + 1, 0, ...subsequenceB)
+                    // Case where the subsequence elements were the only node occuring in the tour
+                    // Now test if a still contains all elements from subsequence A
+                    subsequenceA.forEach(node => {
+                        if (!this.tourContainsId(a, node.id)) {
+                            resolve(tourA)
+                            return
+                        }
+                    })
+                }
+                //this.notify("highlightNotification", [tourA, "main"])
+                this.resetEdgesColors()
+                this.highlightTour(tourA, "orange")
+                this.highlightSubTour(subsequenceB, "purple")
+                Console.log("Successfully merged two Tours!")
+                resolve(tourA)
+                return
+            }, Config.baseRateSpeed * 10)
+        })
     }
 
     tourContainsId(tour, id) {
@@ -1133,6 +1174,21 @@ export default class Graph extends Observable {
             length += MathExtension.euclideanDistance2D(tour[count - 1], tour[0])
         }
         return length
+    }
+
+    highlightSubTour(tour, color) {
+        for (let i = 0; i < tour.length - 2; i++) {
+            let nodeA1 = tour[i]
+            let nodeA2 = tour[i + 1]
+            try {
+                let edge = this.edgeWithEndpointsById(nodeA1, nodeA2)
+                edge.color = color
+            } catch {
+                let v1 = this.getVertexWithID(nodeA1.id)
+                let v2 = this.getVertexWithID(nodeA2.id)
+                this.addEdge(v1, v2, color)
+            }
+        }
     }
 
     highlightTour(tour, color) {

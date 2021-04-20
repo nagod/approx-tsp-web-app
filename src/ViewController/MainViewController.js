@@ -148,6 +148,7 @@ export default class MainViewController extends Component {
     handleShowDistnance(e) {
         this.setState({ distanceToggle: e.target.checked })
     }
+
     handleClearGraphGButtonClicked() {
         if (!this.isInteractable) {
             return /// Maybe stop process instead of return?
@@ -200,25 +201,35 @@ export default class MainViewController extends Component {
         return (
             <div className="mainBody">
                 <Drawer variant="persistent" anchor={"right"} open={this.state.drawerOpen}>
+                    <div className="advancedDiv">Advanced Options</div>
                     <Button
                         variant="contained"
                         color="primary"
+                        style={{ marginTop: '4px', marginBottom: '4px' }}
                         onClick={() => this.handleShortestTourButtonClicked()}>Highlight Shortest</Button>
                     <Button
                         variant="contained"
                         color="primary"
+                        style={{ marginBottom: '4px' }}
+
                         onClick={() => this.handleInitialTourButtonClicked()}>Highlight Initial</Button>
                     <Button
                         variant="contained"
                         color="primary"
+                        style={{ marginBottom: '4px' }}
+
                         onClick={() => this.handleEdgesButtonClicked()}>Kanten cleanen</Button>
                     <Button
                         variant="contained"
                         color="primary"
+                        style={{ marginBottom: '4px' }}
+
                         onClick={() => this.handleSaveGraphButtonClicked()}>Save as JSON</Button>
                     <Button
                         variant="contained"
                         color="primary"
+                        style={{ marginBottom: '4px' }}
+
                         onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
                     <div className="fileUploadDiv">
                         <label htmlFor="file" className="File-label">Upload File</label>
@@ -239,25 +250,11 @@ export default class MainViewController extends Component {
 
                 <div className="header"> <h1 className="headerLabel"> Leaf Skipping Algorithm </h1></div>
                 <div className="padding-right">
-                    <div className="canvasToolBar">
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={this.distanceToggle}
-                                    onChange={(e) => this.handleShowDistnance(e)}
-                                    name="checkedB"
-                                    color="primary"
-                                />
-                            }
-                            label="Distance"
-                        />
-                        <Icons action={this.setEditMode} />
-                    </div>
                     <div className="mainDiv">
                         <div className="buttonDiv">
                             <div className="innerButtonDiv">
                                 <Button
-                                    style={{ maxWidth: '186px', minWidth: '186px', maxHeight: '45px', minHeight: '45px' }}
+                                    style={{ maxWidth: '196px', minWidth: '196px', maxHeight: '45px', minHeight: '45px' }}
                                     variant="contained"
                                     color="primary"
                                     onClick={() => this.handleTriangulateButtonClicked()}>Algorithmus GO</Button>
@@ -265,35 +262,21 @@ export default class MainViewController extends Component {
                             </div>
                             <div className="innerButtonDiv">
                                 <Button
-                                    style={{ maxWidth: '186px', minWidth: '186px', maxHeight: '45px', minHeight: '45px' }}
+                                    style={{ maxWidth: '196px', minWidth: '196px', maxHeight: '45px', minHeight: '45px' }}
                                     variant="contained"
                                     color="primary"
                                     onClick={() => this.toggleDrawer()}>Advanced {'>'}</Button>
                                 <Button
-                                    style={{ maxWidth: '186px', minWidth: '186px', maxHeight: '45px', minHeight: '45px' }}
+                                    style={{ maxWidth: '196px', minWidth: '196px', maxHeight: '45px', minHeight: '45px' }}
                                     variant="contained"
                                     color="primary"
                                     onClick={() => this.handleClearGraphGButtonClicked()}>Clear Graph</Button>
                             </div>
-                            {/*
 
-                                    <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => this.handleMSTButtonClicked()}>MST Berechnen</Button>
-                            <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleDFSButtonClicked()}>DFS Algorithmus</Button>
-                            <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.handleSkippingButtonClicked()}>Leaf Skipping</Button>
-                            */}
                             <div className="sliderDiv">
                                 <svg
                                     className="eraser"
-                                    id="erase"
+                                    id="turtle"
                                     viewBox="0 0 24 24"
                                     fill="#767878"
                                     height="1.8em"
@@ -305,7 +288,7 @@ export default class MainViewController extends Component {
                                 <Slider defaultValue={50} min={20} max={1000} aria-labelledby="continuous-slider" onChange={(event, value) => this.handleSliderChanged(event, value)} />
                                 <svg
                                     className="eraser"
-                                    id="erase"
+                                    id="bunny"
                                     viewBox="0 0 24 24"
                                     fill="#767878"
                                     height="1.8em"
@@ -320,7 +303,12 @@ export default class MainViewController extends Component {
                         </div>
                         <div className="canvasDiv">
                             <Canvas viewController={this} id="canvasView" />
+                            <div className="canvasToolBar">
+
+                                <Icons action={this.setEditMode} />
+                            </div>
                         </div>
+
                     </div >
                 </div>
                 <div className="footer">

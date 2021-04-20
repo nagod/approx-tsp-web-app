@@ -32,6 +32,8 @@ export default class Canvas extends React.Component {
         this.clearCanvas = this.clearCanvas.bind(this)
         this.resize = this.resize.bind(this)
         this.handleAnimationNotification = this.handleAnimationNotification.bind(this)
+        this.handleHighlightNotification = this.handleHighlightNotification.bind(this)
+        this.highlightSubTour = this.highlightSubTour.bind(this)
     }
 
     // Lifecycle functions
@@ -89,12 +91,25 @@ export default class Canvas extends React.Component {
                 console.log("handling animationnotification with data: ", data)
                 this.handleAnimationNotification(data)
                 break
+            case "highlightNotification":
+                this.handleHighlightNotification(data)
+                break
             default:
                 console.log("Could not identify notification identifier with data", data)
                 break
         }
     }
 
+
+    // Parameter 0 will be some vertices
+    // Parameter 1 will be indicator if its just a subtour or a full tour
+    handleHighlightNotification(data) {
+        if (data[1] === "main") {
+            this.highlightTour(data, "orange")
+        } else if (data[1] === "sub") {
+            this.highlightSubTour(data, "purple")
+        } else { console.log("could not identify notification") }
+    }
 
     handleScalingNotification(data) {
         console.log("Got notification with scaling factor!", data)
@@ -303,6 +318,21 @@ export default class Canvas extends React.Component {
     // Obsolete function? 
     handleCircleButtonClicked() {
         this.showTriangles = !this.showTriangles
+    }
+
+    highlightSubTour(tour, color) {
+        for (let i = 0; i < tour.length - 1; i++) {
+            let nodeA1 = tour[i]
+            let nodeA2 = tour[i + 1]
+            try {
+                let edge = this.viewController.presenter.graph.edgeWithEndpointsById(nodeA1, nodeA2)
+                edge.color = color
+            } catch {
+                let v1 = this.viewController.presenter.graph.getVertexWithID(nodeA1.id)
+                let v2 = this.viewController.presenter.graph.getVertexWithID(nodeA2.id)
+                this.viewController.presenter.graph.addEdge(v1, v2, color)
+            }
+        }
     }
 
 

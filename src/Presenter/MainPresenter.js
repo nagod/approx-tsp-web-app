@@ -93,10 +93,9 @@ export default class MainPresenter extends Observable {
     handleTriangulateButtonClicked() {
         this.graph.sHullTriangulation(this.graph.vertices)
     }
+
     handleEdgesButtonClicked() {
-        this.graph.edges.forEach(element => {
-            element.color = Config.defaultEdgeColor
-        });
+        this.graph.resetEdgesColors()
     }
 
     handleMSTButtonClicked() {
