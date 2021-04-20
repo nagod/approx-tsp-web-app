@@ -206,39 +206,39 @@ export default class MainViewController extends Component {
                         variant="contained"
                         color="primary"
                         style={{ marginTop: '4px', marginBottom: '4px' }}
-                        onClick={() => this.handleShortestTourButtonClicked()}>Highlight Shortest</Button>
+                        onClick={() => this.handleShortestTourButtonClicked()}>Highlight Result</Button>
                     <Button
                         variant="contained"
                         color="primary"
                         style={{ marginBottom: '4px' }}
 
-                        onClick={() => this.handleInitialTourButtonClicked()}>Highlight Initial</Button>
+                        onClick={() => this.handleInitialTourButtonClicked()}>Highlight eulertour</Button>
                     <Button
                         variant="contained"
                         color="primary"
                         style={{ marginBottom: '4px' }}
 
-                        onClick={() => this.handleEdgesButtonClicked()}>Kanten cleanen</Button>
+                        onClick={() => this.handleEdgesButtonClicked()}>clear colors</Button>
                     <Button
                         variant="contained"
                         color="primary"
                         style={{ marginBottom: '4px' }}
 
-                        onClick={() => this.handleSaveGraphButtonClicked()}>Save as JSON</Button>
+                        onClick={() => this.handleSaveGraphButtonClicked()}>Save as json</Button>
                     <Button
                         variant="contained"
                         color="primary"
                         style={{ marginBottom: '4px' }}
 
-                        onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as JPEG</Button>
+                        onClick={() => this.handleSaveAsJPEGButtonClicked()}>Save as jpeg</Button>
                     <div className="fileUploadDiv">
-                        <label htmlFor="file" className="File-label">Upload File</label>
+                        <label htmlFor="file" className="File-label">UPLOAD JSON</label>
                         <input className="File-input" type="file" id="file" onChange={(e) => this.handleLoadSampleButtonClicked(e)}></input>
                     </div>
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => this.toggleDrawer()}>Close</Button>
+                        onClick={() => this.toggleDrawer()}>close menu</Button>
                 </Drawer >
                 <div className="screenSizeWarningDiv">
                     <div className="innerScreenSizeWarningDiv">
@@ -257,7 +257,7 @@ export default class MainViewController extends Component {
                                     style={{ maxWidth: '196px', minWidth: '196px', maxHeight: '45px', minHeight: '45px' }}
                                     variant="contained"
                                     color="primary"
-                                    onClick={() => this.handleTriangulateButtonClicked()}>Algorithmus GO</Button>
+                                    onClick={() => this.handleTriangulateButtonClicked()}>start algorithm</Button>
                                 <ExampleDropDown action={(data) => this.presenter.openFile(data)} />
                             </div>
                             <div className="innerButtonDiv">
@@ -265,7 +265,7 @@ export default class MainViewController extends Component {
                                     style={{ maxWidth: '196px', minWidth: '196px', maxHeight: '45px', minHeight: '45px' }}
                                     variant="contained"
                                     color="primary"
-                                    onClick={() => this.toggleDrawer()}>Advanced {'>'}</Button>
+                                    onClick={() => this.toggleDrawer()}>advanced options</Button>
                                 <Button
                                     style={{ maxWidth: '196px', minWidth: '196px', maxHeight: '45px', minHeight: '45px' }}
                                     variant="contained"

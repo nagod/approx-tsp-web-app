@@ -57,6 +57,7 @@ export default class Graph extends Observable {
         this.animationDidStart = this.animationDidStart.bind(this)
         this.animationDidStop = this.animationDidStop.bind(this)
         this.resetEdgesColors = this.resetEdgesColors.bind(this)
+        this.resetGraph = this.resetGraph.bind(this)
 
     }
 
@@ -95,6 +96,19 @@ export default class Graph extends Observable {
         //this.presenter.scaleCanvasWithVertex(maxX, maxY)
         this.notify("scalingNotification", [maxX, maxY])
         return this;
+    }
+
+    resetGraph() {
+        this.edges = []
+        this.triangles = []
+        for (let vertex of this.vertices) {
+            vertex.removeAllTriangles()
+        }
+        this.mst = []
+        this.shortestTour = []
+        this.initialTour = []
+        this.tour = null
+        this.idCounter = 1
     }
 
     hasVertices() {
@@ -389,16 +403,14 @@ export default class Graph extends Observable {
 
 
     async sHullTriangulation(set) {
+        if (this.vertices.length < 3) {
+            window.alert("Push at least 3 points")
+            return
+        }
         try {
+            this.resetGraph()
             this.animationDidStart()
             Console.log("Starting Triangulation")
-            // Reset edges
-            this.edges = []
-            this.triangles = []
-
-            for (let vertex of this.vertices) {
-                vertex.removeAllTriangles()
-            }
 
             let array = [...set]
 
@@ -456,7 +468,6 @@ export default class Graph extends Observable {
                 })
             }
         } catch (e) {
-            window.alert("Push at least 3 points")
             console.error(e)
         }
 
