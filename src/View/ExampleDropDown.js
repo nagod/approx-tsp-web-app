@@ -27,7 +27,7 @@ export default class ExampleDropDown extends Component {
             "Beispiel30(100).json",
             "Beispiel31(100).json",
             "Beispiel32(100).json",
-            "Beispiel33(105).json",
+            //"Beispiel33(105).json",
             //"Beispiel34(318).json",
             //"Beispiel35(1379nrw).json",
         ]

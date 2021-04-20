@@ -5,7 +5,7 @@
 const Config = {
 
     baseRateSpeed: 100,
-    circleRadius: 10,
+    circleRadius: 4,
     defaultVertexColor: "SteelBlue",
     defaultVertexBorderColor: "DarkSlateGray",
     defaultEdgeColor: "LightSlateGray",
