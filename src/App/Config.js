@@ -10,7 +10,7 @@ const Config = {
     defaultVertexBorderColor: "DarkSlateGray",
     defaultEdgeColor: "LightSlateGray",
     // Canvas size is calulated by 1366, which is the most common laptop pixel width - 240 for buttons and a 16 px buffer
-    defaultCanvasWidth: 950,
+    defaultCanvasWidth: 650,
     defaultCanvasHeight: 650,
     defaultVertexFont: 12
 }

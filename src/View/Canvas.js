@@ -10,8 +10,10 @@ export default class Canvas extends React.Component {
     constructor(props) {
         super();
         this.viewController = props.viewController;
-        this.scalingFactor = 1
+
         this.isInteractable = true
+
+        this.scalingFactor = 1
         this.setupEventListeners = this.setupEventListeners.bind(this);
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -37,7 +39,6 @@ export default class Canvas extends React.Component {
         this.setupCanvas();
         this.setupEventListeners();
         this.subscribe();
-        this.resize()
         window.requestAnimationFrame(this.renderingLoop)
     }
 
@@ -85,7 +86,8 @@ export default class Canvas extends React.Component {
                 console.log(data)
                 break
             case "animationNotification":
-                this.handleScalingNotification(data)
+                console.log("handling animationnotification with data: ", data)
+                this.handleAnimationNotification(data)
                 break
             default:
                 console.log("Could not identify notification identifier with data", data)
@@ -102,20 +104,19 @@ export default class Canvas extends React.Component {
         this.ctx.scale(scaleBack, scaleBack)
         let canvas = document.getElementById("mainCanvas")
         let rect = canvas.getBoundingClientRect();
-        let width = rect.width - 70
-        let height = rect.height - 70
-        let factor = 0
+        let width = rect.width - 30
+        let height = rect.height - 30
+
         let maxX = data[0]
         let maxY = data[1]
-        console.log("Width: ", width, "Height: , ", height)
-        if ((width / maxX) < (height / maxY)) {
+        let factor = 0
+        if (maxX > maxY) {
             factor = width / maxX
         } else {
             factor = height / maxY
         }
-        factor = Math.ceil(factor)
         //factor = Math.floor(factor)
-        this.fontSize = this.fontSize / factor
+        //this.fontSize = this.fontSize / factor
         this.scalingFactor = factor
         this.ctx.scale(factor, factor)
 
@@ -128,6 +129,7 @@ export default class Canvas extends React.Component {
                 break
             case "didStop":
                 this.isInteractable = true
+                console.log("this.isInteractblae", this.isInteractable)
                 break
             default:
                 console.log("could not identify animationNotification")
@@ -144,7 +146,7 @@ export default class Canvas extends React.Component {
     // Rendering the animation frames
     renderingLoop(timeStamp) {
         // Update game objects in the loop
-        // this.resize()
+        //this.resize()
         this.draw();
         window.requestAnimationFrame(this.renderingLoop);
     }
@@ -155,7 +157,7 @@ export default class Canvas extends React.Component {
     }
 
     draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        this.ctx.clearRect(0, 0, this.canvas.width / this.scalingFactor, this.canvas.height / this.scalingFactor)
         if (this.viewController.presenter.graph.vertices.length > 0) {
             this.drawGraph(this.viewController.presenter.graph)
         }
@@ -243,7 +245,7 @@ export default class Canvas extends React.Component {
         let radius = Config.circleRadius / this.scalingFactor
         this.ctx.beginPath();
         this.ctx.arc(vertex.xPos, vertex.yPos, radius, 0, 2 * Math.PI);
-        this.ctx.font = "12px Helvetica Bold";
+        this.ctx.font = "0px Helvetica Bold";
         this.ctx.textAlign = "center"
         this.ctx.textBaseline = "middle"
         this.ctx.fillText(vertex.id, vertex.xPos, vertex.yPos)

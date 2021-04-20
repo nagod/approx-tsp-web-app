@@ -40,11 +40,11 @@ export default class MainPresenter extends Observable {
 
     animationDidStart() {
         console.log("did start first")
-        this.viewController.setState({ isInteractable: false })
+        this.viewController.isInteractable = false
     }
 
     animationDidStop() {
-        this.viewController.setState({ isInteractable: true })
+        this.viewController.isInteractable = true
     }
 
     handleClearGraphGButtonClicked() {

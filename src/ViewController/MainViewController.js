@@ -25,9 +25,9 @@ export default class MainViewController extends Component {
              *                "erase" (delte Node) == when erase icon is clicked.
              */
             editMode: "draw",
-            drawerOpen: false,
-            isInteractable: true
+            drawerOpen: false
         };
+        this.isInteractable = true
         // Bind this to function so that "this" refers to this object
         this.handleTriangulateButtonClicked = this.handleTriangulateButtonClicked.bind(this)
         this.handleMSTButtonClicked = this.handleMSTButtonClicked.bind(this)
@@ -92,21 +92,20 @@ export default class MainViewController extends Component {
 
     // Handling events
     handleSaveAsJPEGButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleSaveAsJPEGButtonClicked()
     }
     handleSkippingButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleSkippingButtonClicked()
     }
 
     handleTriangulateButtonClicked() {
-        console.log("Interactability is: ", this.isInteractable)
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             console.log("not interactable?")
             return
         }
@@ -115,33 +114,33 @@ export default class MainViewController extends Component {
     }
 
     handleMSTButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleMSTButtonClicked()
     }
     handleEdgesButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleEdgesButtonClicked()
     }
     handleDFSButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleDFSButtonClicked()
     }
 
     handleShortestTourButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleShortestTourButtonClicked()
     }
 
     handleInitialTourButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleInitialTourButtonClicked()
@@ -150,14 +149,14 @@ export default class MainViewController extends Component {
         this.setState({ distanceToggle: e.target.checked })
     }
     handleClearGraphGButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return /// Maybe stop process instead of return?
         }
         this.presenter.handleClearGraphGButtonClicked()
     }
 
     handleSaveGraphButtonClicked() {
-        if (!this.state.isInteractable) {
+        if (!this.isInteractable) {
             return
         }
         this.presenter.handleSaveGraphButtonClicked()
