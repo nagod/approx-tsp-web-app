@@ -218,6 +218,12 @@ export default class MainViewController extends Component {
                         color="primary"
                         style={{ marginBottom: '4px' }}
 
+                        onClick={() => this.handleMSTButtonClicked()}>Highlight mst</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        style={{ marginBottom: '4px' }}
+
                         onClick={() => this.handleEdgesButtonClicked()}>clear colors</Button>
                     <Button
                         variant="contained"

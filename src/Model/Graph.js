@@ -410,7 +410,7 @@ export default class Graph extends Observable {
         try {
             this.resetGraph()
             this.animationDidStart()
-            Console.log("Starting Triangulation")
+            Console.log("Starting Leaf Skipping Algorithm")
 
             let array = [...set]
 
@@ -462,7 +462,7 @@ export default class Graph extends Observable {
                     if (i === size) {
                         // Now flip all edges
                         // flipedges returns true when done
-                        Console.log("Done")
+                        Console.log("Finished triangulating")
                         this.flipEdges(this.triangles)
                     }
                 })
@@ -543,7 +543,7 @@ export default class Graph extends Observable {
 
 
     async flipEdges(triangles) {
-        Console.log("Calculating Delaunay")
+        Console.log("Flipping triangles")
 
         let allTriangles = [...triangles]
         let triangleQueue = []
@@ -645,7 +645,7 @@ export default class Graph extends Observable {
         }
         // @TODO: - Async 
 
-        Console.log("Done")
+        Console.log("Successfully created Delaunay-Triangulation")
         this.kruskal()
         return true
     }
@@ -670,15 +670,6 @@ export default class Graph extends Observable {
                 }
                 // determine old edge
                 let oldEdge = this.sharedEdge(triangleA, triangleB)
-                /*if (oldEdge.color === Config.defaultEdgeColor) {
-                    oldEdge.color = "red"
-                } else if (oldEdge.color === "red") {
-                    oldEdge.color = "orange"
-                } else if (oldEdge.color === "orange") {
-                    oldEdge.color = "green" // green is the flipped color also 
-                } else if (oldEdge.color === "green") {
-                    // oldEdge.color = "blue" // flipped twice or looked at 4 times
-                }*/
 
                 //check if
 
@@ -778,6 +769,8 @@ export default class Graph extends Observable {
     // 5) edge in minimumSpannigTree aufnehmen für highligh
     // 6) für alle edges wiederholen => MST
 
+
+
     async kruskal() {
         Console.log("Calculating MST")
         // reset egdge color
@@ -846,7 +839,7 @@ export default class Graph extends Observable {
             }
         }
         // mark mst route
-        this.mst.forEach(edge => edge.color = "red")
+        this.mst.forEach(edge => edge.color = "fuchsia")
         //@TODO Async
         Console.log("Done")
         setTimeout(() => {
@@ -897,10 +890,8 @@ export default class Graph extends Observable {
 
     dfs() {
         try {
-            Console.log("Calculating Euler Tour")
             this.tour = MathExtension.dfsTour(this.mst)
             console.log(this.tour)
-            Console.log("Done")
             this.calculateSkippingTour(this.tour)
         } catch (e) {
             console.log(e)
@@ -920,7 +911,7 @@ export default class Graph extends Observable {
     // With this rotated array and every other rotation we make another eulertour. Then we have an array of different eulertours, 
     // After we check if those are legit
     calculateSkippingTour(preorderArray) {
-        Console.log("Using Leaf Skipping Algorithm")
+        Console.log("Initializing Leaf Skipping Algorithm")
         this.resetEdgesColors()
         let preorder = [...preorderArray]
         let validEulertour = []
@@ -936,7 +927,7 @@ export default class Graph extends Observable {
         let initTour = [...validEulertour]
         this.initialTour = initTour
 
-        Console.log(`Length of initial Tour: ${this.tourLength(validEulertour, true)}`)
+        Console.log(`Length of Eulertour: ${this.tourLength(validEulertour, true)}`)
 
         // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
         // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
@@ -1032,7 +1023,7 @@ export default class Graph extends Observable {
         console.log("Finished rotating and skipping all tours, now starting Merge")
         this.mergeTourSet(allValidTours)
         // allValidTours
-        Console.log("Done")
+
         // => First, find the shortest of those tours.
         // I think this shortest tour should be the "base" tour to improve upon. It could be the case that merging 2 longer tours
         // result in a tour that is ultimately shorter but guess what I dont care.
@@ -1045,19 +1036,19 @@ export default class Graph extends Observable {
     async mergeTourSet(tours) {
         let tmpTours = [...tours]
         // Rotate every so that id 0 is at first index. This makes it easier to compare and merge them.
-        console.log("Got ", tmpTours.length, " tours to merge!")
+        Console.log(`Got ${tmpTours.length} tours to merge!`)
         for (let tour of tmpTours) {
             tour = this.rotateToFirstId(tour)
         }
         tmpTours.sort((a, b) => this.tourLength(a, true) - this.tourLength(b, true))
         // Now I should have all tours sorted by length. Now take the first one and merge them all.
-        let shortestTour = tmpTours.shift()
+        var shortestTour = tmpTours.shift()
+
         let tourIndex = 0
         let notMergedAllTours = true
         while (notMergedAllTours) {
 
             while (tourIndex < tmpTours.length) {
-                console.log("about to await with index:", tourIndex)
                 await this.mergeTours(shortestTour, tmpTours[tourIndex]).then(data => {
                     console.log("Data is:", data)
                     shortestTour = data
@@ -1078,7 +1069,7 @@ export default class Graph extends Observable {
         Console.log(`Length after Skipping: ${this.tourLength(shortestTour, true)}`)
         this.shortestTour = shortestTour
         this.resetEdgesColors()
-        this.highlightTour(shortestTour, "orange")
+        this.highlightTour(shortestTour, "red")
         this.animationDidStop()
         return shortestTour
     }
@@ -1090,57 +1081,68 @@ export default class Graph extends Observable {
     // Repeat above for other subsequences
     // Return a which represents the shortest subsequences
     mergeTours(tourA, tourB) {
+        console.log("WILL LOOK AT TOUR OF LENGTH FROM WITHIN FUNC: ", this.tourLength(tourB, true))
+
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 //this.resetEdgesColors()
-                console.log("Trying to merge two tours from within setTimeout")
                 let a = [...tourA]
                 let b = [...tourB]
                 if (a.length !== b.length) {
                     resolve(tourA)
-                    return
+                    return tourA
                 }
                 let indexOne = 0
                 // Interiere durch beide listen so lange, wie sie gleich sind und stoppe bei der ersten Ungleichheit
                 if (a[indexOne].id !== b[indexOne].id) {
                     resolve(tourA)
-                    return
+                    return tourA
                 }
                 while (a[indexOne].id === b[indexOne].id) { indexOne++ }
                 let indexTwo = indexOne
-                console.log("A is long: ", a.length)
-                console.log("indexTwo is: ", indexTwo)
                 indexOne -= 1 // Last index where both tours are equal
                 while (a[indexTwo].id !== b[indexTwo].id) {
                     indexTwo++
                     if (indexTwo === a.length || indexTwo === b.length) {
                         resolve(tourA)
-                        return
+                        return tourA
                     }
                 }
                 let subsequenceLength = indexTwo - (indexOne + 1)
+                console.log("TOURLENGTH OF A : ", this.tourLength(a, true))
                 let subsequenceA = a.splice(indexOne + 1, subsequenceLength)
                 let subsequenceB = b.splice(indexOne + 1, subsequenceLength)
+                console.log("subsequence B ", subsequenceB)
                 //this.notify("highlightNotification", [subsequenceB, "sub"])
+                console.log("TOURLENGTH OF A AFTER SPLICE: ", this.tourLength(a, true))
+                console.log("TOURLENGTH OF SUBSEQUENCE B SPLICE: ", this.tourLength(subsequenceB))
+
+                // B is shorter subsequence
                 if (this.tourLength(subsequenceA) > this.tourLength(subsequenceB)) {
+
+
                     a.splice(indexOne + 1, 0, ...subsequenceB)
+                    console.log("SHOULD NOW BE ADDED", this.tourLength(a, true))
                     // Case where the subsequence elements were the only node occuring in the tour
                     // Now test if a still contains all elements from subsequence A
                     subsequenceA.forEach(node => {
                         if (!this.tourContainsId(a, node.id)) {
                             resolve(tourA)
-                            return
+                            return tourA
                         }
                     })
+                    Console.log("Successfully merged two tours")
+                    resolve(a)
+                    return a
                 }
                 //this.notify("highlightNotification", [tourA, "main"])
                 this.resetEdgesColors()
-                this.highlightTour(tourA, "orange")
+                this.highlightTour(tourA, "red")
                 this.highlightSubTour(subsequenceB, "purple")
-                Console.log("Successfully merged two Tours!")
+
                 resolve(tourA)
-                return
-            }, Config.baseRateSpeed * 10)
+                return tourA
+            }, Config.baseRateSpeed * 7)
         })
     }
 

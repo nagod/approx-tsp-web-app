@@ -99,7 +99,9 @@ export default class MainPresenter extends Observable {
     }
 
     handleMSTButtonClicked() {
-        this.graph.kruskal()
+        this.graph.edges.forEach(n => n.color = Config.defaultEdgeColor)
+        this.graph.mst.forEach(n => n.color = "fuchsia")
+
     }
     scaleCanvasWithVertex(maxX, maxY) {
         this.viewController.scaleCanvasWithVertex(maxX, maxY)
@@ -110,7 +112,7 @@ export default class MainPresenter extends Observable {
     }
 
     handleShortestTourButtonClicked() {
-        this.graph.highlightTour(this.graph.shortestTour, "orange")
+        this.graph.highlightTour(this.graph.shortestTour, "red")
         FileService.saveToJSON(this.graph.shortestTour, this.graph.tourLength(this.graph.shortestTour, true))
     }
 
