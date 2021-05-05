@@ -63,7 +63,6 @@ export default class Graph extends Observable {
         });
         let maxX = this.maxXPos(this.vertices)
         let maxY = this.maxYPos(this.vertices)
-        //this.presenter.scaleCanvasWithVertex(maxX, maxY)
         this.notify("scalingNotification", [maxX, maxY])
         return this;
     }
@@ -136,10 +135,7 @@ export default class Graph extends Observable {
         return this.edges;
     }
 
-    // Does not work when any of the vertices lies under p0
-    // Does not matter in our use case since p0 is the lowest, leftmost point
     sortVerticesByPolarAnglesWithVertex(p0, vertices) {
-        // TODO: Graham scan should only return the furthest point if two share the same polar angle
         let result = [...vertices];
         result = result.map((x) => [x, MathExtension.calculatePolarAngle(p0, x)]);
         result = result.sort((x, y) => x[1] - y[1]);
@@ -217,7 +213,6 @@ export default class Graph extends Observable {
     // If the length of the result equals 2 the triangles share an edge that may be flipped
     sharedTriangles(vertexA, vertexB) {
         let result = []
-        //Java style
         for (let triangleA of vertexA.triangles) {
             for (let triangleB of vertexB.triangles) {
                 if (triangleA === triangleB) {
@@ -467,13 +462,11 @@ export default class Graph extends Observable {
                     tmpTriangle.edges.push(this.edgeWithEndpoints(point, connectedVertices[i]))
                     tmpTriangle.edges.push(this.edgeWithEndpoints(point, connectedVertices[i + 1]))
                     tmpTriangle.edges.push(this.edgeWithEndpoints(connectedVertices[i], connectedVertices[i + 1]))
-                    // Do something with the trianlge
-                    // Remove all triangles for edge flipping that share exactly One edge with the final convex hull
                 }
 
                 resolve(hull)
                 return
-            }, Config.baseRateSpeed * 0.7) // Make speed dynamic with config
+            }, Config.baseRateSpeed * 0.7) 
         })
     }
 
@@ -567,7 +560,6 @@ export default class Graph extends Observable {
 
                                 // Else: Current edge is on the convex hull
                             } else {
-                                //console.log("If it said before it has an element in it thats bad")
                                 // Look at next edge
                                 i++
                             }
@@ -578,14 +570,7 @@ export default class Graph extends Observable {
             notFinishedWithAllTriangles = false
 
         }
-        // this code part is not executed 
-        /*
-        if (this.eulersFormular() === true) {
-            console.log("HOMEBOOY WE GOOD")
-        } else {
-            console.log("HUSTON WE GOT A PROBLEM")
-        }
-        */
+       
     }
 
 
@@ -762,7 +747,6 @@ export default class Graph extends Observable {
             // 
             if (setIndexOne === null || setIndexTwo === null) {
                 edgeIndex++
-                console.log("kann doch nicht sein")
             } else {
                 // both vertices have been found in listOfsets with their setID
                 // if their setID´s are unequal => merge the sets together 
@@ -810,28 +794,17 @@ export default class Graph extends Observable {
         let h = convexHull.length   //this.numberOfEdgesOnConvexHull()
         let eulerNumber = 3 * n - h - 3
 
-        console.log("N : ", n, "H : ", h)
-        console.log("eulerNumber 3 * n - h - 3 : ", eulerNumber)
         if (this.edges.length === eulerNumber) {
-            console.log("#edges:", this.edges.length)
             return true
         } else {
-            console.log("PROBLEM #edges:", this.edges.length)
 
             return false
         }
-        //return this.edges.count === eulerNumber ? true : false
 
     }
-    async euleTour() {
-        // DFS
-        // jumpen 
-    }
-
     dfs() {
         try {
             this.tour = MathExtension.dfsTour(this.mst)
-            console.log(this.tour)
         } catch (e) {
             console.log(e)
         }
@@ -864,9 +837,6 @@ export default class Graph extends Observable {
         let initTour = [...validEulertour]
         this.initialTour = initTour
 
-        console.log("Initial tour! of length: ", this.tourLength(validEulertour, true))
-        console.log("With nodes: ", validEulertour.length)
-
         // Find out how many points are on the convex hull. Because the tour is a curcuit, the number of possible skips
         // is equal to the number of points on the convex hull. You could also do that with the "isLeaf" property which equals Children.length = 0
 
@@ -884,10 +854,6 @@ export default class Graph extends Observable {
 
         let rotation = [...preorder]
 
-
-        //
-        // TODO: Test the for loop, could not do it yet because there were no nodes on the convex hull
-        //
 
         // What does this loop do?
         // This acts on the mst tour which is 2 length of mst. Nodes can still appear many times
@@ -951,21 +917,16 @@ export default class Graph extends Observable {
                 rotation = ogversion
             } else { console.log("Not using this one") }
         }
-        /*
-        allValidTours.forEach(attr => {
-            console.log("Found a tour with first element", attr[0])
-        })*/
+    
 
 
         // Now I have all valid eulertours in an array callded "allValidTours"
-        console.log("Finished rotating and skipping all tours, now starting Merge")
         this.mergeTourSet(allValidTours)
         // allValidTours
 
         // => First, find the shortest of those tours.
         // I think this shortest tour should be the "base" tour to improve upon. It could be the case that merging 2 longer tours
         // result in a tour that is ultimately shorter but guess what I dont care.
-        // TODO: Make some tea and think of a good way to merge these tours.
 
     }
 
@@ -974,7 +935,6 @@ export default class Graph extends Observable {
     mergeTourSet(tours) {
         let tmpTours = [...tours]
         // Rotate every so that id 0 is at first index. This makes it easier to compare and merge them.
-        console.log("Got ", tmpTours.length, " tours to merge!")
         for (let tour of tmpTours) {
             tour = this.rotateToFirstId(tour)
         }
@@ -982,13 +942,8 @@ export default class Graph extends Observable {
         // Now I should have all tours sorted by length. Now take the first one and merge them all.
         let shortestTour = tmpTours.shift()
         for (let tour of tmpTours) {
-            // @Deniz: @EDIT: glaube habe es gefixed, war ein error mit splice und dann hat er einfach ein array verändert auf das
-            // er eig nicht mehr hätte zugreifen sollen aber was auch immer..... habe jetzt einige male getestet und immer ohne
-            // Error, dafür ist das ergebnis teilweise nicht mehr so krass wie erhofft..
             shortestTour = this.mergeTours(shortestTour, tour)
         }
-        console.log("Got the shortest tour!")
-        console.log("it is of length: ", this.tourLength(shortestTour, true))
         this.shortestTour = shortestTour
         return shortestTour
     }
@@ -1039,7 +994,6 @@ export default class Graph extends Observable {
                 return tourA
             }
         } else { a.splice(indexOne + 1, 0, ...subsequenceA) }
-        console.log("Successfully merged two Tours! End of Function")
         return a.flat()
     }
 
@@ -1058,7 +1012,6 @@ export default class Graph extends Observable {
     rotateToFirstId(tour) {
         let hasIdOne = false
         for (let node of tour) {
-            //node.forEach(attr => console.log(attr))
             if (node.id === 1) {
                 hasIdOne = true
             }
@@ -1087,7 +1040,6 @@ export default class Graph extends Observable {
     }
 
     highlightTour(tour, color) {
-        console.log("Highlighting tour with nodes of count: ", tour.length)
         for (let i = 0; i < tour.length; i++) {
             if (i === tour.length - 1) {
                 let nodeA1 = tour[i]

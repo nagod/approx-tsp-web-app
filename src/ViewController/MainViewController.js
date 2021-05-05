@@ -84,7 +84,6 @@ export default class MainViewController extends React.Component {
         let width = rect.width - 70
         let height = rect.height - 70
         let factor = 0
-        console.log("Width: ", width, "Height: , ", height)
         if ((width / maxX) < (height / maxY)) {
             factor = width / maxX
         } else {
@@ -92,10 +91,6 @@ export default class MainViewController extends React.Component {
         }
         factor = Math.ceil(factor)
         ctx.scale(factor, factor)
-        console.log("Scaled by factor: ", factor)
-        /*let canvasView = document.getElementById("canvasView")
-        canvasView.scalingFactor *= factor
-        */
     }
 
     handleSaveGraphButtonClicked() {

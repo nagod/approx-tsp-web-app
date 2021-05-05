@@ -4,7 +4,6 @@ import MathExtension from "../Extensions/MathExtension"
 
 const graph = new Graph()
 it("calculates right turned normal vector", () => {
-    //const graph = new Graph()
     expect(graph.orthogonalVector({ xPos: 3, yPos: 7 })).toEqual({ xPos: 7, yPos: -3 })
     expect(graph.orthogonalVector({ xPos: -4, yPos: 5 })).toEqual({ xPos: 5, yPos: 4 })
     expect(graph.orthogonalVector({ xPos: -2, yPos: -12 })).toEqual({ xPos: -12, yPos: 2 })

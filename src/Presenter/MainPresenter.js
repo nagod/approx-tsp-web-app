@@ -28,14 +28,12 @@ export default class MainPresenter {
     }
     passData(text) {
         let jacksonOBJ = FileService.textToJason(text)
-        console.log(jacksonOBJ)
     }
 
     handleTriangulateButtonClicked() {
         this.graph.sHullTriangulation(this.graph.vertices)
     }
     handleEdgesButtonClicked() {
-        console.log(this.graph.edges)
         this.graph.edges.forEach(element => {
             element.color = "lightblue"
         });
@@ -64,7 +62,6 @@ export default class MainPresenter {
     handleSkippingButtonClicked() {
         this.graph.calculateSkippingTour(this.graph.tour)
     }
-    // TODO: Make dropdown, rename function and accept string to select example value
     //Read Data
     handleReadDataButtonClicked() {
         const data = FileService.getExampleByKey("example03");

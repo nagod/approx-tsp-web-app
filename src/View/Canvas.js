@@ -67,7 +67,6 @@ export default class Canvas extends React.Component {
     }
 
     notify(identifier, data) {
-        console.log("received notification with data: ", data)
         switch (identifier) {
             case "scalingNotification":
                 this.handleScalingNotification(data)
@@ -79,8 +78,6 @@ export default class Canvas extends React.Component {
     }
 
     handleScalingNotification(data) {
-        console.log("Got notification with scaling factor!", data)
-        // do something
         // Now you got the new scaling factor or something else in data, update the scaling respectively
         let scaleBack = 1 / this.scalingFactor
         this.ctx.scale(scaleBack, scaleBack)
@@ -91,7 +88,6 @@ export default class Canvas extends React.Component {
         let factor = 0
         let maxX = data[0]
         let maxY = data[1]
-        console.log("Width: ", width, "Height: , ", height)
         if ((width / maxX) < (height / maxY)) {
             factor = width / maxX
         } else {
@@ -125,7 +121,6 @@ export default class Canvas extends React.Component {
 
         for (let vertex of this.viewController.presenter.graph.vertices) {
             if (this.isIntersect(mousePos, vertex)) {
-                console.log("recognized one click")
                 this.currentVertex = vertex
                 this.canvas.addEventListener("mousemove", this.handleMouseMove);
                 this.canvas.addEventListener("mouseup", this.handleMouseUp)
